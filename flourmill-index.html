@@ -1,0 +1,1924 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>اغا جان سائیکلون آٹا چکی</title>
+<link rel="manifest" href="manifest.json">
+<script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+  :root{
+    --navy:#122a43;
+    --navy2:#1c3f61;
+    --amber:#e08a2c;
+    --amber-dark:#c76f16;
+    --cream:#fbf7f0;
+    --card:#ffffff;
+    --ink:#1a2430;
+    --muted:#6b7684;
+    --line:#e7e1d6;
+    --green:#1f8a52;
+    --red:#c0392b;
+    --radius:14px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    font-family: 'Segoe UI', Tahoma, 'Noto Sans Arabic', sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    direction:rtl;
+    overscroll-behavior-y: contain;
+  }
+  #app{max-width:520px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:var(--cream);}
+
+  /* Header */
+  header.topbar{
+    background:linear-gradient(135deg,var(--navy),var(--navy2));
+    color:#fff;padding:16px 18px 20px;
+    position:sticky;top:0;z-index:20;
+    box-shadow:0 4px 14px rgba(18,42,67,.25);
+  }
+  header.topbar .row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  header.topbar .brand{display:flex;align-items:center;gap:10px;}
+  header.topbar .logo{width:38px;height:38px;flex:none;}
+  header.topbar h1{font-size:17px;margin:0;font-weight:800;letter-spacing:.2px;}
+  header.topbar .sub{font-size:11px;opacity:.75;margin-top:2px;}
+  header.topbar .screenTitle{font-size:20px;font-weight:800;margin-top:10px;}
+  .iconbtn{background:rgba(255,255,255,.14);border:none;color:#fff;border-radius:10px;width:38px;height:38px;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  .iconbtn:active{background:rgba(255,255,255,.28);}
+
+  main{flex:1;padding:14px 14px 96px;overflow-y:auto;}
+
+  /* Bottom nav */
+  nav.bottomnav{
+    position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+    width:100%;max-width:520px;background:#fff;
+    border-top:1px solid var(--line);
+    display:flex;justify-content:space-around;align-items:stretch;
+    padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+    z-index:30; box-shadow:0 -4px 18px rgba(0,0,0,.06);
+  }
+  nav.bottomnav button{
+    background:none;border:none;flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+    padding:6px 2px;color:var(--muted);font-size:10.5px;font-weight:600;cursor:pointer;border-radius:10px;
+  }
+  nav.bottomnav button .ic{font-size:20px;}
+  nav.bottomnav button.active{color:var(--amber-dark);}
+  nav.bottomnav button.active .ic{transform:translateY(-1px);}
+
+  /* Cards & common */
+  .card{background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(20,30,45,.06);border:1px solid var(--line);}
+  .card h3{margin:0 0 10px;font-size:14px;color:var(--navy);}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .stat{background:var(--card);border-radius:var(--radius);padding:14px;border:1px solid var(--line);box-shadow:0 2px 10px rgba(20,30,45,.05);}
+  .stat .label{font-size:11.5px;color:var(--muted);margin-bottom:6px;}
+  .stat .value{font-size:19px;font-weight:800;color:var(--navy);}
+  .stat.warn .value{color:var(--red);}
+  .stat.good .value{color:var(--green);}
+
+  label{display:block;font-size:12.5px;color:var(--muted);margin:10px 0 5px;font-weight:600;}
+  input[type=text],input[type=number],input[type=date],input[type=tel],select,textarea{
+    width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:15px;
+    background:#fff;color:var(--ink);font-family:inherit;
+  }
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--amber);}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 16px;border-radius:12px;border:none;font-size:14.5px;font-weight:700;cursor:pointer;width:100%;}
+  .btn-primary{background:var(--amber);color:#fff;}
+  .btn-primary:active{background:var(--amber-dark);}
+  .btn-navy{background:var(--navy);color:#fff;}
+  .btn-outline{background:#fff;border:1.5px solid var(--line);color:var(--navy);}
+  .btn-green{background:var(--green);color:#fff;}
+  .btn-red{background:var(--red);color:#fff;}
+  .btn-sm{padding:8px 12px;font-size:13px;width:auto;}
+  .btn-row{display:flex;gap:8px;}
+  .seg{display:flex;background:#f1ede4;border-radius:12px;padding:4px;gap:4px;}
+  .seg button{flex:1;padding:10px 6px;border:none;background:transparent;border-radius:9px;font-weight:700;font-size:13.5px;color:var(--muted);cursor:pointer;}
+  .seg button.on{background:var(--navy);color:#fff;}
+
+  .list-item{display:flex;align-items:center;justify-content:space-between;padding:12px 4px;border-bottom:1px solid var(--line);}
+  .list-item:last-child{border-bottom:none;}
+  .list-item .name{font-weight:700;font-size:14.5px;}
+  .list-item .meta{font-size:12px;color:var(--muted);margin-top:2px;}
+  .badge{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:700;}
+  .badge.due{background:#fdecea;color:var(--red);}
+  .badge.ok{background:#e9f7ef;color:var(--green);}
+  .badge.low{background:#fff4e0;color:var(--amber-dark);}
+
+  .searchbar{display:flex;gap:8px;margin-bottom:12px;}
+  .searchbar input{flex:1;}
+
+  .fab{
+    position:fixed;left:18px;bottom:86px;z-index:25;
+    width:54px;height:54px;border-radius:50%;background:var(--amber);color:#fff;border:none;
+    font-size:26px;box-shadow:0 6px 16px rgba(224,138,44,.5);cursor:pointer;
+  }
+
+  .overlay{position:fixed;inset:0;background:rgba(15,20,28,.5);z-index:50;display:flex;align-items:flex-end;justify-content:center;}
+  .confirm-overlay{position:fixed;inset:0;background:rgba(15,20,28,.55);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .confirm-box{background:#fff;border-radius:16px;padding:20px;max-width:340px;width:100%;text-align:center;}
+  .confirm-box p{font-size:15px;margin:6px 0 18px;line-height:1.6;}
+  .confirm-box .btn-row{display:flex;gap:10px;}
+  .confirm-box .btn-row button{flex:1;}
+  .sheet{background:#fff;width:100%;max-width:520px;border-radius:20px 20px 0 0;max-height:88vh;overflow-y:auto;padding:18px;animation:up .2s ease;}
+  @keyframes up{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .sheet .sheethead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .sheet h2{font-size:17px;margin:0;color:var(--navy);}
+  .closebtn{background:#f1ede4;border:none;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;}
+
+  .cartline{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px dashed var(--line);}
+  .cartline .ci-name{flex:1;font-size:13.5px;font-weight:600;}
+  .cartline .ci-qty{width:56px;}
+  .cartline .ci-total{width:66px;text-align:left;font-weight:700;font-size:13px;}
+  .cartline .rm{background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;}
+
+  .totalsbox{background:#f7f3ea;border-radius:12px;padding:12px;margin-top:10px;}
+  .totalsbox .tr{display:flex;justify-content:space-between;font-size:14px;padding:3px 0;}
+  .totalsbox .tr.grand{font-weight:800;font-size:17px;color:var(--navy);border-top:1px dashed #d8cfba;margin-top:6px;padding-top:8px;}
+
+  .empty{text-align:center;padding:30px 10px;color:var(--muted);}
+  .empty .ic{font-size:38px;margin-bottom:8px;}
+
+  .invoice-preview{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;}
+  .invoice-preview .ihead{text-align:center;margin-bottom:10px;}
+  .invoice-preview .ihead h2{margin:0;color:var(--navy);font-size:17px;}
+  .invoice-preview .ihead .addr{font-size:11.5px;color:var(--muted);}
+  .invoice-preview table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;}
+  .invoice-preview th{background:#f1ede4;padding:6px;font-size:11.5px;}
+  .invoice-preview td{padding:6px;border-bottom:1px solid #eee;}
+
+  .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 18px;border-radius:30px;font-size:13px;z-index:80;box-shadow:0 4px 14px rgba(0,0,0,.25);}
+
+  .wa{background:#25D366;color:#fff;}
+  #scannerViewport{position:relative;width:100%;border-radius:12px;overflow:hidden;background:#000;min-height:260px;}
+  #scannerViewport video,#scannerViewport canvas{width:100%!important;height:auto!important;display:block;}
+  #scannerViewport .drawingBuffer{position:absolute;top:0;left:0;}
+  .scan-line{position:absolute;left:6%;right:6%;top:50%;height:2px;background:var(--amber);box-shadow:0 0 8px var(--amber);z-index:5;}
+
+  /* PIN lock */
+  #lockRoot:empty{display:none;}
+  .lockwrap{position:fixed;inset:0;z-index:200;background:linear-gradient(135deg,var(--navy),var(--navy2));display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;padding:20px;}
+  .lockwrap h2{margin:0 0 4px;font-size:18px;font-weight:800;}
+  .lockwrap .sub{font-size:12.5px;opacity:.75;margin-bottom:22px;}
+  .lock-dots{display:flex;gap:14px;margin-bottom:26px;}
+  .lock-dots span{width:15px;height:15px;border-radius:50%;border:1.5px solid rgba(255,255,255,.6);background:transparent;}
+  .lock-dots span.filled{background:var(--amber);border-color:var(--amber);}
+  .lock-err{color:#ff9d8a;font-size:12.5px;min-height:16px;margin-bottom:10px;}
+  .lock-keypad{display:grid;grid-template-columns:repeat(3,72px);gap:14px;}
+  .lock-keypad button{width:72px;height:72px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font-size:22px;font-weight:700;cursor:pointer;}
+  .lock-keypad button:active{background:rgba(255,255,255,.22);}
+  .lock-keypad button.wide{font-size:14px;}
+  .lock-logo{width:56px;height:56px;border-radius:16px;background:var(--amber);display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:14px;}
+  .customerRow{display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer;}
+  .avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--navy2),var(--navy));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex:none;box-shadow:0 3px 8px rgba(18,42,67,.35);}
+  .bank-avatar{width:40px;height:40px;border-radius:12px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex:none;box-shadow:0 3px 8px rgba(0,0,0,.22);}
+  .flexrow{display:flex;align-items:center;gap:10px;}
+
+  select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236b7684'><path d='M7 10l5 5 5-5z'/></svg>");background-repeat:no-repeat;background-position:8px center;padding-left:30px;}
+
+  @media print{
+    body *{visibility:hidden;}
+    #printArea, #printArea *{visibility:visible;}
+    #printArea{position:absolute;top:0;left:0;width:100%;}
+  }
+</style>
+</head>
+<body>
+<div id="lockRoot"></div>
+<div id="app">
+  <header class="topbar">
+    <div class="row">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 48 48" fill="none">
+          <defs>
+            <linearGradient id="logoBg" x1="4" y1="2" x2="44" y2="46" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#e8c25a"/>
+              <stop offset="100%" stop-color="#b8860f"/>
+            </linearGradient>
+            <linearGradient id="logoCar" x1="10" y1="10" x2="38" y2="40" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#3d5a24"/>
+              <stop offset="100%" stop-color="#1e3010"/>
+            </linearGradient>
+          </defs>
+          <circle cx="24" cy="24" r="23" fill="url(#logoBg)"/>
+          <ellipse cx="17" cy="11.5" rx="11" ry="5" fill="#ffffff" opacity=".16"/>
+          <path d="M24 10v24" stroke="url(#logoCar)" stroke-width="2.3" stroke-linecap="round"/>
+          <path d="M24 15c-3-3-7-3-9-1 2 3 6 4 9 2z" fill="url(#logoCar)"/>
+          <path d="M24 15c3-3 7-3 9-1-2 3-6 4-9 2z" fill="url(#logoCar)"/>
+          <path d="M24 22c-3-3-7-3-9-1 2 3 6 4 9 2z" fill="url(#logoCar)"/>
+          <path d="M24 22c3-3 7-3 9-1-2 3-6 4-9 2z" fill="url(#logoCar)"/>
+          <path d="M24 29c-3-3-7-3-9-1 2 3 6 4 9 2z" fill="url(#logoCar)"/>
+          <path d="M24 29c3-3 7-3 9-1-2 3-6 4-9 2z" fill="url(#logoCar)"/>
+        </svg>
+        <div>
+          <h1 id="shopNameHdr">اغا جان سائیکلون آٹا چکی</h1>
+          <div class="sub" id="shopAddrHdr">دکان مینجر</div>
+        </div>
+      </div>
+      <button class="iconbtn" onclick="openSettings()">⚙️</button>
+    </div>
+    <div class="screenTitle" id="screenTitle">ڈیش بورڈ</div>
+  </header>
+
+  <main id="main"></main>
+
+  <button class="fab" id="fabBtn" onclick="fabAction()">+</button>
+
+  <nav class="bottomnav">
+    <button data-tab="dash" onclick="go('dash')"><span class="ic">🏠</span>ڈیش بورڈ</button>
+    <button data-tab="pos" onclick="go('pos')"><span class="ic">🧾</span>نئی سیل</button>
+    <button data-tab="stock" onclick="go('stock')"><span class="ic">📦</span>انوینٹری</button>
+    <button data-tab="customers" onclick="go('customers')"><span class="ic">👥</span>کسٹمرز</button>
+    <button data-tab="more" onclick="go('more')"><span class="ic">☰</span>مزید</button>
+  </nav>
+</div>
+
+<div id="overlayRoot"></div>
+<div id="confirmRoot"></div>
+<div id="printArea" style="display:none"></div>
+
+<script>
+/* ===================== STATE / STORAGE ===================== */
+let DB = null;
+const STORAGE_KEY = 'agajaan_atta_chakki_data_v1';
+
+function defaultDB(){
+  return {
+    shop:{ name:'اغا جان سائیکلون آٹا چکی', address:'', phone:'', pin:'' },
+    items:[], customers:[], banks:[], sales:[], purchases:[],
+    cashEntries:[], bankEntries:[], collections:[], trash:[],
+    amanatPersons:[], amanatEntries:[],
+    invoiceCounter: 0
+  };
+}
+
+const hasCloudStorage = (typeof window.storage !== 'undefined' && window.storage && typeof window.storage.get === 'function');
+let cloudWorks = false;
+
+/* ---- Firebase (live cross-device sync) ---- */
+const firebaseConfig = {
+  apiKey: "AIzaSyBI-a4Dhp7biziLSGe64yXdZqrPNXj0G7I",
+  authDomain: "kaleem-auto-mobile.firebaseapp.com",
+  projectId: "kaleem-auto-mobile",
+  storageBucket: "kaleem-auto-mobile.firebasestorage.app",
+  messagingSenderId: "13650254950",
+  appId: "1:13650254950:web:5af9e01e3e5d6a0ac5a1a7",
+  measurementId: "G-KW36F6F5YW"
+};
+let fbDb=null, hasFirebase=false, unsubscribeFB=null;
+try{
+  if(typeof firebase!=='undefined'){
+    firebase.initializeApp(firebaseConfig);
+    fbDb = firebase.firestore();
+    hasFirebase = true;
+  }
+}catch(e){ console.error('Firebase init failed', e); }
+function FB_DOC(){ return fbDb.collection('shops').doc('agajaan-atta-chakki'); }
+const deviceId = (function(){
+  let id=null;
+  try{ id = localStorage.getItem('kaleem_device_id'); }catch(e){}
+  if(!id){ id = 'dev_'+Math.random().toString(36).slice(2,10); try{ localStorage.setItem('kaleem_device_id', id); }catch(e){} }
+  return id;
+})();
+let lastLocalWriteStamp=0;
+function startFBListener(){
+  if(unsubscribeFB || !hasFirebase) return;
+  unsubscribeFB = FB_DOC().onSnapshot(function(snap){
+    if(!snap.exists) return;
+    const data=snap.data();
+    if(!data || !data.db) return;
+    if(data.updatedBy===deviceId && data.updatedAt===lastLocalWriteStamp) return;
+    try{
+      const remote=JSON.parse(data.db);
+      remote.items=remote.items||[]; remote.customers=remote.customers||[]; remote.banks=remote.banks||[];
+      remote.sales=remote.sales||[]; remote.purchases=remote.purchases||[]; remote.cashEntries=remote.cashEntries||[];
+      remote.bankEntries=remote.bankEntries||[]; remote.collections=remote.collections||[]; remote.invoiceCounter=remote.invoiceCounter||0;
+      remote.trash=remote.trash||[];
+      remote.amanatPersons=remote.amanatPersons||[]; remote.amanatEntries=remote.amanatEntries||[];
+      remote.shop=remote.shop||defaultDB().shop;
+      DB=remote;
+      try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }catch(e){}
+      cloudWorks=true;
+      const overlayEmpty = !document.getElementById('overlayRoot') || !document.getElementById('overlayRoot').innerHTML.trim();
+      if(overlayEmpty && !isLocked()){ render(); }
+    }catch(e){ console.error('Firestore apply failed', e); }
+  }, function(err){ console.error('Firestore listen error', err); });
+}
+
+async function loadDB(){
+  let loaded=null;
+  if(hasFirebase){
+    try{
+      const snap = await withTimeout(FB_DOC().get(), 6000);
+      if(snap.exists && snap.data().db){ loaded=JSON.parse(snap.data().db); cloudWorks=true; }
+    }catch(e){ console.error('Firestore load failed/timed out', e); }
+  }
+  if(!loaded && hasCloudStorage){
+    try{
+      const res = await withTimeout(window.storage.get(STORAGE_KEY, false), 6000);
+      if(res && res.value){ loaded=JSON.parse(res.value); cloudWorks=true; }
+    }catch(e){}
+  }
+  let local=null;
+  try{ const raw=localStorage.getItem(STORAGE_KEY); if(raw) local=JSON.parse(raw); }catch(e){}
+  if(!loaded) loaded = local;
+  DB = loaded || defaultDB();
+  DB.items=DB.items||[]; DB.customers=DB.customers||[]; DB.banks=DB.banks||[];
+  DB.sales=DB.sales||[]; DB.purchases=DB.purchases||[]; DB.cashEntries=DB.cashEntries||[];
+  DB.bankEntries=DB.bankEntries||[]; DB.collections=DB.collections||[]; DB.invoiceCounter=DB.invoiceCounter||0;
+  DB.trash=DB.trash||[];
+  DB.amanatPersons=DB.amanatPersons||[]; DB.amanatEntries=DB.amanatEntries||[];
+  if(hasFirebase) startFBListener();
+}
+let formSubmitting=false;
+function lockSubmit(){ if(formSubmitting) return false; formSubmitting=true; return true; }
+function unlockSubmit(){ formSubmitting=false; }
+let cloudSyncQueued=false, cloudSyncTimer=null;
+// Plain, synchronous function — NOT async, NO internal await. Guarantees the
+// local save (and anything after it in the caller) never waits on the network
+// or on a browser-throttled promise/microtask, even in odd connectivity states.
+function saveDB(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }catch(e){}
+  const dbJson = JSON.stringify(DB);
+  clearTimeout(cloudSyncTimer);
+  cloudSyncTimer = setTimeout(function(){ syncToCloudBackground(dbJson); }, 0);
+}
+function withTimeout(promise, ms){
+  return Promise.race([
+    promise,
+    new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')), ms))
+  ]);
+}
+async function syncToCloudBackground(dbJson){
+  if(hasFirebase){
+    try{
+      lastLocalWriteStamp = Date.now();
+      await withTimeout(FB_DOC().set({ db: dbJson, updatedBy: deviceId, updatedAt: lastLocalWriteStamp }), 8000);
+      cloudWorks=true;
+    }catch(e){ console.error('Firestore save failed/timed out', e); }
+  }
+  if(hasCloudStorage){
+    try{ await withTimeout(window.storage.set(STORAGE_KEY, dbJson, false), 8000); cloudWorks=true; }
+    catch(e){}
+  }
+}
+
+function downloadBackup(){
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const stamp=new Date().toISOString().slice(0,10);
+  a.href=url; a.download='kaleem-auto-mobile-backup-'+stamp+'.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  toast('📁 بیک اپ فائل ڈاؤن لوڈ ہو گئی');
+}
+function triggerRestore(){ document.getElementById('restoreFileInput').click(); }
+async function restoreFromFile(evt){
+  const file=evt.target.files[0]; if(!file) return;
+  try{
+    const text=await file.text();
+    const parsed=JSON.parse(text);
+    if(!parsed || !Array.isArray(parsed.items)) throw new Error('invalid');
+    if(!(await customConfirm('موجودہ ڈیٹا اس بیک اپ فائل سے بدل دیا جائے گا۔ جاری رکھیں؟'))) return;
+    DB=parsed; await saveDB(); toast('✅ بیک اپ واپس آ گیا'); render();
+  }catch(e){ toast('⚠️ یہ فائل صحیح بیک اپ نہیں ہے'); }
+  evt.target.value='';
+}
+
+/* ===================== UTIL ===================== */
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function todayStr(){ const d=new Date(); return d.toISOString().slice(0,10); }
+function fmtDate(s){ if(!s) return ''; const d=new Date(s); return d.toLocaleDateString('ur-PK',{year:'numeric',month:'2-digit',day:'2-digit'}); }
+function fmtTime(ts){ if(!ts) return ''; const d=new Date(ts); return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true}); }
+function fmtDateTime(dateStr,ts){ return fmtDate(dateStr) + (ts?' • '+fmtTime(ts):''); }
+function money(n){ n=Number(n)||0; return n.toLocaleString('en-US',{maximumFractionDigits:2}); }
+function toast(msg){
+  const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2200);
+}
+function waLink(phone,text){
+  let p=(phone||'').replace(/[^0-9]/g,'');
+  if(p.startsWith('0')) p='92'+p.slice(1);
+  if(!p.startsWith('92') && p.length===10) p='92'+p;
+  return 'https://wa.me/'+p+'?text='+encodeURIComponent(text);
+}
+function itemById(id){ return DB.items.find(i=>i.id===id); }
+function custById(id){ return DB.customers.find(c=>c.id===id); }
+function bankById(id){ return DB.banks.find(b=>b.id===id); }
+
+/* customer computed balance */
+function custDue(c){
+  let due = Number(c.openingDue)||0;
+  DB.sales.forEach(s=>{ if(s.customerId===c.id && s.paymentType==='ادھار') due += s.netTotal; });
+  DB.collections.forEach(col=>{ if(col.customerId===c.id) due -= Number(col.amount)||0; });
+  return due;
+}
+function cashBalance(){
+  let bal = 0;
+  DB.cashEntries.forEach(e=>{ bal += (Number(e.in)||0) - (Number(e.out)||0); });
+  DB.sales.forEach(s=>{ if(s.paymentType==='نقد') bal += s.netTotal; });
+  DB.purchases.forEach(p=>{ if(p.paymentType==='نقد') bal -= p.total; });
+  return bal;
+}
+function bankBalance(bankId){
+  let bal=0;
+  DB.bankEntries.forEach(e=>{ if(e.bankId===bankId) bal += (Number(e.in)||0)-(Number(e.out)||0); });
+  DB.sales.forEach(s=>{ if(s.paymentType==='بینک' && s.bankId===bankId) bal += s.netTotal; });
+  DB.purchases.forEach(p=>{ if(p.paymentType==='بینک' && p.bankId===bankId) bal -= p.total; });
+  return bal;
+}
+function totalBankBalance(){ return DB.banks.reduce((a,b)=>a+bankBalance(b.id),0); }
+function totalDue(){ return DB.customers.reduce((a,c)=>a+custDue(c),0); }
+function stockValue(){ return DB.items.reduce((a,i)=>a+(Number(i.stock)||0)*(Number(i.costPrice)||0),0); }
+
+/* ===================== NAV ===================== */
+let currentTab='dash';
+function go(tab){
+  currentTab=tab;
+  document.querySelectorAll('nav.bottomnav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  const titles={dash:'ڈیش بورڈ', pos:'نئی سیل بنائیں', stock:'انوینٹری', customers:'کسٹمرز', more:'مزید آپشنز'};
+  document.getElementById('screenTitle').textContent = titles[tab]||'';
+  const fab=document.getElementById('fabBtn');
+  fab.style.display = (tab==='stock'||tab==='customers') ? 'flex' : 'none';
+  render();
+}
+function fabAction(){
+  if(currentTab==='stock') openItemForm();
+  if(currentTab==='customers') openCustomerForm();
+}
+
+function render(){
+  const main=document.getElementById('main');
+  document.getElementById('shopNameHdr').textContent = DB.shop.name;
+  document.getElementById('shopAddrHdr').textContent = DB.shop.address;
+  if(currentTab==='dash') return renderDash(main);
+  if(currentTab==='pos') return renderPOS(main);
+  if(currentTab==='stock') return renderStock(main);
+  if(currentTab==='customers') return renderCustomers(main);
+  if(currentTab==='more') return renderMore(main);
+}
+
+/* ===================== DASHBOARD ===================== */
+function renderDash(main){
+  const lowStock = DB.items.filter(i=> (Number(i.stock)||0) <= (Number(i.reorderLevel)||0));
+  const todaySales = DB.sales.filter(s=>s.date===todayStr()).reduce((a,s)=>a+s.netTotal,0);
+  main.innerHTML = `
+    <div class="grid2">
+      <div class="stat good"><div class="label">آج کی فروخت</div><div class="value">${money(todaySales)}</div></div>
+      <div class="stat"><div class="label">کیش بیلنس</div><div class="value">${money(cashBalance())}</div></div>
+      <div class="stat"><div class="label">بینک بیلنس (سب)</div><div class="value">${money(totalBankBalance())}</div></div>
+      <div class="stat warn"><div class="label">کل بقایا (ادھار)</div><div class="value">${money(totalDue())}</div></div>
+      <div class="stat"><div class="label">اسٹاک کی مالیت</div><div class="value">${money(stockValue())}</div></div>
+      <div class="stat ${lowStock.length? 'warn':'good'}"><div class="label">کم اسٹاک آئٹمز</div><div class="value">${lowStock.length}</div></div>
+    </div>
+    ${lowStock.length? `<div class="card"><h3>⚠️ کم اسٹاک آئٹمز</h3>${lowStock.map(i=>`
+      <div class="list-item"><div><div class="name">${esc(i.name)}</div><div class="meta">باقی: ${i.stock}</div></div><span class="badge low">دوبارہ منگوائیں</span></div>`).join('')}</div>`:''}
+    <div class="card">
+      <h3>🕓 حالیہ سیلز</h3>
+      ${recentSalesHTML()}
+    </div>
+    <div class="btn-row" style="margin-top:4px;">
+      <button class="btn btn-primary" onclick="go('pos')">🧾 نئی سیل بنائیں</button>
+    </div>
+  `;
+}
+function recentSalesHTML(){
+  const list=[...DB.sales].sort((a,b)=>b.createdAt-a.createdAt).slice(0,5);
+  if(!list.length) return `<div class="empty"><div class="ic">🧾</div>ابھی کوئی سیل نہیں ہوئی</div>`;
+  return list.map(s=>{
+    const c=custById(s.customerId);
+    return `<div class="list-item" onclick="showInvoice(DB.sales.find(x=>x.id==='${s.id}'))" style="cursor:pointer;"><div><div class="name">${esc(c?c.name:'واک اِن گاہک')} — ${s.invoiceNo}</div>
+      <div class="meta">${fmtDate(s.date)} • ${s.paymentType}</div></div><div style="font-weight:800;">${money(s.netTotal)}</div></div>`;
+  }).join('');
+}
+
+/* ===================== POS ===================== */
+let cart=[];
+let posCustomerId=null, posPayType='نقد', posBankId=null;
+let editingSaleId=null, editingSaleDiscount=0;
+let posSignature=null, posBillImage=null;
+function renderPOS(main){
+  main.innerHTML = `
+    ${editingSaleId?`<div class="card" style="background:#fff7e6;border:1px solid #f0c36d;"><b>✏️ بل میں ترمیم ہو رہی ہے</b> — محفوظ کرنے پر پرانا بل اپڈیٹ ہو جائے گا۔ <button class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="cancelEditSale()">❌ ترمیم منسوخ کریں</button></div>`:''}
+    <div class="card">
+      <label>کسٹمر</label>
+      <select id="posCust" onchange="posCustomerId=this.value">
+        <option value="">— واک اِن گاہک (بغیر نام) —</option>
+        ${DB.customers.map(c=>`<option value="${c.id}" ${posCustomerId===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}
+      </select>
+      <button class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="openCustomerForm(true)">+ نیا کسٹمر شامل کریں</button>
+    </div>
+
+    <div class="card">
+      <label>آئٹم شامل کریں</label>
+      <input type="text" id="posItemSearch" placeholder="آئٹم کا نام یا بارکوڈ لکھیں..." autocomplete="off" oninput="filterPosItems(this.value)" onfocus="filterPosItems(this.value)">
+      <div id="posItemResults" style="position:relative;"></div>
+      <div class="btn-row" style="margin-top:8px;">
+        <input type="number" id="posQty" placeholder="مقدار" value="1" step="0.01" style="max-width:120px;">
+        <button class="btn btn-navy" onclick="addToCart()">➕ کارٹ میں شامل کریں</button>
+      </div>
+      <div class="btn-row" style="margin-top:6px;gap:6px;">
+        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="setPosQty(1)">1</button>
+        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="setPosQty(5)">5 کلو</button>
+        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="setPosQty(10)">10 کلو</button>
+        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="setPosQty(20)">20 کلو</button>
+      </div>
+      <button class="btn btn-outline" style="margin-top:8px;" onclick="scanPOSItem()">📷 بارکوڈ اسکین کر کے شامل کریں</button>
+      <button class="btn btn-outline" style="margin-top:8px;" onclick="openGrindingToCartForm()">🌾 پسائی شامل کریں</button>
+    </div>
+
+    <div class="card">
+      <h3>🛒 کارٹ</h3>
+      <div id="cartBox">${cartHTML()}</div>
+    </div>
+
+    <div class="card">
+      <label>ادائیگی کی قسم</label>
+      <div class="seg" id="paySeg">
+        <button class="${posPayType==='نقد'?'on':''}" onclick="setPayType('نقد')">نقد</button>
+        <button class="${posPayType==='بینک'?'on':''}" onclick="setPayType('بینک')">بینک</button>
+        <button class="${posPayType==='ادھار'?'on':''}" onclick="setPayType('ادھار')">ادھار</button>
+      </div>
+      ${posPayType==='بینک' ? `
+        <label>بینک منتخب کریں</label>
+        <select id="posBank" onchange="posBankId=this.value">
+          <option value="">— بینک —</option>
+          ${DB.banks.map(b=>`<option value="${b.id}" ${posBankId===b.id?'selected':''}>${esc(b.name)}</option>`).join('')}
+        </select>` : ''}
+      <label>ڈسکاؤنٹ (روپے)</label>
+      <input type="number" id="posDiscount" value="${editingSaleDiscount||0}" step="0.01">
+    </div>
+
+    ${posPayType==='ادھار' ? `
+    <div class="card">
+      <label>کسٹمر کے دستخط</label>
+      <canvas id="sigPad" style="width:100%;height:140px;border:1.5px dashed var(--line);border-radius:10px;touch-action:none;background:#fff;"></canvas>
+      <button class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="clearSignature()">🧹 دستخط صاف کریں</button>
+    </div>` : ''}
+
+    <div class="card">
+      <label>بل کی تصویر (اختیاری)</label>
+      ${posBillImage ? `<img src="${posBillImage}" style="max-width:100%;border-radius:10px;margin-bottom:8px;">
+      <button class="btn btn-outline btn-sm" onclick="posBillImage=null; renderPOS(document.getElementById('main'))">🗑️ تصویر ہٹائیں</button>`
+      : `<input type="file" accept="image/*" capture="environment" id="billPhotoInputCam" style="display:none;" onchange="capturePOSBillPhoto(this)">
+      <input type="file" accept="image/*" id="billPhotoInputGal" style="display:none;" onchange="capturePOSBillPhoto(this)">
+      <div class="btn-row">
+        <button class="btn btn-outline" style="flex:1;" onclick="document.getElementById('billPhotoInputCam').click()">📷 کیمرہ</button>
+        <button class="btn btn-outline" style="flex:1;" onclick="document.getElementById('billPhotoInputGal').click()">🖼️ گیلری</button>
+      </div>`}
+    </div>
+
+    <button class="btn btn-primary" style="margin-top:4px;" onclick="finalizeSale()">${editingSaleId?'✅ ترمیم محفوظ کریں':'✅ سیل مکمل کریں اور بل بنائیں'}</button>
+  `;
+  if(posPayType==='ادھار') initSignaturePad();
+}
+function initSignaturePad(){
+  const canvas=document.getElementById('sigPad');
+  if(!canvas) return;
+  const ratio=window.devicePixelRatio||1;
+  canvas.width=canvas.clientWidth*ratio; canvas.height=canvas.clientHeight*ratio;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(ratio,ratio); ctx.lineWidth=2; ctx.lineCap='round'; ctx.strokeStyle='#1a1a2e';
+  if(posSignature){ const img=new Image(); img.onload=()=>ctx.drawImage(img,0,0,canvas.clientWidth,canvas.clientHeight); img.src=posSignature; }
+  let drawing=false, last=null;
+  function pos(e){ const r=canvas.getBoundingClientRect(); const t=e.touches?e.touches[0]:e; return {x:t.clientX-r.left, y:t.clientY-r.top}; }
+  function start(e){ drawing=true; last=pos(e); e.preventDefault(); }
+  function move(e){ if(!drawing) return; const p=pos(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; e.preventDefault(); }
+  function end(){ if(!drawing) return; drawing=false; posSignature=canvas.toDataURL('image/png'); }
+  canvas.addEventListener('mousedown',start); canvas.addEventListener('mousemove',move); canvas.addEventListener('mouseup',end); canvas.addEventListener('mouseleave',end);
+  canvas.addEventListener('touchstart',start); canvas.addEventListener('touchmove',move); canvas.addEventListener('touchend',end);
+}
+function clearSignature(){
+  posSignature=null;
+  const canvas=document.getElementById('sigPad');
+  if(canvas){ const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); }
+}
+function capturePOSBillPhoto(input){
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=new Image();
+    img.onload=function(){
+      const maxW=800; const scale=Math.min(1,maxW/img.width);
+      const cv=document.createElement('canvas'); cv.width=img.width*scale; cv.height=img.height*scale;
+      cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+      posBillImage=cv.toDataURL('image/jpeg',0.6);
+      renderPOS(document.getElementById('main'));
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function cartHTML(){
+  if(!cart.length) return `<div class="empty"><div class="ic">🛒</div>ابھی کارٹ خالی ہے</div>`;
+  let rows = cart.map((c,idx)=>`
+    <div class="cartline">
+      <div class="ci-name">${esc(c.name)}<br><span style="color:var(--muted);font-size:11.5px;">@${money(c.price)}</span></div>
+      <input class="ci-qty" type="number" step="0.01" value="${c.qty}" onchange="updateCartQty(${idx},this.value)">
+      <div class="ci-total">${money(c.qty*c.price)}</div>
+      <button class="rm" onclick="removeFromCart(${idx})">✕</button>
+    </div>`).join('');
+  const subtotal = cart.reduce((a,c)=>a+c.qty*c.price,0);
+  return rows + `<div class="totalsbox"><div class="tr"><span>سب ٹوٹل</span><span>${money(subtotal)}</span></div></div>`;
+}
+function setPosQty(v){ document.getElementById('posQty').value=v; }
+let posSelectedItemId=null;
+function filterPosItems(q){
+  const box=document.getElementById('posItemResults');
+  if(!box) return;
+  q=(q||'').trim();
+  if(!q){ box.innerHTML=''; return; }
+  const matches = DB.items.filter(i=> i.name.toLowerCase().includes(q.toLowerCase()) || (i.barcode||'').includes(q)).slice(0,8);
+  box.innerHTML = matches.length
+    ? `<div style="position:absolute;left:0;right:0;top:2px;background:#fff;border:1.5px solid var(--line);border-radius:10px;z-index:20;max-height:260px;overflow-y:auto;box-shadow:0 4px 14px rgba(0,0,0,.12);">
+        ${matches.map(i=>`<div class="list-item" style="padding:10px 12px;" onclick="selectPosItem('${i.id}')">
+          <div>${i.photo?`<img src="${i.photo}" style="width:32px;height:32px;object-fit:cover;border-radius:6px;margin-inline-end:8px;vertical-align:middle;">`:''}<span class="name">${esc(i.name)}</span><div class="meta">اسٹاک: ${i.stock} • قیمت: ${money(i.salePrice)}</div></div>
+        </div>`).join('')}
+       </div>`
+    : `<div style="position:absolute;left:0;right:0;top:2px;background:#fff;border:1.5px solid var(--line);border-radius:10px;z-index:20;padding:10px;color:var(--muted);">کوئی آئٹم نہیں ملا</div>`;
+}
+function selectPosItem(id){
+  const it=itemById(id);
+  if(!it) return;
+  posSelectedItemId=id;
+  const inp=document.getElementById('posItemSearch'); if(inp) inp.value=it.name;
+  const box=document.getElementById('posItemResults'); if(box) box.innerHTML='';
+}
+async function addToCart(){
+  const qty=parseFloat(document.getElementById('posQty').value)||0;
+  if(!posSelectedItemId){ toast('پہلے آئٹم منتخب کریں'); return; }
+  if(qty<=0){ toast('صحیح مقدار لکھیں'); return; }
+  const it=itemById(posSelectedItemId);
+  if(!it){ toast('پہلے آئٹم منتخب کریں'); return; }
+  if(qty>Number(it.stock)){ if(!(await customConfirm('اسٹاک سے زیادہ مقدار ہے، پھر بھی جاری رکھیں؟'))) return; }
+  const existing=cart.find(c=>c.itemId===it.id);
+  if(existing) existing.qty=Number(existing.qty)+qty;
+  else cart.push({itemId:it.id,name:it.name,price:Number(it.salePrice),qty});
+  posSelectedItemId=null;
+  const inp=document.getElementById('posItemSearch'); if(inp) inp.value='';
+  document.getElementById('posQty').value=1;
+  document.getElementById('cartBox').innerHTML=cartHTML();
+}
+function updateCartQty(idx,val){ cart[idx].qty=parseFloat(val)||0; document.getElementById('cartBox').innerHTML=cartHTML(); }
+function removeFromCart(idx){ cart.splice(idx,1); document.getElementById('cartBox').innerHTML=cartHTML(); }
+function setPayType(t){ posPayType=t; renderPOS(document.getElementById('main')); }
+function scanPOSItem(){
+  openBarcodeScanner(code=>{
+    const it=DB.items.find(i=>(i.barcode||'').trim()===code.trim());
+    if(!it){ toast('یہ بارکوڈ کسی آئٹم سے میچ نہیں ہوا: '+code); return; }
+    const existing=cart.find(c=>c.itemId===it.id);
+    if(existing) existing.qty=Number(existing.qty)+1;
+    else cart.push({itemId:it.id,name:it.name,price:Number(it.salePrice),qty:1});
+    const box=document.getElementById('cartBox');
+    if(box) box.innerHTML=cartHTML();
+    toast('✅ '+it.name+' کارٹ میں شامل ہو گیا');
+  });
+}
+function openGrindingToCartForm(){
+  const body=`
+    <label>گندم کی مقدار (کلو)</label><input type="number" step="0.01" id="gr_kg" placeholder="مثلاً 40">
+    <label>فی کلو پسائی ریٹ (روپے)</label><input type="number" id="gr_rate" placeholder="مثلاً 15">
+    <button class="btn btn-primary" style="margin-top:14px;" onclick="addGrindingToCart()">کارٹ میں شامل کریں</button>
+  `;
+  openSheet('🌾 پسائی', body);
+}
+function addGrindingToCart(){
+  const kg=parseFloat(document.getElementById('gr_kg').value)||0;
+  const rate=parseFloat(document.getElementById('gr_rate').value)||0;
+  if(kg<=0||rate<=0){ toast('مقدار اور ریٹ درست لکھیں'); return; }
+  const total=kg*rate;
+  cart.push({itemId:null, name:'🌾 پسائی — '+kg+' کلو (فی کلو '+rate+')', price:total, qty:1});
+  closeSheet();
+  const box=document.getElementById('cartBox');
+  if(box) box.innerHTML=cartHTML();
+  toast('✅ پسائی کارٹ میں شامل ہو گئی');
+}
+
+async function finalizeSale(){
+  if(!lockSubmit()) return;
+  try{
+  if(!cart.length){ toast('کارٹ میں کچھ نہیں ہے'); return; }
+  if(posPayType==='بینک' && !posBankId){ toast('بینک منتخب کریں'); return; }
+  const discount = parseFloat(document.getElementById('posDiscount').value)||0;
+  const subtotal = cart.reduce((a,c)=>a+c.qty*c.price,0);
+  const netTotal = subtotal-discount;
+  if(editingSaleId){
+    const sale=DB.sales.find(s=>s.id===editingSaleId);
+    if(sale){
+      sale.customerId = posCustomerId||null;
+      sale.items = cart.map(c=>({itemId:c.itemId,name:c.name,qty:c.qty,price:c.price}));
+      sale.subtotal = subtotal; sale.discount = discount; sale.netTotal = netTotal;
+      sale.paymentType = posPayType; sale.bankId = posPayType==='بینک'?posBankId:null;
+      sale.signature = posPayType==='ادھار' ? (posSignature||null) : null;
+      sale.billImage = posBillImage||null;
+      cart.forEach(c=>{ const it=itemById(c.itemId); if(it) it.stock=(Number(it.stock)||0)-c.qty; });
+      await saveDB();
+      const savedSale=sale;
+      cart=[]; posCustomerId=null; posPayType='نقد'; posBankId=null; editingSaleId=null; editingSaleDiscount=0; posSignature=null; posBillImage=null;
+      toast('✅ بل میں ترمیم محفوظ ہو گئی — '+savedSale.invoiceNo);
+      showInvoice(savedSale);
+    }
+    return;
+  }
+  DB.invoiceCounter++;
+  const invoiceNo = 'INV-'+String(DB.invoiceCounter).padStart(4,'0');
+  const sale = {
+    id:uid(), invoiceNo, date:todayStr(), createdAt:Date.now(),
+    customerId: posCustomerId||null,
+    items: cart.map(c=>({itemId:c.itemId,name:c.name,qty:c.qty,price:c.price})),
+    subtotal, discount, netTotal,
+    paymentType: posPayType, bankId: posPayType==='بینک'?posBankId:null,
+    signature: posPayType==='ادھار' ? (posSignature||null) : null,
+    billImage: posBillImage||null
+  };
+  DB.sales.push(sale);
+  cart.forEach(c=>{ const it=itemById(c.itemId); if(it) it.stock=(Number(it.stock)||0)-c.qty; });
+  await saveDB();
+  cart=[]; posCustomerId=null; posPayType='نقد'; posBankId=null; posSignature=null; posBillImage=null;
+  toast('✅ سیل محفوظ ہو گئی — '+invoiceNo);
+  showInvoice(sale);
+  } finally { unlockSubmit(); }
+}
+function editSale(saleId){
+  const sale=DB.sales.find(s=>s.id===saleId);
+  if(!sale) return;
+  closeSheet();
+  sale.items.forEach(it=>{ const item=itemById(it.itemId); if(item) item.stock=(Number(item.stock)||0)+Number(it.qty||0); });
+  cart = sale.items.map(it=>({itemId:it.itemId,name:it.name,price:it.price,qty:it.qty}));
+  posCustomerId = sale.customerId||null;
+  posPayType = sale.paymentType||'نقد';
+  posBankId = sale.bankId||null;
+  editingSaleId = sale.id;
+  editingSaleDiscount = sale.discount||0;
+  posSignature = sale.signature||null;
+  posBillImage = sale.billImage||null;
+  go('pos');
+}
+function cancelEditSale(){
+  if(editingSaleId){
+    const sale=DB.sales.find(s=>s.id===editingSaleId);
+    if(sale){ sale.items.forEach(it=>{ const item=itemById(it.itemId); if(item) item.stock=(Number(item.stock)||0)-Number(it.qty||0); }); }
+  }
+  cart=[]; posCustomerId=null; posPayType='نقد'; posBankId=null; editingSaleId=null; editingSaleDiscount=0; posSignature=null; posBillImage=null;
+  go('dash');
+}
+
+function showInvoice(sale){
+  const c=custById(sale.customerId);
+  const rows = sale.items.map(it=>`<tr><td>${esc(it.name)}</td><td>${it.qty}</td><td>${money(it.price)}</td><td>${money(it.qty*it.price)}</td></tr>`).join('');
+  const body = `
+    <div class="invoice-preview" id="invBody">
+      <div class="ihead">
+        <h2>${esc(DB.shop.name)}</h2>
+        <div class="addr">${esc(DB.shop.address)}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-top:8px;">
+        <span>بل نمبر: <b>${sale.invoiceNo}</b></span><span>${fmtDateTime(sale.date,sale.createdAt)}</span>
+      </div>
+      <div style="font-size:12.5px;margin-top:2px;">کسٹمر: <b>${c?esc(c.name):'واک اِن گاہک'}</b></div>
+      <table><thead><tr><th>آئٹم</th><th>مقدار</th><th>قیمت</th><th>ٹوٹل</th></tr></thead><tbody>${rows}</tbody></table>
+      <div class="totalsbox">
+        <div class="tr"><span>سب ٹوٹل</span><span>${money(sale.subtotal)}</span></div>
+        <div class="tr"><span>ڈسکاؤنٹ</span><span>${money(sale.discount)}</span></div>
+        <div class="tr grand"><span>کل ادائیگی</span><span>${money(sale.netTotal)}</span></div>
+        <div class="tr"><span>ادائیگی کی قسم</span><span>${sale.paymentType}</span></div>
+      </div>
+      ${sale.billImage ? `<div style="margin-top:10px;"><div style="font-size:12px;color:var(--muted);margin-bottom:4px;">بل کی تصویر</div><img src="${sale.billImage}" style="max-width:100%;border-radius:8px;"></div>` : ''}
+      ${sale.signature ? `<div style="margin-top:10px;"><div style="font-size:12px;color:var(--muted);margin-bottom:4px;">کسٹمر کے دستخط</div><img src="${sale.signature}" style="max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff;"></div>` : ''}
+    </div>`;
+  openSheet('بل / انوائس', body + `
+    <div class="btn-row" style="margin-top:14px;">
+      <button class="btn btn-outline" onclick="printInvoice('${sale.id}')">🖨️ پرنٹ</button>
+      <button class="btn wa" onclick="waSendInvoice('${sale.id}')">📲 واٹس ایپ</button>
+    </div>
+    <div class="btn-row" style="margin-top:8px;">
+      <button class="btn btn-outline" onclick="editSale('${sale.id}')">✏️ بل میں ترمیم کریں</button>
+      <button class="btn btn-red" onclick="deleteSaleFromInvoice('${sale.id}')">🗑️ بل حذف کریں</button>
+    </div>
+    <button class="btn btn-navy" style="margin-top:8px;" onclick="closeSheet();go('dash')">ٹھیک ہے</button>
+  `);
+}
+async function deleteSaleFromInvoice(saleId){
+  if(!(await customConfirm('یہ پورا بل حذف کرنا چاہتے ہیں؟ اسٹاک واپس ہو جائے گا۔'))) return;
+  const sale=DB.sales.find(s=>s.id===saleId);
+  if(sale){
+    trashPut('sale', 'بل: '+sale.invoiceNo, sale);
+    sale.items.forEach(it=>{ const item=itemById(it.itemId); if(item) item.stock=(Number(item.stock)||0)+Number(it.qty||0); });
+  }
+  DB.sales=DB.sales.filter(s=>s.id!==saleId);
+  await saveDB(); closeSheet(); go('dash'); toast('بل حذف ہو گیا (ری سائیکل بن میں محفوظ)');
+}
+function printInvoice(saleId){
+  const sale=DB.sales.find(s=>s.id===saleId);
+  document.getElementById('printArea').innerHTML = document.getElementById('invBody').outerHTML;
+  document.getElementById('printArea').style.display='block';
+  window.print();
+  setTimeout(()=>{document.getElementById('printArea').style.display='none';},500);
+}
+function waSendInvoice(saleId){
+  const sale=DB.sales.find(s=>s.id===saleId);
+  const c=custById(sale.customerId);
+  const phone=c?c.phone:'';
+  if(!phone){ toast('اس کسٹمر کا واٹس ایپ نمبر موجود نہیں'); return; }
+  const text=`السلام علیکم ${c.name}، آپ کا بل نمبر ${sale.invoiceNo} کی رقم ${money(sale.netTotal)} روپے ہے۔ ${DB.shop.name}، شکریہ`;
+  window.open(waLink(phone,text),'_blank');
+}
+
+/* ===================== STOCK ===================== */
+let stockSearch='';
+function renderStock(main){
+  const filtered = DB.items.filter(i=> i.name.toLowerCase().includes(stockSearch.toLowerCase()) || (i.barcode||'').includes(stockSearch));
+  main.innerHTML = `
+    <div class="searchbar">
+      <input type="text" placeholder="آئٹم تلاش کریں..." value="${esc(stockSearch)}" oninput="stockSearch=this.value; renderStock(document.getElementById('main'))">
+      <button class="btn btn-navy btn-sm" style="width:auto;" onclick="openBarcodeScanner(code=>{stockSearch=code; renderStock(document.getElementById('main'));})">📷</button>
+    </div>
+    <div class="card">
+      ${filtered.length? filtered.map(i=>{
+        const low=(Number(i.stock)||0)<=(Number(i.reorderLevel)||0);
+        return `<div class="list-item" onclick="openItemForm('${i.id}')">
+          <div style="display:flex;align-items:center;gap:10px;">
+            ${i.photo?`<img src="${i.photo}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;">`:`<div style="width:44px;height:44px;border-radius:8px;background:#f0ede6;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📦</div>`}
+            <div><div class="name">${esc(i.name)}</div><div class="meta">فروخت قیمت: ${money(i.salePrice)} • اسٹاک: ${i.stock}</div></div>
+          </div>
+          <span class="badge ${low?'low':'ok'}">${low?'⚠️ کم':'ٹھیک'}</span>
+        </div>`;
+      }).join('') : `<div class="empty"><div class="ic">📦</div>${stockSearch?'اس بارکوڈ/نام سے کوئی آئٹم موجود نہیں':'کوئی آئٹم نہیں ملا'}<br><br><button class="btn btn-primary" onclick="openItemForm(null,'${esc(stockSearch)}')">+ نیا آئٹم شامل کریں</button></div>`}
+    </div>
+  `;
+}
+let itemFormPhoto=null;
+function openItemForm(id,prefillBarcode){
+  const it = id ? itemById(id) : {name:'',barcode:prefillBarcode||'',category:'',costPrice:'',salePrice:'',stock:'',reorderLevel:5};
+  itemFormPhoto = it.photo || null;
+  const body = `
+    <label>آئٹم کا نام</label><input type="text" id="f_name" value="${esc(it.name)}">
+    <label>آئٹم کی تصویر (اختیاری)</label>
+    <div id="f_photo_wrap">${itemPhotoWrapHtml()}</div>
+    <label>بارکوڈ (اختیاری)</label>
+    <div class="btn-row">
+      <input type="text" id="f_barcode" value="${esc(it.barcode||'')}" style="flex:1;">
+      <button type="button" class="btn btn-outline btn-sm" style="width:auto;" onclick="openBarcodeScanner(code=>{document.getElementById('f_barcode').value=code;})">📷 اسکین</button>
+    </div>
+    <label>کیٹیگری</label><input type="text" id="f_cat" value="${esc(it.category||'')}">
+    <div class="grid2">
+      <div><label>خریداری قیمت</label><input type="number" id="f_cost" value="${it.costPrice}"></div>
+      <div><label>فروخت قیمت</label><input type="number" id="f_sale" value="${it.salePrice}"></div>
+    </div>
+    <div class="grid2">
+      <div><label>موجودہ اسٹاک</label><input type="number" step="0.01" id="f_stock" value="${it.stock}"></div>
+      <div><label>ری آرڈر لیول</label><input type="number" id="f_reorder" value="${it.reorderLevel}"></div>
+    </div>
+    <div class="btn-row" style="margin-top:14px;">
+      ${id?`<button class="btn btn-red" onclick="deleteItem('${id}')">🗑️ حذف کریں</button>`:''}
+      <button class="btn btn-primary" onclick="saveItem('${id||''}')">محفوظ کریں</button>
+    </div>
+  `;
+  openSheet(id?'آئٹم میں تبدیلی':'نیا آئٹم', body);
+}
+function itemPhotoWrapHtml(){
+  return itemFormPhoto
+    ? `<img src="${itemFormPhoto}" style="max-width:140px;border-radius:10px;display:block;margin-bottom:8px;">
+       <button type="button" class="btn btn-outline btn-sm" onclick="itemFormPhoto=null; document.getElementById('f_photo_wrap').innerHTML=itemPhotoWrapHtml();">🗑️ تصویر ہٹائیں</button>`
+    : `<input type="file" accept="image/*" capture="environment" id="itemPhotoInputCam" style="display:none;" onchange="captureItemPhoto(this)">
+       <input type="file" accept="image/*" id="itemPhotoInputGal" style="display:none;" onchange="captureItemPhoto(this)">
+       <div class="btn-row">
+         <button type="button" class="btn btn-outline" style="flex:1;" onclick="document.getElementById('itemPhotoInputCam').click()">📷 کیمرہ</button>
+         <button type="button" class="btn btn-outline" style="flex:1;" onclick="document.getElementById('itemPhotoInputGal').click()">🖼️ گیلری</button>
+       </div>`;
+}
+function captureItemPhoto(input){
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=new Image();
+    img.onload=function(){
+      const maxW=500; const scale=Math.min(1,maxW/img.width);
+      const cv=document.createElement('canvas'); cv.width=img.width*scale; cv.height=img.height*scale;
+      cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+      itemFormPhoto=cv.toDataURL('image/jpeg',0.6);
+      const wrap=document.getElementById('f_photo_wrap');
+      if(wrap) wrap.innerHTML=itemPhotoWrapHtml();
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+async function saveItem(id){
+  if(!lockSubmit()) return;
+  try{
+  const data={
+    name:document.getElementById('f_name').value.trim(),
+    barcode:document.getElementById('f_barcode').value.trim(),
+    category:document.getElementById('f_cat').value.trim(),
+    costPrice:parseFloat(document.getElementById('f_cost').value)||0,
+    salePrice:parseFloat(document.getElementById('f_sale').value)||0,
+    stock:parseFloat(document.getElementById('f_stock').value)||0,
+    reorderLevel:parseFloat(document.getElementById('f_reorder').value)||0,
+    photo:itemFormPhoto||null,
+  };
+  if(!data.name){ toast('آئٹم کا نام لکھیں'); return; }
+  if(id){ Object.assign(itemById(id),data); }
+  else{ data.id=uid(); DB.items.push(data); }
+  await saveDB(); closeSheet(); renderStock(document.getElementById('main')); toast('محفوظ ہو گیا');
+  } finally { unlockSubmit(); }
+}
+async function deleteItem(id){
+  if(!(await customConfirm('یہ آئٹم حذف کرنا چاہتے ہیں؟'))) return;
+  const it=itemById(id);
+  if(it) trashPut('item', 'آئٹم: '+it.name, it);
+  DB.items=DB.items.filter(i=>i.id!==id);
+  await saveDB(); closeSheet(); renderStock(document.getElementById('main')); toast('آئٹم حذف ہو گیا (ری سائیکل بن میں محفوظ)');
+}
+
+/* ===================== CUSTOMERS ===================== */
+let custSearch='';
+function renderCustomers(main){
+  const filtered=DB.customers.filter(c=>c.name.toLowerCase().includes(custSearch.toLowerCase()));
+  main.innerHTML = `
+    <div class="searchbar"><input type="text" placeholder="کسٹمر تلاش کریں..." value="${esc(custSearch)}" oninput="custSearch=this.value; renderCustomers(document.getElementById('main'))"></div>
+    <div class="card">
+      ${filtered.length? filtered.map(c=>{
+        const due=custDue(c);
+        return `<div class="customerRow" onclick="openCustomerDetail('${c.id}')">
+          <div class="flexrow"><div class="avatar">${esc(c.name[0]||'؟')}</div>
+          <div><div class="name">${esc(c.name)}</div><div class="meta">${esc(c.phone||'')}</div></div></div>
+          <span class="badge ${due>0?'due':'ok'}">${due>0? money(due)+' باقی':'کلیئر'}</span>
+        </div>`;
+      }).join('') : `<div class="empty"><div class="ic">👥</div>کوئی کسٹمر نہیں<br><br><button class="btn btn-primary" onclick="openCustomerForm()">+ نیا کسٹمر شامل کریں</button></div>`}
+    </div>
+  `;
+}
+function openCustomerForm(fromPOS){
+  const body=`
+    <button type="button" class="btn btn-outline" style="margin-bottom:10px;" onclick="pickPhoneContact()">📇 فون کانٹیکٹس سے منتخب کریں</button>
+    <label>کسٹمر کا نام</label><input type="text" id="c_name">
+    <label>واٹس ایپ نمبر</label><input type="tel" id="c_phone" placeholder="923xxxxxxxxx">
+    <label>پتہ</label><input type="text" id="c_addr">
+    <label>پرانا بقایا (اگر ہو)</label><input type="number" id="c_due" value="0">
+    <button class="btn btn-primary" style="margin-top:14px;" onclick="saveCustomer(${fromPOS?true:false})">محفوظ کریں</button>
+  `;
+  openSheet('نیا کسٹمر', body);
+}
+async function pickPhoneContact(){
+  if(!('contacts' in navigator) || !('ContactsManager' in window)){
+    toast('یہ فیچر صرف Chrome (Android) میں دستیاب ہے');
+    return;
+  }
+  try{
+    const contacts = await navigator.contacts.select(['name','tel'], {multiple:false});
+    if(contacts && contacts.length){
+      const c=contacts[0];
+      const nameInp=document.getElementById('c_name'); const phoneInp=document.getElementById('c_phone');
+      if(nameInp && c.name && c.name.length) nameInp.value=c.name[0];
+      if(phoneInp && c.tel && c.tel.length) phoneInp.value=c.tel[0].replace(/[^0-9+]/g,'');
+    }
+  }catch(e){ /* user cancelled or permission denied */ }
+}
+async function saveCustomer(fromPOS){
+  if(!lockSubmit()) return;
+  try{
+  const name=document.getElementById('c_name').value.trim();
+  if(!name){ toast('نام لکھیں'); return; }
+  const c={id:uid(), name, phone:document.getElementById('c_phone').value.trim(),
+    address:document.getElementById('c_addr').value.trim(), openingDue:parseFloat(document.getElementById('c_due').value)||0};
+  DB.customers.push(c);
+  await saveDB(); closeSheet();
+  if(fromPOS){ posCustomerId=c.id; renderPOS(document.getElementById('main')); }
+  else renderCustomers(document.getElementById('main'));
+  toast('کسٹمر شامل ہو گیا');
+  } finally { unlockSubmit(); }
+}
+function openCustomerDetail(id){
+  const c=custById(id);
+  const due=custDue(c);
+  const txns=[];
+  DB.sales.filter(s=>s.customerId===id).forEach(s=>txns.push({date:s.date,ts:s.createdAt||0,desc:s.invoiceNo+' — '+s.paymentType,amt:s.netTotal,type:'sale',id:s.id}));
+  DB.collections.filter(x=>x.customerId===id).forEach(x=>txns.push({date:x.date,ts:x.createdAt||0,desc:'وصولی'+(x.notes?' — '+x.notes:''),amt:-x.amount,type:'col',id:x.id}));
+  // Compute running balance chronologically (oldest first), then show newest first.
+  const asc = txns.slice().sort((a,b)=> a.date>b.date?1 : a.date<b.date?-1 : (a.ts-b.ts));
+  let running = c.openingDue||0;
+  asc.forEach(t=>{ running += t.amt; t.balance = running; });
+  const totalGiven = txns.filter(t=>t.type==='sale').reduce((s,t)=>s+t.amt,0);
+  const totalReceived = txns.filter(t=>t.type==='col').reduce((s,t)=>s+Math.abs(t.amt),0);
+  const desc = asc.slice().reverse();
+  const rows = desc.length? desc.map(t=>`<div class="list-item">
+      <div style="flex:1;cursor:pointer;" onclick="${t.type==='sale'?`openSaleFromCustomer('${t.id}')`:`editCollectionFromLedger('${t.id}','${id}')`}">
+        <div class="name">${esc(t.desc)}</div><div class="meta">${fmtDateTime(t.date,t.ts)} • بیلنس: ${money(t.balance)}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="text-align:${document.dir==='rtl'?'left':'right'};">
+          <div style="font-size:11px;color:var(--muted);">${t.amt<0?'آپ کو ملے':'آپ نے دیے'}</div>
+          <div style="font-weight:800;color:${t.amt<0?'var(--green)':'var(--red)'}">${money(Math.abs(t.amt))}</div>
+        </div>
+        ${t.type==='col'?`<button class="btn btn-red btn-sm" style="padding:6px 10px;" onclick="confirmDeleteCollection('${t.id}','${id}')">🗑️</button>`:''}
+      </div></div>`).join('')
+    : `<div class="empty">کوئی ٹرانزیکشن نہیں</div>`;
+  const body=`
+    <div class="grid2">
+      <div class="stat"><div class="label">واٹس ایپ</div><div class="value" style="font-size:14px;">${esc(c.phone||'—')}</div></div>
+      <div class="stat ${due>0?'warn':'good'}"><div class="label">باقی رقم</div><div class="value">${money(due)}</div></div>
+    </div>
+    <div class="btn-row" style="margin-top:10px;">
+      <button class="btn wa" onclick="waReminder('${c.id}')">📲 یاد دہانی بھیجیں</button>
+      <button class="btn btn-outline" onclick="openCollectionForm('${c.id}')">💳 وصولی درج کریں</button>
+    </div>
+    <h3 style="margin-top:16px;color:var(--navy);font-size:14px;">مکمل حساب</h3>
+    ${rows}
+    <div class="btn-row" style="margin-top:12px;">
+      <div class="stat good" style="flex:1;"><div class="label">آپ کو ملے (کل)</div><div class="value" style="font-size:16px;">${money(totalReceived)}</div></div>
+      <div class="stat warn" style="flex:1;"><div class="label">آپ نے دیے (کل)</div><div class="value" style="font-size:16px;">${money(totalGiven)}</div></div>
+    </div>
+    <button class="btn btn-outline" style="margin-top:10px;" onclick="openCustomerEdit('${c.id}')">✏️ تفصیل تبدیل کریں</button>
+    <button class="btn btn-red" style="margin-top:8px;" onclick="deleteCustomer('${c.id}')">🗑️ یہ کسٹمر حذف کریں</button>
+  `;
+  openSheet(c.name, body);
+}
+function waReminder(id){
+  const c=custById(id); const due=custDue(c);
+  if(!c.phone){ toast('واٹس ایپ نمبر موجود نہیں'); return; }
+  const text=`السلام علیکم ${c.name}، آپ کے ذمے ${DB.shop.name} کی ${money(due)} روپے رقم باقی ہے۔ براہ کرم جلد ادائیگی کریں۔ شکریہ`;
+  window.open(waLink(c.phone,text),'_blank');
+}
+function openCollectionForm(custId,colId){
+  const c = colId ? DB.collections.find(x=>x.id===colId) : null;
+  const body=`
+    <label>رقم</label><input type="number" id="col_amt" value="${c?c.amount:''}">
+    <label>تاریخ</label><input type="date" id="col_date" value="${c?c.date:todayStr()}">
+    <label>نوٹس</label><input type="text" id="col_notes" value="${c?esc(c.notes||''):''}">
+    <button class="btn btn-primary" style="margin-top:14px;" onclick="saveCollection('${custId}','${colId||''}')">محفوظ کریں</button>
+  `;
+  openSheet(colId?'وصولی میں ترمیم':'وصولی درج کریں', body);
+}
+async function saveCollection(custId,colId){
+  if(!lockSubmit()) return;
+  try{
+  const amount=parseFloat(document.getElementById('col_amt').value)||0;
+  if(amount<=0){ toast('صحیح رقم لکھیں'); return; }
+  const date=document.getElementById('col_date').value||todayStr();
+  const notes=document.getElementById('col_notes').value.trim();
+  if(colId){
+    const c=DB.collections.find(x=>x.id===colId);
+    if(c){ c.amount=amount; c.date=date; c.notes=notes; }
+  } else {
+    DB.collections.push({id:uid(), createdAt:Date.now(), customerId:custId, amount, date, notes});
+  }
+  await saveDB(); closeSheet(); openCustomerDetail(custId); toast('وصولی محفوظ ہو گئی');
+  } finally { unlockSubmit(); }
+}
+function openCustomerEdit(id){
+  const c=custById(id);
+  const body=`
+    <label>کسٹمر کا نام</label><input type="text" id="ce_name" value="${esc(c.name)}">
+    <label>واٹس ایپ نمبر</label><input type="tel" id="ce_phone" value="${esc(c.phone||'')}">
+    <label>پتہ</label><input type="text" id="ce_addr" value="${esc(c.address||'')}">
+    <div class="btn-row" style="margin-top:14px;">
+      <button class="btn btn-red" onclick="deleteCustomer('${id}')">🗑️ حذف کریں</button>
+      <button class="btn btn-primary" onclick="updateCustomer('${id}')">محفوظ کریں</button>
+    </div>
+  `;
+  openSheet('تفصیل تبدیل کریں', body);
+}
+async function updateCustomer(id){
+  const c=custById(id);
+  c.name=document.getElementById('ce_name').value.trim();
+  c.phone=document.getElementById('ce_phone').value.trim();
+  c.address=document.getElementById('ce_addr').value.trim();
+  await saveDB(); closeSheet(); renderCustomers(document.getElementById('main')); toast('محفوظ ہو گیا');
+}
+async function deleteCustomer(id){
+  if(!(await customConfirm('اس کسٹمر کو حذف کرنا چاہتے ہیں؟ اس کسٹمر کا تمام حساب (بل اور وصولی) بھی حذف ہو جائے گا۔ (یہ ری سائیکل بن میں 200 اندراجات تک محفوظ رہے گا)'))) return;
+  const c=custById(id);
+  const relSales=DB.sales.filter(s=>s.customerId===id);
+  const relCollections=DB.collections.filter(x=>x.customerId===id);
+  trashPut('customer', 'کسٹمر: '+c.name, { customer:c, sales:relSales, collections:relCollections });
+  relSales.forEach(s=>{ s.items.forEach(it=>{ const item=itemById(it.itemId); if(item) item.stock=(Number(item.stock)||0)+Number(it.qty||0); }); });
+  DB.sales=DB.sales.filter(s=>s.customerId!==id);
+  DB.collections=DB.collections.filter(x=>x.customerId!==id);
+  DB.customers=DB.customers.filter(c=>c.id!==id);
+  await saveDB(); closeSheet(); renderCustomers(document.getElementById('main')); toast('کسٹمر حذف ہو گیا (ری سائیکل بن میں محفوظ)');
+}
+function openSaleFromCustomer(saleId){
+  const sale=DB.sales.find(s=>s.id===saleId);
+  if(!sale){ toast('یہ بل نہیں ملا'); return; }
+  showInvoice(sale);
+}
+function editCollectionFromLedger(colId,custId){ openCollectionForm(custId,colId); }
+async function confirmDeleteCollection(colId,custId){
+  if(!(await customConfirm('یہ وصولی کی انٹری حذف کرنا چاہتے ہیں؟'))) return;
+  const col=DB.collections.find(x=>x.id===colId);
+  if(col) trashPut('collection', 'وصولی: '+money(col.amount), col);
+  DB.collections=DB.collections.filter(x=>x.id!==colId);
+  await saveDB(); openCustomerDetail(custId); toast('انٹری حذف ہو گئی');
+}
+
+/* ===================== MORE (Purchases / Cash / Banks) ===================== */
+let moreView='menu';
+let amanatSearch='';
+function renderMore(main){
+  if(moreView==='menu'){
+    main.innerHTML=`
+      <div class="card">
+        <div class="list-item" onclick="moreView='purchases';render()"><div class="name">📥 خریداری (سپلائر سے مال)</div><span>›</span></div>
+        <div class="list-item" onclick="moreView='cash';render()"><div class="name">💵 کیش بک</div><span>›</span></div>
+        <div class="list-item" onclick="moreView='banks';render()"><div class="name">🏦 بینک اکاؤنٹس</div><span>›</span></div>
+        <div class="list-item" onclick="moreView='amanat';render()"><div class="name">🔒 امانت (رقم)</div><span>›</span></div>
+        <div class="list-item" onclick="moreView='trash';render()"><div class="name">🗑️ ری سائیکل بن${DB.trash&&DB.trash.length?` (${DB.trash.length})`:''}</div><span>›</span></div>
+        <div class="list-item" onclick="moreView='settings';render()"><div class="name">⚙️ دکان کی سیٹنگز</div><span>›</span></div>
+      </div>
+    `;
+    return;
+  }
+  if(moreView==='purchases') return renderPurchases(main);
+  if(moreView==='cash') return renderCash(main);
+  if(moreView==='banks') return renderBanks(main);
+  if(moreView==='trash') return renderTrash(main);
+  if(moreView==='amanat') return renderAmanat(main);
+  if(moreView==='settings') return renderSettings(main);
+}
+function backToMoreMenu(){ moreView='menu'; render(); }
+
+/* ===================== AMANAT (Trust Deposits) ===================== */
+function amanatBalance(personId){
+  return DB.amanatEntries.filter(e=>e.personId===personId).reduce((s,e)=> s + (e.type==='in'?Number(e.amount):-Number(e.amount)), 0);
+}
+function renderAmanat(main){
+  const q=(amanatSearch||'').trim().toLowerCase();
+  const list = DB.amanatPersons.filter(p=> !q || p.name.toLowerCase().includes(q) || (p.phone||'').includes(q));
+  const totalHeld = DB.amanatPersons.reduce((s,p)=>s+amanatBalance(p.id),0);
+  main.innerHTML = `
+    <button class="btn btn-outline btn-sm" onclick="backToMoreMenu()">‹ واپس</button>
+    <div class="stat warn" style="margin-top:10px;"><div class="label">کل امانت (جو واپس کرنی ہے)</div><div class="value">${money(totalHeld)}</div></div>
+    <div class="card">
+      <input type="text" placeholder="نام تلاش کریں..." value="${esc(amanatSearch||'')}" oninput="amanatSearch=this.value; renderAmanat(document.getElementById('main'))">
+      <button class="btn btn-primary" style="margin-top:8px;" onclick="openAmanatPersonForm()">+ نیا شخص شامل کریں</button>
+    </div>
+    <div class="card">
+      ${list.length? list.map(p=>{
+        const bal=amanatBalance(p.id);
+        return `<div class="list-item" onclick="openAmanatDetail('${p.id}')">
+          <div><div class="name">${esc(p.name)}</div><div class="meta">${esc(p.phone||'')}</div></div>
+          <div style="font-weight:800;">${money(bal)}</div>
+        </div>`;
+      }).join('') : `<div class="empty">کوئی شخص شامل نہیں</div>`}
+    </div>
+  `;
+}
+function openAmanatPersonForm(id){
+  const p = id ? DB.amanatPersons.find(x=>x.id===id) : {name:'',phone:''};
+  const body=`
+    <label>نام</label><input type="text" id="am_name" value="${esc(p.name)}">
+    <label>فون نمبر (اختیاری)</label><input type="tel" id="am_phone" value="${esc(p.phone||'')}">
+    <button class="btn btn-primary" style="margin-top:14px;" onclick="saveAmanatPerson('${id||''}')">محفوظ کریں</button>
+  `;
+  openSheet(id?'تفصیل تبدیل کریں':'نیا شخص', body);
+}
+async function saveAmanatPerson(id){
+  if(!lockSubmit()) return;
+  try{
+  const name=document.getElementById('am_name').value.trim();
+  if(!name){ toast('نام لکھیں'); return; }
+  const phone=document.getElementById('am_phone').value.trim();
+  if(id){ const p=DB.amanatPersons.find(x=>x.id===id); if(p){ p.name=name; p.phone=phone; } }
+  else{ DB.amanatPersons.push({id:uid(), name, phone, createdAt:Date.now()}); }
+  await saveDB(); closeSheet(); renderAmanat(document.getElementById('main'));
+  } finally { unlockSubmit(); }
+}
+async function deleteAmanatPerson(id){
+  if(!(await customConfirm('اس شخص کو اور اس کی تمام امانت انٹریاں حذف کرنا چاہتے ہیں؟'))) return;
+  const p=DB.amanatPersons.find(x=>x.id===id);
+  const relEntries=DB.amanatEntries.filter(e=>e.personId===id);
+  if(p) trashPut('amanatPerson', 'امانت: '+p.name, { person:p, entries:relEntries });
+  DB.amanatEntries=DB.amanatEntries.filter(e=>e.personId!==id);
+  DB.amanatPersons=DB.amanatPersons.filter(x=>x.id!==id);
+  await saveDB(); closeSheet(); renderAmanat(document.getElementById('main')); toast('حذف ہو گیا (ری سائیکل بن میں محفوظ)');
+}
+function openAmanatDetail(id){
+  const p=DB.amanatPersons.find(x=>x.id===id);
+  const bal=amanatBalance(id);
+  const entries=[...DB.amanatEntries.filter(e=>e.personId===id)].sort((a,b)=>a.createdAt-b.createdAt);
+  let running=0;
+  const rows = entries.map(e=>{ running += e.type==='in'?Number(e.amount):-Number(e.amount);
+    return `<div class="list-item">
+      <div style="flex:1;cursor:pointer;" onclick="openAmanatEntryForm('${id}','${e.id}')">
+        <div class="name">${esc(e.notes||(e.type==='in'?'امانت رکھی':'واپس کی'))}</div>
+        <div class="meta">${fmtDateTime(e.date,e.createdAt)} • بیلنس: ${money(running)}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="font-weight:800;color:${e.type==='in'?'var(--red)':'var(--green)'}">${e.type==='in'?'+':'-'}${money(e.amount)}</div>
+        <button class="btn btn-red btn-sm" style="padding:6px 10px;" onclick="deleteAmanatEntry('${id}','${e.id}')">🗑️</button>
+      </div></div>`;
+  }).reverse().join('');
+  const body=`
+    <div class="stat warn"><div class="label">کل امانت (واپس کرنی ہے)</div><div class="value">${money(bal)}</div></div>
+    <div class="meta" style="margin-top:6px;">${esc(p.phone||'')}</div>
+    <div class="btn-row" style="margin-top:10px;">
+      <button class="btn btn-outline" onclick="openAmanatEntryForm('${id}',null,'in')">➕ امانت رکھی</button>
+      <button class="btn btn-outline" onclick="openAmanatEntryForm('${id}',null,'out')">➖ واپس کی</button>
+    </div>
+    <h3 style="margin-top:16px;color:var(--navy);font-size:14px;">تمام انٹریاں</h3>
+    ${rows||'<div class="empty">کوئی انٹری نہیں</div>'}
+    <button class="btn btn-outline" style="margin-top:12px;" onclick="openAmanatPersonForm('${id}')">✏️ تفصیل تبدیل کریں</button>
+    <button class="btn btn-red" style="margin-top:8px;" onclick="deleteAmanatPerson('${id}')">🗑️ یہ شخص حذف کریں</button>
+  `;
+  openSheet(p.name, body);
+}
+function openAmanatEntryForm(personId,entryId,defaultType){
+  const e = entryId ? DB.amanatEntries.find(x=>x.id===entryId) : null;
+  const type = e ? e.type : (defaultType||'in');
+  const body=`
+    <div class="seg"><button class="${type==='in'?'on':''}" id="am_in_btn" onclick="setAmanatType('in')">امانت رکھی (لی)</button><button class="${type==='out'?'on':''}" id="am_out_btn" onclick="setAmanatType('out')">واپس کی (دی)</button></div>
+    <input type="hidden" id="am_type" value="${type}">
+    <label>رقم</label><input type="number" id="am_amt" value="${e?e.amount:''}">
+    <label>تاریخ</label><input type="date" id="am_date" value="${e?e.date:todayStr()}">
+    <label>نوٹس (اختیاری)</label><input type="text" id="am_notes" value="${e?esc(e.notes||''):''}">
+    <button class="btn btn-primary" style="margin-top:14px;" onclick="saveAmanatEntry('${personId}','${entryId||''}')">محفوظ کریں</button>
+  `;
+  openSheet(entryId?'انٹری میں ترمیم':'نئی امانت انٹری', body);
+}
+function setAmanatType(t){
+  document.getElementById('am_type').value=t;
+  document.getElementById('am_in_btn').classList.toggle('on',t==='in');
+  document.getElementById('am_out_btn').classList.toggle('on',t==='out');
+}
+async function saveAmanatEntry(personId,entryId){
+  if(!lockSubmit()) return;
+  try{
+  const amount=parseFloat(document.getElementById('am_amt').value)||0;
+  if(amount<=0){ toast('صحیح رقم لکھیں'); return; }
+  const type=document.getElementById('am_type').value;
+  const date=document.getElementById('am_date').value||todayStr();
+  const notes=document.getElementById('am_notes').value.trim();
+  if(entryId){
+    const e=DB.amanatEntries.find(x=>x.id===entryId);
+    if(e){ e.amount=amount; e.type=type; e.date=date; e.notes=notes; }
+  } else {
+    DB.amanatEntries.push({id:uid(), createdAt:Date.now(), personId, amount, type, date, notes});
+  }
+  await saveDB(); closeSheet(); openAmanatDetail(personId); toast('محفوظ ہو گیا');
+  } finally { unlockSubmit(); }
+}
+async function deleteAmanatEntry(personId,entryId){
+  if(!(await customConfirm('یہ انٹری حذف کرنا چاہتے ہیں؟'))) return;
+  const e=DB.amanatEntries.find(x=>x.id===entryId);
+  if(e) trashPut('amanatEntry', 'امانت انٹری: '+money(e.amount), e);
+  DB.amanatEntries=DB.amanatEntries.filter(x=>x.id!==entryId);
+  await saveDB(); openAmanatDetail(personId); toast('حذف ہو گئی (ری سائیکل بن میں محفوظ)');
+}
+
+/* ===================== RECYCLE BIN ===================== */
+function trashPut(type, label, data){
+  DB.trash = DB.trash||[];
+  DB.trash.unshift({ id:uid(), type, label, data, deletedAt:Date.now() });
+  if(DB.trash.length>200) DB.trash.length=200;
+}
+function trashTimeAgo(ts){
+  const mins=Math.floor((Date.now()-ts)/60000);
+  if(mins<1) return 'ابھی ابھی';
+  if(mins<60) return mins+' منٹ پہلے';
+  const hrs=Math.floor(mins/60);
+  if(hrs<24) return hrs+' گھنٹے پہلے';
+  return Math.floor(hrs/24)+' دن پہلے';
+}
+function renderTrash(main){
+  const items = DB.trash||[];
+  main.innerHTML = `
+    <button class="btn btn-outline" style="margin-bottom:10px;" onclick="backToMoreMenu()">‹ واپس</button>
+    <div class="card">
+      ${items.length? items.map(t=>`
+        <div class="list-item">
+          <div><div class="name">${esc(t.label)}</div><div class="meta">${trashTimeAgo(t.deletedAt)}</div></div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm" onclick="restoreFromTrash('${t.id}')">↩️ بحال کریں</button>
+            <button class="btn btn-red btn-sm" onclick="permanentDeleteTrash('${t.id}')">حذف</button>
+          </div>
+        </div>`).join('')
+      : `<div class="empty">ری سائیکل بن خالی ہے</div>`}
+    </div>
+  `;
+}
+async function permanentDeleteTrash(trashId){
+  if(!(await customConfirm('اسے ہمیشہ کے لیے حذف کرنا چاہتے ہیں؟ یہ واپس نہیں آئے گا۔'))) return;
+  DB.trash = (DB.trash||[]).filter(t=>t.id!==trashId);
+  await saveDB(); renderTrash(document.getElementById('main')); toast('ہمیشہ کے لیے حذف ہو گیا');
+}
+async function restoreFromTrash(trashId){
+  const t = (DB.trash||[]).find(x=>x.id===trashId);
+  if(!t) return;
+  const d = t.data;
+  if(t.type==='customer'){
+    DB.customers.push(d.customer);
+    (d.sales||[]).forEach(s=>{ DB.sales.push(s); (s.items||[]).forEach(it=>{ const item=itemById(it.itemId); if(item) item.stock=(Number(item.stock)||0)-Number(it.qty||0); }); });
+    (d.collections||[]).forEach(c=>DB.collections.push(c));
+  } else if(t.type==='item'){
+    DB.items.push(d);
+  } else if(t.type==='bank'){
+    DB.banks.push(d.bank);
+    (d.bankEntries||[]).forEach(e=>DB.bankEntries.push(e));
+    (d.sales||[]).forEach(s=>{ DB.sales.push(s); (s.items||[]).forEach(it=>{ const item=itemById(it.itemId); if(item) item.stock=(Number(item.stock)||0)-Number(it.qty||0); }); });
+    (d.purchases||[]).forEach(p=>{ DB.purchases.push(p); const item=itemById(p.itemId); if(item) item.stock=(Number(item.stock)||0)+Number(p.qty||0); });
+  } else if(t.type==='sale'){
+    DB.sales.push(d);
+    (d.items||[]).forEach(it=>{ const item=itemById(it.itemId); if(item) item.stock=(Number(item.stock)||0)-Number(it.qty||0); });
+  } else if(t.type==='collection'){
+    DB.collections.push(d);
+  } else if(t.type==='cash'){
+    DB.cashEntries.push(d);
+  } else if(t.type==='purchase'){
+    DB.purchases.push(d);
+    const item=itemById(d.itemId); if(item) item.stock=(Number(item.stock)||0)+Number(d.qty||0);
+  } else if(t.type==='amanatPerson'){
+    DB.amanatPersons.push(d.person);
+    (d.entries||[]).forEach(e=>DB.amanatEntries.push(e));
+  } else if(t.type==='amanatEntry'){
+    DB.amanatEntries.push(d);
+  }
+  DB.trash = (DB.trash||[]).filter(x=>x.id!==trashId);
+  await saveDB(); renderTrash(document.getElementById('main')); toast('بحال ہو گیا');
+}
+
+/* ---- Purchases ---- */
+function renderPurchases(main){
+  const list=[...DB.purchases].sort((a,b)=>b.createdAt-a.createdAt);
+  main.innerHTML=`
+    <button class="btn btn-outline btn-sm" onclick="backToMoreMenu()">‹ واپس</button>
+    <div class="card" style="margin-top:10px;">
+      <button class="btn btn-primary" onclick="openPurchaseForm()">+ نئی خریداری درج کریں</button>
+    </div>
+    <div class="card">
+      ${list.length? list.map(p=>`<div class="list-item"><div><div class="name">${esc(p.supplier||'سپلائر')} — ${esc(p.itemName||'')}</div>
+        <div class="meta">${fmtDateTime(p.date,p.createdAt)} • ${p.paymentType}</div></div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="font-weight:800;">${money(p.total)}</div>
+          <button class="btn btn-outline btn-sm" style="padding:6px 10px;" onclick="openPurchaseForm('${p.id}')">✏️</button>
+          <button class="btn btn-red btn-sm" style="padding:6px 10px;" onclick="deletePurchase('${p.id}')">🗑️</button>
+        </div></div>`).join('')
+        : `<div class="empty">ابھی کوئی خریداری نہیں</div>`}
+    </div>
+  `;
+}
+function openPurchaseForm(id){
+  const p = id ? DB.purchases.find(x=>x.id===id) : null;
+  const body=`
+    <label>سپلائر کا نام</label><input type="text" id="p_supplier" value="${p?esc(p.supplier||''):''}">
+    <label>آئٹم</label>
+    <select id="p_item">${DB.items.map(i=>`<option value="${i.id}" ${p&&p.itemId===i.id?'selected':''}>${esc(i.name)}</option>`).join('')}</select>
+    <div class="grid2">
+      <div><label>مقدار</label><input type="number" step="0.01" id="p_qty" value="${p?p.qty:1}"></div>
+      <div><label>فی یونٹ خریداری قیمت</label><input type="number" id="p_cost" value="${p?p.cost:''}"></div>
+    </div>
+    <label>ادائیگی کی قسم</label>
+    <select id="p_pay" onchange="document.getElementById('p_bankwrap').style.display=this.value==='بینک'?'block':'none'">
+      <option value="نقد" ${p&&p.paymentType==='نقد'?'selected':''}>نقد</option><option value="بینک" ${p&&p.paymentType==='بینک'?'selected':''}>بینک</option>
+    </select>
+    <div id="p_bankwrap" style="display:${p&&p.paymentType==='بینک'?'block':'none'};">
+      <label>بینک</label>
+      <select id="p_bank">${DB.banks.map(b=>`<option value="${b.id}" ${p&&p.bankId===b.id?'selected':''}>${esc(b.name)}</option>`).join('')}</select>
+    </div>
+    <label>تاریخ</label><input type="date" id="p_date" value="${p?p.date:todayStr()}">
+    <button class="btn btn-primary" style="margin-top:14px;" onclick="savePurchase('${id||''}')">محفوظ کریں</button>
+  `;
+  openSheet(id?'خریداری میں ترمیم':'نئی خریداری', body);
+}
+async function savePurchase(id){
+  if(!lockSubmit()) return;
+  try{
+  const itemId=document.getElementById('p_item').value;
+  const qty=parseFloat(document.getElementById('p_qty').value)||0;
+  const cost=parseFloat(document.getElementById('p_cost').value)||0;
+  if(!itemId||qty<=0){ toast('آئٹم اور مقدار درست لکھیں'); return; }
+  const it=itemById(itemId);
+  const pay=document.getElementById('p_pay').value;
+  if(id){
+    const old=DB.purchases.find(x=>x.id===id);
+    if(old){
+      const oldItem=itemById(old.itemId);
+      if(oldItem) oldItem.stock=(Number(oldItem.stock)||0)-Number(old.qty||0);
+      old.date=document.getElementById('p_date').value||todayStr();
+      old.supplier=document.getElementById('p_supplier').value.trim();
+      old.itemId=itemId; old.itemName=it.name; old.qty=qty; old.cost=cost; old.total=qty*cost;
+      old.paymentType=pay; old.bankId=pay==='بینک'?document.getElementById('p_bank').value:null;
+      it.stock=(Number(it.stock)||0)+qty;
+    }
+  } else {
+    const purchase={id:uid(), createdAt:Date.now(), date:document.getElementById('p_date').value||todayStr(),
+      supplier:document.getElementById('p_supplier').value.trim(), itemId, itemName:it.name, qty, cost,
+      total:qty*cost, paymentType:pay, bankId: pay==='بینک'?document.getElementById('p_bank').value:null};
+    DB.purchases.push(purchase);
+    it.stock=(Number(it.stock)||0)+qty;
+  }
+  await saveDB(); closeSheet(); renderPurchases(document.getElementById('main')); toast('خریداری محفوظ ہو گئی');
+  } finally { unlockSubmit(); }
+}
+async function deletePurchase(id){
+  if(!(await customConfirm('یہ خریداری حذف کرنا چاہتے ہیں؟ اسٹاک واپس کم ہو جائے گا۔'))) return;
+  const p=DB.purchases.find(x=>x.id===id);
+  if(p){
+    trashPut('purchase', 'خریداری: '+(p.itemName||''), p);
+    const it=itemById(p.itemId); if(it) it.stock=(Number(it.stock)||0)-Number(p.qty||0);
+  }
+  DB.purchases=DB.purchases.filter(x=>x.id!==id);
+  await saveDB(); renderPurchases(document.getElementById('main')); toast('حذف ہو گئی (ری سائیکل بن میں محفوظ)');
+}
+
+/* ---- Cash Book ---- */
+function renderCash(main){
+  const entries=[];
+  DB.cashEntries.forEach(e=>entries.push({date:e.date,desc:e.desc,in:e.in,out:e.out,createdAt:e.createdAt||0,kind:'cash',id:e.id}));
+  DB.sales.filter(s=>s.paymentType==='نقد').forEach(s=>entries.push({date:s.date,desc:'POS سیل — '+s.invoiceNo,in:s.netTotal,out:0,createdAt:s.createdAt,kind:'sale',id:s.id}));
+  DB.purchases.filter(p=>p.paymentType==='نقد').forEach(p=>entries.push({date:p.date,desc:'خریداری — '+(p.supplier||''),in:0,out:p.total,createdAt:p.createdAt,kind:'purchase',id:p.id}));
+  entries.sort((a,b)=>a.createdAt-b.createdAt);
+  let bal=0;
+  const rows=entries.map(e=>{ bal+=(Number(e.in)||0)-(Number(e.out)||0);
+    return `<div class="list-item"><div><div class="name">${esc(e.desc)}</div><div class="meta">${fmtDateTime(e.date,e.createdAt)}</div></div>
+      <div style="text-align:left;display:flex;align-items:center;gap:8px;">
+      <div><div style="font-weight:800;color:${e.in?'var(--green)':'var(--red)'}">${e.in?'+':'-'}${money(e.in||e.out)}</div>
+      <div class="meta">بیلنس: ${money(bal)}</div></div>
+      ${e.kind==='cash'?`<button class="btn btn-outline btn-sm" style="padding:6px 10px;" onclick="openCashForm('${e.id}')">✏️</button>`:''}
+      <button class="btn btn-red btn-sm" style="padding:6px 10px;" onclick="deleteLedgerEntry('${e.kind}','${e.id}')">🗑️</button>
+      </div></div>`;
+  }).reverse().join('');
+  main.innerHTML=`
+    <button class="btn btn-outline btn-sm" onclick="backToMoreMenu()">‹ واپس</button>
+    <div class="grid2" style="margin-top:10px;">
+      <div class="stat good"><div class="label">موجودہ کیش بیلنس</div><div class="value">${money(cashBalance())}</div></div>
+      <div></div>
+    </div>
+    <div class="card">
+      <button class="btn btn-primary" onclick="openCashForm()">+ نئی انٹری (خرچہ/آمدنی)</button>
+    </div>
+    <div class="card">${rows||'<div class="empty">کوئی انٹری نہیں</div>'}</div>
+  `;
+}
+function openCashForm(entryId){
+  const e = entryId ? DB.cashEntries.find(x=>x.id===entryId) : null;
+  const body=`
+    <label>تفصیل</label><input type="text" id="cash_desc" placeholder="مثلاً دکان کا کرایہ" value="${e?esc(e.desc):''}">
+    <label>قسم</label>
+    <div class="seg"><button class="${(!e||e.in)?'on':''}" id="cash_in_btn" onclick="setCashType('in')">آمدنی (جمع)</button><button class="${(e&&e.out)?'on':''}" id="cash_out_btn" onclick="setCashType('out')">خرچہ (نکلوائی)</button></div>
+    <input type="hidden" id="cash_type" value="${(e&&e.out)?'out':'in'}">
+    <label>رقم</label><input type="number" id="cash_amt" value="${e?(e.in||e.out):''}">
+    <label>تاریخ</label><input type="date" id="cash_date" value="${e?e.date:todayStr()}">
+    <button class="btn btn-primary" style="margin-top:14px;" onclick="saveCashEntry('${entryId||''}')">محفوظ کریں</button>
+  `;
+  openSheet(entryId?'انٹری میں ترمیم':'نئی کیش انٹری', body);
+}
+function setCashType(t){
+  document.getElementById('cash_type').value=t;
+  document.getElementById('cash_in_btn').classList.toggle('on',t==='in');
+  document.getElementById('cash_out_btn').classList.toggle('on',t==='out');
+}
+async function saveCashEntry(entryId){
+  if(!lockSubmit()) return;
+  try{
+  const amt=parseFloat(document.getElementById('cash_amt').value)||0;
+  const type=document.getElementById('cash_type').value;
+  if(amt<=0){ toast('صحیح رقم لکھیں'); return; }
+  const desc=document.getElementById('cash_desc').value.trim()||'انٹری';
+  const date=document.getElementById('cash_date').value||todayStr();
+  if(entryId){
+    const e=DB.cashEntries.find(x=>x.id===entryId);
+    if(e){ e.desc=desc; e.date=date; e.in=type==='in'?amt:0; e.out=type==='out'?amt:0; }
+  } else {
+    DB.cashEntries.push({id:uid(), createdAt:Date.now(), desc, date, in:type==='in'?amt:0, out:type==='out'?amt:0});
+  }
+  await saveDB(); closeSheet(); renderCash(document.getElementById('main')); toast('محفوظ ہو گیا');
+  } finally { unlockSubmit(); }
+}
+async function deleteLedgerEntry(kind,id){
+  if(!(await customConfirm('یہ انٹری حذف کرنا چاہتے ہیں؟'))) return;
+  if(kind==='cash'){
+    const e=DB.cashEntries.find(x=>x.id===id);
+    if(e) trashPut('cash', 'کیش: '+e.desc, e);
+    DB.cashEntries=DB.cashEntries.filter(e=>e.id!==id);
+  } else if(kind==='sale'){
+    const sale=DB.sales.find(s=>s.id===id);
+    if(sale){ trashPut('sale','بل: '+sale.invoiceNo, sale); (sale.items||[]).forEach(it=>{ const item=itemById(it.itemId); if(item) item.stock=(Number(item.stock)||0)+Number(it.qty||0); }); }
+    DB.sales=DB.sales.filter(s=>s.id!==id);
+  } else if(kind==='purchase'){
+    const purchase=DB.purchases.find(p=>p.id===id);
+    if(purchase){ trashPut('purchase','خریداری: '+(purchase.itemName||''), purchase); const item=itemById(purchase.itemId); if(item) item.stock=(Number(item.stock)||0)-Number(purchase.qty||0); }
+    DB.purchases=DB.purchases.filter(p=>p.id!==id);
+  }
+  await saveDB(); renderCash(document.getElementById('main')); toast('انٹری حذف ہو گئی (ری سائیکل بن میں محفوظ)');
+}
+
+/* ---- Banks ---- */
+const BANK_PALETTE=[
+  'linear-gradient(135deg,#2c8f6d,#146349)',
+  'linear-gradient(135deg,#3a76a6,#1d4664)',
+  'linear-gradient(135deg,#c76f16,#8f4f0f)',
+  'linear-gradient(135deg,#7457a8,#453169)',
+  'linear-gradient(135deg,#1c3f61,#0c1e30)',
+  'linear-gradient(135deg,#b0574a,#7a3327)'
+];
+function bankMonogramBg(name){
+  const s=(name||'؟');
+  let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0;
+  return BANK_PALETTE[h%BANK_PALETTE.length];
+}
+function renderBanks(main){
+  main.innerHTML=`
+    <button class="btn btn-outline btn-sm" onclick="backToMoreMenu()">‹ واپس</button>
+    <div class="card" style="margin-top:10px;">
+      <button class="btn btn-primary" onclick="openBankForm()">+ نیا بینک شامل کریں</button>
+    </div>
+    <div class="card">
+      ${DB.banks.length? DB.banks.map(b=>`<div class="list-item" onclick="openBankDetail('${b.id}')">
+        <div class="flexrow"><div class="bank-avatar" style="background:${bankMonogramBg(b.name)}">${esc((b.name||'؟').trim()[0]||'؟')}</div>
+        <div><div class="name">${esc(b.name)}</div><div class="meta">${esc(b.accountNo||'')}</div></div></div>
+        <div style="font-weight:800;">${money(bankBalance(b.id))}</div></div>`).join('')
+        : `<div class="empty">ابھی کوئی بینک شامل نہیں</div>`}
+    </div>
+  `;
+}
+function openBankForm(){
+  const body=`
+    <label>بینک کا نام</label><input type="text" id="b_name">
+    <label>اکاؤنٹ نمبر</label><input type="text" id="b_acc">
+    <label>برانچ</label><input type="text" id="b_branch">
+    <button class="btn btn-primary" style="margin-top:14px;" onclick="saveBank()">محفوظ کریں</button>
+  `;
+  openSheet('نیا بینک', body);
+}
+async function saveBank(){
+  if(!lockSubmit()) return;
+  try{
+  const name=document.getElementById('b_name').value.trim();
+  if(!name){ toast('بینک کا نام لکھیں'); return; }
+  DB.banks.push({id:uid(), name, accountNo:document.getElementById('b_acc').value.trim(), branch:document.getElementById('b_branch').value.trim()});
+  await saveDB(); closeSheet(); renderBanks(document.getElementById('main')); toast('بینک شامل ہو گیا');
+  } finally { unlockSubmit(); }
+}
+function openBankDetail(bankId){
+  const b=bankById(bankId);
+  const entries=[];
+  DB.bankEntries.filter(e=>e.bankId===bankId).forEach(e=>entries.push({date:e.date,desc:e.desc,in:e.in,out:e.out,createdAt:e.createdAt||0,kind:'bankEntry',id:e.id}));
+  DB.sales.filter(s=>s.paymentType==='بینک'&&s.bankId===bankId).forEach(s=>entries.push({date:s.date,desc:'POS سیل — '+s.invoiceNo,in:s.netTotal,out:0,createdAt:s.createdAt,kind:'sale',id:s.id}));
+  DB.purchases.filter(p=>p.paymentType==='بینک'&&p.bankId===bankId).forEach(p=>entries.push({date:p.date,desc:'خریداری',in:0,out:p.total,createdAt:p.createdAt,kind:'purchase',id:p.id}));
+  entries.sort((a,b)=>a.createdAt-b.createdAt);
+  let bal=0;
+  const rows=entries.map(e=>{bal+=(Number(e.in)||0)-(Number(e.out)||0);
+    return `<div class="list-item"><div><div class="name">${esc(e.desc)}</div><div class="meta">${fmtDateTime(e.date,e.createdAt)}</div></div>
+    <div style="display:flex;align-items:center;gap:8px;">
+    <div style="font-weight:800;color:${e.in?'var(--green)':'var(--red)'}">${e.in?'+':'-'}${money(e.in||e.out)}</div>
+    ${e.kind==='bankEntry'?`<button class="btn btn-outline btn-sm" style="padding:6px 10px;" onclick="openBankEntryForm('${bankId}','${e.id}')">✏️</button>`:''}
+    <button class="btn btn-red btn-sm" style="padding:6px 10px;" onclick="deleteBankLedgerEntry('${e.kind}','${e.id}','${bankId}')">🗑️</button>
+    </div></div>`;
+  }).reverse().join('');
+  const body=`
+    <div class="flexrow" style="margin-bottom:4px;"><div class="bank-avatar" style="background:${bankMonogramBg(b.name)}">${esc((b.name||'؟').trim()[0]||'؟')}</div>
+    <div><div class="name">${esc(b.name)}</div><div class="meta">${esc(b.accountNo||'')}</div></div></div>
+    <div class="stat good" style="margin-top:10px;"><div class="label">موجودہ بیلنس</div><div class="value">${money(bankBalance(bankId))}</div></div>
+    <button class="btn btn-outline" style="margin-top:10px;" onclick="openBankEntryForm('${bankId}')">+ نئی انٹری (جمع/نکلوائی)</button>
+    <button class="btn btn-red" style="margin-top:8px;" onclick="deleteBank('${bankId}')">🗑️ یہ بینک اکاؤنٹ حذف کریں</button>
+    <h3 style="margin-top:14px;color:var(--navy);font-size:14px;">تمام انٹریاں</h3>
+    ${rows||'<div class="empty">کوئی انٹری نہیں</div>'}
+  `;
+  openSheet(b.name, body);
+}
+async function deleteBank(bankId){
+  const hasEntries = DB.bankEntries.some(e=>e.bankId===bankId) || DB.sales.some(s=>s.bankId===bankId) || DB.purchases.some(p=>p.bankId===bankId);
+  const msg = hasEntries
+    ? 'اس بینک اکاؤنٹ کی تمام انٹریاں اور اس سے جڑے بل بھی حذف ہو جائیں گے۔ یقینی بنائیں؟'
+    : 'یہ بینک اکاؤنٹ حذف کرنا چاہتے ہیں؟';
+  if(!(await customConfirm(msg))) return;
+  const bank=DB.banks.find(b=>b.id===bankId);
+  const relEntries=DB.bankEntries.filter(e=>e.bankId===bankId);
+  const relSales=DB.sales.filter(s=>s.bankId===bankId);
+  const relPurchases=DB.purchases.filter(p=>p.bankId===bankId);
+  if(bank) trashPut('bank', 'بینک: '+bank.name, { bank, bankEntries:relEntries, sales:relSales, purchases:relPurchases });
+  relSales.forEach(s=>{ (s.items||[]).forEach(it=>{ const item=itemById(it.itemId); if(item) item.stock=(Number(item.stock)||0)+Number(it.qty||0); }); });
+  relPurchases.forEach(p=>{ const item=itemById(p.itemId); if(item) item.stock=(Number(item.stock)||0)-Number(p.qty||0); });
+  DB.sales=DB.sales.filter(s=>s.bankId!==bankId);
+  DB.purchases=DB.purchases.filter(p=>p.bankId!==bankId);
+  DB.bankEntries=DB.bankEntries.filter(e=>e.bankId!==bankId);
+  DB.banks=DB.banks.filter(b=>b.id!==bankId);
+  await saveDB(); closeSheet(); renderBanks(document.getElementById('main')); toast('بینک اکاؤنٹ حذف ہو گیا (ری سائیکل بن میں محفوظ)');
+}
+async function deleteBankLedgerEntry(kind,id,bankId){
+  if(!(await customConfirm('یہ انٹری حذف کرنا چاہتے ہیں؟'))) return;
+  if(kind==='bankEntry'){
+    DB.bankEntries=DB.bankEntries.filter(e=>e.id!==id);
+  } else if(kind==='sale'){
+    const sale=DB.sales.find(s=>s.id===id);
+    if(sale){ (sale.items||[]).forEach(it=>{ const item=itemById(it.itemId); if(item) item.stock=(Number(item.stock)||0)+Number(it.qty||0); }); }
+    DB.sales=DB.sales.filter(s=>s.id!==id);
+  } else if(kind==='purchase'){
+    const purchase=DB.purchases.find(p=>p.id===id);
+    if(purchase){ const item=itemById(purchase.itemId); if(item) item.stock=(Number(item.stock)||0)-Number(purchase.qty||0); }
+    DB.purchases=DB.purchases.filter(p=>p.id!==id);
+  }
+  await saveDB(); openBankDetail(bankId); toast('انٹری حذف ہو گئی');
+}
+function openBankEntryForm(bankId,entryId){
+  const e = entryId ? DB.bankEntries.find(x=>x.id===entryId) : null;
+  const body=`
+    <label>تفصیل</label><input type="text" id="be_desc" placeholder="مثلاً کرایہ / ٹرانسفر" value="${e?esc(e.desc):''}">
+    <div class="seg"><button class="${(!e||e.in)?'on':''}" id="be_in_btn" onclick="setBankType('in')">جمع</button><button class="${(e&&e.out)?'on':''}" id="be_out_btn" onclick="setBankType('out')">نکلوائی</button></div>
+    <input type="hidden" id="be_type" value="${(e&&e.out)?'out':'in'}">
+    <label>رقم</label><input type="number" id="be_amt" value="${e?(e.in||e.out):''}">
+    <label>تاریخ</label><input type="date" id="be_date" value="${e?e.date:todayStr()}">
+    <button class="btn btn-primary" style="margin-top:14px;" onclick="saveBankEntry('${bankId}','${entryId||''}')">محفوظ کریں</button>
+  `;
+  openSheet(entryId?'انٹری میں ترمیم':'نئی بینک انٹری', body);
+}
+function setBankType(t){
+  document.getElementById('be_type').value=t;
+  document.getElementById('be_in_btn').classList.toggle('on',t==='in');
+  document.getElementById('be_out_btn').classList.toggle('on',t==='out');
+}
+async function saveBankEntry(bankId,entryId){
+  if(!lockSubmit()) return;
+  try{
+  const amt=parseFloat(document.getElementById('be_amt').value)||0;
+  const type=document.getElementById('be_type').value;
+  if(amt<=0){ toast('صحیح رقم لکھیں'); return; }
+  const desc=document.getElementById('be_desc').value.trim()||'انٹری';
+  const date=document.getElementById('be_date').value||todayStr();
+  if(entryId){
+    const e=DB.bankEntries.find(x=>x.id===entryId);
+    if(e){ e.desc=desc; e.date=date; e.in=type==='in'?amt:0; e.out=type==='out'?amt:0; }
+  } else {
+    DB.bankEntries.push({id:uid(), createdAt:Date.now(), bankId, desc, date, in:type==='in'?amt:0, out:type==='out'?amt:0});
+  }
+  await saveDB(); closeSheet(); openBankDetail(bankId); toast('محفوظ ہو گیا');
+  } finally { unlockSubmit(); }
+}
+
+/* ---- Settings ---- */
+function renderSettings(main){
+  main.innerHTML=`
+    <button class="btn btn-outline btn-sm" onclick="backToMoreMenu()">‹ واپس</button>
+    <div class="card" style="margin-top:10px;">
+      <label>دکان کا نام</label><input type="text" id="s_name" value="${esc(DB.shop.name)}">
+      <label>پتہ</label><input type="text" id="s_addr" value="${esc(DB.shop.address)}">
+      <label>فون نمبر</label><input type="tel" id="s_phone" value="${esc(DB.shop.phone||'')}">
+      <button class="btn btn-primary" style="margin-top:14px;" onclick="saveSettings()">محفوظ کریں</button>
+    </div>
+    <div class="card">
+      <h3>🛡️ ڈیٹا کی حفاظت (بیک اپ)</h3>
+      <div class="meta" style="margin-bottom:10px;line-height:1.7;">
+        ${hasFirebase && cloudWorks ? '✅ یہ ڈیٹا اب Firebase کلاؤڈ میں محفوظ ہو رہا ہے اور تمام موبائلز پر خودکار (لائیو) sync ہوتا ہے۔ پھر بھی حفاظتی بیک اپ ہفتے میں ایک بار لیتے رہیں۔' : hasCloudStorage ? 'یہ ڈیٹا آپ کے موبائل میں محفوظ ہو رہا ہے۔ ہفتے میں ایک بار بیک اپ فائل ڈاؤن لوڈ کر کے واٹس ایپ/گوگل ڈرائیو پر بھیج دیں — موبائل گم ہونے کی صورت میں یہی فائل نئے موبائل میں واپس ڈالیں۔' : '⚠️ یہ صفحہ Claude کے باہر کھلا ہوا ہے — ڈیٹا صرف اسی موبائل/براؤزر میں محفوظ ہے۔ ہر چند دن بعد بیک اپ فائل ڈاؤن لوڈ ضرور کریں اور محفوظ جگہ (واٹس ایپ/گوگل ڈرائیو) بھیج دیں۔'}
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-navy" onclick="downloadBackup()">📁 بیک اپ ڈاؤن لوڈ کریں</button>
+        <button class="btn btn-outline" onclick="triggerRestore()">♻️ بیک اپ واپس لائیں</button>
+      </div>
+      <input type="file" id="restoreFileInput" accept="application/json" style="display:none" onchange="restoreFromFile(event)">
+    </div>
+    <div class="card">
+      <h3>🔒 پن لاک</h3>
+      <div class="meta" style="margin-bottom:10px;line-height:1.7;">
+        ${DB.shop.pin ? 'پن لاک فی الحال آن ہے۔ ایپ کھولنے پر پن مانگا جائے گا۔' : 'پن لاک فی الحال بند ہے۔ آن کرنے سے ایپ کھولنے پر 4 ہندسوں کا پن مانگا جائے گا۔'}
+      </div>
+      <div class="btn-row">
+        ${DB.shop.pin
+          ? `<button class="btn btn-outline" onclick="openSetPin()">🔁 پن تبدیل کریں</button><button class="btn btn-red" onclick="removePin()">پن ہٹائیں</button>`
+          : `<button class="btn btn-navy" onclick="openSetPin()">پن لاک آن کریں</button>`}
+      </div>
+      ${DB.shop.pin ? `<button class="btn btn-outline" style="margin-top:10px;" onclick="lockAppNow()">⏻ ابھی لاک کریں</button>` : ''}
+    </div>
+  `;
+}
+async function saveSettings(){
+  DB.shop.name=document.getElementById('s_name').value.trim()||DB.shop.name;
+  DB.shop.address=document.getElementById('s_addr').value.trim();
+  DB.shop.phone=document.getElementById('s_phone').value.trim();
+  await saveDB(); toast('محفوظ ہو گیا'); render();
+}
+function openSettings(){ go('more'); moreView='settings'; render(); }
+
+/* ===================== SHEET / OVERLAY ===================== */
+function openSheet(title, bodyHTML){
+  const root=document.getElementById('overlayRoot');
+  root.innerHTML = `
+    <div class="overlay" onclick="if(event.target===this) closeSheet()">
+      <div class="sheet">
+        <div class="sheethead"><h2>${esc(title)}</h2><button class="closebtn" onclick="closeSheet()">✕</button></div>
+        ${bodyHTML}
+      </div>
+    </div>`;
+}
+function closeSheet(){ document.getElementById('overlayRoot').innerHTML=''; }
+
+/* Custom confirm dialog — replaces native confirm() which can be blocked
+   inside sandboxed webviews (some file-preview/browser embeds silently
+   suppress alert()/confirm()/prompt()). Returns a Promise<boolean>. */
+function customConfirm(message){
+  return new Promise(function(resolve){
+    const root=document.getElementById('confirmRoot');
+    function done(val){ root.innerHTML=''; resolve(val); }
+    root.innerHTML = `
+      <div class="confirm-overlay">
+        <div class="confirm-box">
+          <p>${esc(message)}</p>
+          <div class="btn-row">
+            <button class="btn btn-outline" id="cc_cancel">منسوخ کریں</button>
+            <button class="btn btn-red" id="cc_ok">تصدیق کریں</button>
+          </div>
+        </div>
+      </div>`;
+    document.getElementById('cc_ok').onclick=()=>done(true);
+    document.getElementById('cc_cancel').onclick=()=>done(false);
+  });
+}
+
+/* ===================== BARCODE CAMERA SCANNER ===================== */
+let scannerCallback=null;
+let scannerBusy=false;
+function openBarcodeScanner(callback){
+  scannerCallback=callback; scannerBusy=false;
+  const root=document.getElementById('overlayRoot');
+  root.innerHTML = `
+    <div class="overlay" style="align-items:center;">
+      <div class="sheet" style="max-height:82vh;padding:14px;">
+        <div class="sheethead"><h2>📷 بار کوڈ اسکین کریں</h2><button class="closebtn" onclick="closeScanner()">✕</button></div>
+        <div id="scannerViewport"><div class="scan-line"></div></div>
+        <div style="text-align:center;color:var(--muted);font-size:12px;margin-top:8px;">بارکوڈ کو کیمرے کے سامنے رکھیں</div>
+        <button class="btn btn-outline" style="margin-top:10px;" onclick="closeScanner()">منسوخ کریں</button>
+      </div>
+    </div>`;
+  if(typeof Quagga==='undefined'){
+    toast('کیمرہ اسکینر لوڈ نہیں ہو سکا — انٹرنیٹ کنکشن چیک کریں');
+    return;
+  }
+  if(!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)){
+    toast('اس براؤزر/صفحے پر کیمرہ دستیاب نہیں (https والا لنک استعمال کریں)');
+    return;
+  }
+  Quagga.init({
+    inputStream:{
+      name:"Live",
+      type:"LiveStream",
+      target: document.getElementById('scannerViewport'),
+      constraints:{ facingMode:"environment", width:{ideal:640}, height:{ideal:480} }
+    },
+    locator:{ patchSize:"medium", halfSample:true },
+    numOfWorkers: 2,
+    decoder:{ readers:["ean_reader","ean_8_reader","code_128_reader","code_39_reader","upc_reader","upc_e_reader"] },
+    locate:true
+  }, function(err){
+    if(err){ console.error(err); toast('کیمرہ کھولنے میں مسئلہ — پرمیشن چیک کریں'); closeScanner(); return; }
+    Quagga.start();
+  });
+  Quagga.offDetected();
+  Quagga.onDetected(onBarcodeDetected);
+}
+function playBeep(){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type='sine'; osc.frequency.value=1500;
+    gain.gain.setValueAtTime(0.25, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.15);
+    osc.start(); osc.stop(ctx.currentTime+0.15);
+    setTimeout(()=>ctx.close(), 300);
+  }catch(e){}
+}
+function onBarcodeDetected(result){
+  if(scannerBusy) return;
+  const code = result && result.codeResult ? result.codeResult.code : null;
+  if(!code) return;
+  scannerBusy=true;
+  playBeep();
+  if(navigator.vibrate) navigator.vibrate(120);
+  const cb=scannerCallback;
+  closeScanner();
+  if(cb) cb(code);
+}
+function closeScanner(){
+  try{ if(typeof Quagga!=='undefined'){ Quagga.offDetected(); Quagga.stop(); } }catch(e){}
+  const root=document.getElementById('overlayRoot');
+  if(root) root.innerHTML='';
+  scannerCallback=null;
+}
+function esc(s){ if(s===undefined||s===null) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ===================== PIN LOCK ===================== */
+const UNLOCK_KEY='kaleem_unlocked_v1';
+let lockEntered='';
+let lockMode='enter'; // 'enter' | 'setNew' | 'confirmNew' | 'changeOld'
+let lockTempPin='';
+let lockErr='';
+
+function isLocked(){
+  return !!(DB.shop.pin) && sessionStorage.getItem(UNLOCK_KEY)!=='1';
+}
+function showAppUI(show){
+  document.getElementById('app').style.display = show?'':'none';
+}
+function renderLockScreen(){
+  showAppUI(false);
+  const dots = [0,1,2,3].map(i=>`<span class="${i<lockEntered.length?'filled':''}"></span>`).join('');
+  const root=document.getElementById('lockRoot');
+  root.innerHTML = `
+    <div class="lockwrap">
+      <div class="lock-logo">🔒</div>
+      <h2>پن درج کریں</h2>
+      <div class="sub">${esc(DB.shop.name)}</div>
+      <div class="lock-dots">${dots}</div>
+      <div class="lock-err">${esc(lockErr)}</div>
+      <div class="lock-keypad">
+        ${[1,2,3,4,5,6,7,8,9].map(n=>`<button onclick="lockPress('${n}')">${n}</button>`).join('')}
+        <button class="wide" onclick="lockBackspace()">⌫</button>
+        <button onclick="lockPress('0')">0</button>
+        <div></div>
+      </div>
+      ${lockMode!=='enter' ? `<button class="btn btn-outline" style="margin-top:22px;max-width:220px;" onclick="lockCancelSetup()">منسوخ کریں</button>` : ''}
+    </div>`;
+}
+function lockCancelSetup(){
+  lockMode='enter'; lockEntered=''; lockTempPin=''; lockErr='';
+  document.getElementById('lockRoot').innerHTML='';
+  showAppUI(true);
+}
+function lockPress(d){
+  if(lockEntered.length>=4) return;
+  lockEntered+=d; lockErr='';
+  if(lockEntered.length===4) setTimeout(lockPinSubmit, 120);
+  renderLockScreen();
+}
+function lockBackspace(){ lockEntered=lockEntered.slice(0,-1); renderLockScreen(); }
+function lockPinSubmit(){
+  if(lockMode==='enter'){
+    if(lockEntered===DB.shop.pin){
+      sessionStorage.setItem(UNLOCK_KEY,'1');
+      document.getElementById('lockRoot').innerHTML='';
+      showAppUI(true);
+    }else{
+      lockErr='غلط پن، دوبارہ کوشش کریں'; lockEntered=''; renderLockScreen();
+    }
+  }else if(lockMode==='changeOld'){
+    if(lockEntered===DB.shop.pin){
+      lockMode='setNew'; lockEntered=''; lockErr='نیا پن منتخب کریں (4 ہندسے)'; renderLockScreen();
+    }else{
+      lockErr='غلط پن، دوبارہ کوشش کریں'; lockEntered=''; renderLockScreen();
+    }
+  }else if(lockMode==='setNew'){
+    lockTempPin=lockEntered; lockEntered=''; lockMode='confirmNew'; lockErr='دوبارہ پن درج کریں';
+    renderLockScreen();
+  }else if(lockMode==='confirmNew'){
+    if(lockEntered===lockTempPin){
+      DB.shop.pin=lockEntered; saveDB();
+      sessionStorage.setItem(UNLOCK_KEY,'1');
+      lockMode='enter'; lockEntered=''; lockTempPin=''; lockErr='';
+      document.getElementById('lockRoot').innerHTML=''; showAppUI(true);
+      toast('پن لاک آن ہو گیا'); render();
+    }else{
+      lockErr='پن میچ نہیں ہوا، دوبارہ کوشش کریں'; lockEntered=''; lockMode='setNew'; renderLockScreen();
+    }
+  }
+}
+function openSetPin(){
+  lockTempPin='';
+  if(DB.shop.pin){ lockMode='changeOld'; lockEntered=''; lockErr='موجودہ پن درج کریں'; }
+  else{ lockMode='setNew'; lockEntered=''; lockErr='نیا پن منتخب کریں (4 ہندسے)'; }
+  renderLockScreen();
+}
+async function removePin(){
+  if(!(await customConfirm('پن لاک ہٹانا چاہتے ہیں؟'))) return;
+  DB.shop.pin=''; saveDB(); toast('پن لاک ہٹا دیا گیا'); render();
+}
+function lockAppNow(){
+  sessionStorage.removeItem(UNLOCK_KEY);
+  lockMode='enter'; lockEntered=''; lockErr='';
+  renderLockScreen();
+}
+
+/* ===================== INIT ===================== */
+async function init(){
+  await loadDB();
+  go('dash');
+  if(isLocked()){ lockMode='enter'; lockEntered=''; lockErr=''; renderLockScreen(); }
+}
+init();
+
+/* ===================== OFFLINE (PWA) SUPPORT ===================== */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').then(function(reg){
+      // If a new sw.js is deployed, activate it immediately instead of waiting
+      reg.addEventListener('updatefound', function(){
+        const nw = reg.installing;
+        if(!nw) return;
+        nw.addEventListener('statechange', function(){
+          if(nw.state==='installed' && navigator.serviceWorker.controller){
+            nw.postMessage({type:'SKIP_WAITING'});
+          }
+        });
+      });
+    }).catch(function(e){ console.error('SW register failed', e); });
+  });
+  let refreshing=false;
+  navigator.serviceWorker.addEventListener('controllerchange', function(){
+    if(refreshing) return; refreshing=true; window.location.reload();
+  });
+}
+</script>
+</body>
+</html>

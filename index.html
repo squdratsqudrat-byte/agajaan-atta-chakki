@@ -8,6 +8,12 @@
 <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   :root{
     --navy:#122a43;
@@ -97,6 +103,25 @@
   .seg{display:flex;background:#f1ede4;border-radius:12px;padding:4px;gap:4px;}
   .seg button{flex:1;padding:10px 6px;border:none;background:transparent;border-radius:9px;font-weight:700;font-size:13.5px;color:var(--muted);cursor:pointer;}
   .seg button.on{background:var(--navy);color:#fff;}
+  .cattabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;}
+  .cattabs::-webkit-scrollbar{display:none;}
+  .cattab{flex:0 0 auto;padding:8px 14px;border-radius:20px;border:1.5px solid var(--line);background:#fff;color:var(--navy);font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;}
+  .cattab.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .prodgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .prodcard{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:6px;text-align:center;cursor:pointer;position:relative;}
+  .prodcard .qtybadge{position:absolute;top:-6px;left:-6px;background:var(--green);color:#fff;font-size:11px;font-weight:800;min-width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 1px 4px rgba(0,0,0,.25);}
+  .prodcard.sel{border-color:var(--navy);box-shadow:0 0 0 2px rgba(18,42,67,.15);}
+  .prodcard .ph{width:100%;aspect-ratio:1/1;border-radius:9px;object-fit:cover;background:#f1ede4;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--muted);margin-bottom:5px;}
+  .prodcard .pn{font-size:11.5px;font-weight:700;color:var(--navy);line-height:1.25;max-height:28px;overflow:hidden;}
+  .prodcard .pp{font-size:11px;color:var(--muted);margin-top:2px;font-weight:700;}
+  .wsmode{display:flex;align-items:center;justify-content:space-between;background:#fff4e8;border:1.5px solid #f0c36d;border-radius:12px;padding:10px 12px;margin-bottom:10px;}
+  .wsmode .wl{display:flex;align-items:center;gap:8px;font-weight:800;color:#a45c00;font-size:14px;}
+  .swtch{position:relative;display:inline-block;width:46px;height:26px;flex:none;}
+  .swtch input{opacity:0;width:0;height:0;}
+  .swtch .sl{position:absolute;cursor:pointer;inset:0;background:#d8d2c4;border-radius:26px;transition:.2s;}
+  .swtch .sl:before{content:"";position:absolute;height:20px;width:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3);}
+  .swtch input:checked + .sl{background:var(--green);}
+  .swtch input:checked + .sl:before{transform:translateX(20px);}
 
   .list-item{display:flex;align-items:center;justify-content:space-between;padding:12px 4px;border-bottom:1px solid var(--line);}
   .list-item:last-child{border-bottom:none;}
@@ -183,6 +208,33 @@
     #printArea, #printArea *{visibility:visible;}
     #printArea{position:absolute;top:0;left:0;width:100%;}
   }
+
+  /* ---- Purchase-from-supplier flow ---- */
+  .pur-amtbox{background:linear-gradient(135deg,var(--green),#166b3e);color:#fff;border-radius:14px;padding:16px 16px 14px;margin-bottom:12px;}
+  .pur-amtbox .pur-amt-label{font-size:12.5px;opacity:.88;margin-bottom:4px;}
+  .pur-amtbox .pur-amt-value{font-size:26px;font-weight:800;}
+  .calc-pad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px;}
+  .calc-btn{padding:15px 0;border:none;border-radius:10px;background:#f1ede4;font-size:17px;font-weight:700;cursor:pointer;color:var(--ink);}
+  .calc-btn:active{background:#e4ddcd;}
+  .calc-btn.func{background:#e7e1d6;color:var(--navy);}
+  .calc-btn.op{background:var(--amber);color:#fff;}
+  .calc-btn.op:active{background:var(--amber-dark);}
+  .calc-btn.eq{background:var(--green);color:#fff;}
+  .pur-item-row{padding:10px 4px;border-bottom:1px solid var(--line);}
+  .pur-item-row:last-child{border-bottom:none;}
+  .pur-item-head{display:flex;align-items:center;gap:10px;cursor:pointer;}
+  .pur-item-head input[type=checkbox]{width:19px;height:19px;accent-color:var(--green);flex:none;}
+  .sup-headrow{display:flex;padding:4px 4px 8px;color:var(--muted);font-size:11.5px;font-weight:700;border-bottom:1px solid var(--line);margin-top:6px;}
+  .sup-headrow span{flex:1;text-align:center;}
+  .sup-headrow span:last-child{flex:1.6;text-align:right;}
+  .sup-row{display:flex;align-items:flex-start;gap:4px;padding:10px 2px;border-bottom:1px solid var(--line);}
+  .sup-row:last-child{border-bottom:none;}
+  .sup-col{flex:1;text-align:center;font-weight:800;font-size:13px;padding-top:2px;}
+  .sup-col.info{flex:1.6;text-align:right;font-weight:400;}
+  .sup-col.info .desc{font-weight:700;font-size:13.5px;color:var(--ink);}
+  .amt-red{color:var(--red);}
+  .amt-green{color:var(--green);}
+  .attach-btn{background:none;border:none;font-size:16px;cursor:pointer;color:var(--muted);flex:none;align-self:center;}
 </style>
 </head>
 <body>
@@ -194,23 +246,23 @@
         <svg class="logo" viewBox="0 0 48 48" fill="none">
           <defs>
             <linearGradient id="logoBg" x1="4" y1="2" x2="44" y2="46" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#e8c25a"/>
-              <stop offset="100%" stop-color="#b8860f"/>
+              <stop offset="0%" stop-color="#f0a44a"/>
+              <stop offset="100%" stop-color="#c76f16"/>
             </linearGradient>
-            <linearGradient id="logoCar" x1="10" y1="10" x2="38" y2="40" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#3d5a24"/>
-              <stop offset="100%" stop-color="#1e3010"/>
+            <linearGradient id="logoCar" x1="10" y1="17" x2="38" y2="37" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#1c3f61"/>
+              <stop offset="100%" stop-color="#0c1e30"/>
             </linearGradient>
           </defs>
           <circle cx="24" cy="24" r="23" fill="url(#logoBg)"/>
           <ellipse cx="17" cy="11.5" rx="11" ry="5" fill="#ffffff" opacity=".16"/>
-          <path d="M24 10v24" stroke="url(#logoCar)" stroke-width="2.3" stroke-linecap="round"/>
-          <path d="M24 15c-3-3-7-3-9-1 2 3 6 4 9 2z" fill="url(#logoCar)"/>
-          <path d="M24 15c3-3 7-3 9-1-2 3-6 4-9 2z" fill="url(#logoCar)"/>
-          <path d="M24 22c-3-3-7-3-9-1 2 3 6 4 9 2z" fill="url(#logoCar)"/>
-          <path d="M24 22c3-3 7-3 9-1-2 3-6 4-9 2z" fill="url(#logoCar)"/>
-          <path d="M24 29c-3-3-7-3-9-1 2 3 6 4 9 2z" fill="url(#logoCar)"/>
-          <path d="M24 29c3-3 7-3 9-1-2 3-6 4-9 2z" fill="url(#logoCar)"/>
+          <path d="M11.2 29.6l2.55-8.3a3.5 3.5 0 0 1 3.35-2.45h13.8a3.5 3.5 0 0 1 3.35 2.45l2.55 8.3" fill="none" stroke="url(#logoCar)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M15.6 21.4h16.8" stroke="url(#logoCar)" stroke-width="2.1" stroke-linecap="round"/>
+          <rect x="10.4" y="29" width="27.2" height="6.6" rx="3.3" fill="url(#logoCar)"/>
+          <circle cx="17" cy="36.2" r="3.5" fill="#fbf7f0" stroke="url(#logoCar)" stroke-width="1.6"/>
+          <circle cx="17" cy="36.2" r="1.15" fill="#c76f16"/>
+          <circle cx="31" cy="36.2" r="3.5" fill="#fbf7f0" stroke="url(#logoCar)" stroke-width="1.6"/>
+          <circle cx="31" cy="36.2" r="1.15" fill="#c76f16"/>
         </svg>
         <div>
           <h1 id="shopNameHdr">اغا جان سائیکلون آٹا چکی</h1>
@@ -220,6 +272,7 @@
       <button class="iconbtn" onclick="openSettings()">⚙️</button>
     </div>
     <div class="screenTitle" id="screenTitle">ڈیش بورڈ</div>
+    <div style="text-align:center;font-size:10.5px;color:rgba(255,255,255,.55);margin-top:2px;">اپڈیٹ ورژن: 2026-09-16-v1</div>
   </header>
 
   <main id="main"></main>
@@ -236,6 +289,7 @@
 </div>
 
 <div id="overlayRoot"></div>
+<div id="scannerRoot"></div>
 <div id="confirmRoot"></div>
 <div id="printArea" style="display:none"></div>
 
@@ -250,6 +304,7 @@ function defaultDB(){
     items:[], customers:[], banks:[], sales:[], purchases:[],
     cashEntries:[], bankEntries:[], collections:[], trash:[],
     amanatPersons:[], amanatEntries:[],
+    suppliers:[], supplierPayments:[],
     invoiceCounter: 0
   };
 }
@@ -297,6 +352,7 @@ function startFBListener(){
       remote.bankEntries=remote.bankEntries||[]; remote.collections=remote.collections||[]; remote.invoiceCounter=remote.invoiceCounter||0;
       remote.trash=remote.trash||[];
       remote.amanatPersons=remote.amanatPersons||[]; remote.amanatEntries=remote.amanatEntries||[];
+      remote.suppliers=remote.suppliers||[]; remote.supplierPayments=remote.supplierPayments||[];
       remote.shop=remote.shop||defaultDB().shop;
       DB=remote;
       try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }catch(e){}
@@ -330,6 +386,7 @@ async function loadDB(){
   DB.bankEntries=DB.bankEntries||[]; DB.collections=DB.collections||[]; DB.invoiceCounter=DB.invoiceCounter||0;
   DB.trash=DB.trash||[];
   DB.amanatPersons=DB.amanatPersons||[]; DB.amanatEntries=DB.amanatEntries||[];
+  DB.suppliers=DB.suppliers||[]; DB.supplierPayments=DB.supplierPayments||[];
   if(hasFirebase) startFBListener();
 }
 let formSubmitting=false;
@@ -370,7 +427,7 @@ function downloadBackup(){
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   const stamp=new Date().toISOString().slice(0,10);
-  a.href=url; a.download='kaleem-auto-mobile-backup-'+stamp+'.json';
+  a.href=url; a.download='agajaan-atta-chakki-backup-'+stamp+'.json';
   document.body.appendChild(a); a.click(); a.remove();
   URL.revokeObjectURL(url);
   toast('📁 بیک اپ فائل ڈاؤن لوڈ ہو گئی');
@@ -405,15 +462,40 @@ function waLink(phone,text){
   if(!p.startsWith('92') && p.length===10) p='92'+p;
   return 'https://wa.me/'+p+'?text='+encodeURIComponent(text);
 }
+function shopCardText(){
+  return `🏪 ${DB.shop.name}`+(DB.shop.address?`\n📍 ${DB.shop.address}`:'')+(DB.shop.phone?`\n📞 ${DB.shop.phone}`:'');
+}
+async function shareShopCard(){
+  const text=shopCardText();
+  if(navigator.share){
+    try{ await navigator.share({title:DB.shop.name, text}); return; }catch(e){ if(e && e.name==='AbortError') return; }
+  }
+  window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
+}
 function itemById(id){ return DB.items.find(i=>i.id===id); }
 function custById(id){ return DB.customers.find(c=>c.id===id); }
 function bankById(id){ return DB.banks.find(b=>b.id===id); }
+
+/* purchase items — supports old single-item purchases and new multi-item ones */
+function purchaseItems(p){
+  if(p.items && p.items.length) return p.items;
+  if(p.itemId) return [{itemId:p.itemId, name:p.itemName, qty:p.qty, cost:p.cost}];
+  return [];
+}
+function purchaseItemsLabel(p){
+  const its=purchaseItems(p);
+  if(!its.length) return p.note || 'خریداری';
+  if(its.length===1) return its[0].name + (its[0].qty?' × '+its[0].qty:'');
+  return its[0].name + ' + '+(its.length-1)+' مزید آئٹمز';
+}
+function applyStockForPurchase(p){ purchaseItems(p).forEach(it=>{ const item=itemById(it.itemId); if(item) item.stock=(Number(item.stock)||0)+Number(it.qty||0); }); }
+function reverseStockForPurchase(p){ purchaseItems(p).forEach(it=>{ const item=itemById(it.itemId); if(item) item.stock=(Number(item.stock)||0)-Number(it.qty||0); }); }
 
 /* customer computed balance */
 function custDue(c){
   let due = Number(c.openingDue)||0;
   DB.sales.forEach(s=>{ if(s.customerId===c.id && s.paymentType==='ادھار') due += s.netTotal; });
-  DB.collections.forEach(col=>{ if(col.customerId===c.id) due -= Number(col.amount)||0; });
+  DB.collections.forEach(col=>{ if(col.customerId===c.id){ due += col.type==='given' ? (Number(col.amount)||0) : -(Number(col.amount)||0); } });
   return due;
 }
 function cashBalance(){
@@ -477,7 +559,10 @@ function renderDash(main){
     ${lowStock.length? `<div class="card"><h3>⚠️ کم اسٹاک آئٹمز</h3>${lowStock.map(i=>`
       <div class="list-item"><div><div class="name">${esc(i.name)}</div><div class="meta">باقی: ${i.stock}</div></div><span class="badge low">دوبارہ منگوائیں</span></div>`).join('')}</div>`:''}
     <div class="card">
-      <h3>🕓 حالیہ سیلز</h3>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <h3 style="margin:0;">🕓 حالیہ سیلز</h3>
+        <span style="color:var(--navy);font-weight:700;font-size:12.5px;cursor:pointer;" onclick="goAllSales()">سب دیکھیں ›</span>
+      </div>
       ${recentSalesHTML()}
     </div>
     <div class="btn-row" style="margin-top:4px;">
@@ -514,20 +599,26 @@ function renderPOS(main){
 
     <div class="card">
       <label>آئٹم شامل کریں</label>
+      <div class="wsmode">
+        <span class="wl">🛍️ ہول سیل موڈ</span>
+        <label class="swtch"><input type="checkbox" id="posWsToggle" ${posWholesaleMode?'checked':''} onchange="setWholesaleMode(this.checked)"><span class="sl"></span></label>
+      </div>
       <input type="text" id="posItemSearch" placeholder="آئٹم کا نام یا بارکوڈ لکھیں..." autocomplete="off" oninput="filterPosItems(this.value)" onfocus="filterPosItems(this.value)">
       <div id="posItemResults" style="position:relative;"></div>
+      <div id="posCatTabs" class="cattabs" style="margin-top:10px;"></div>
+      <div id="posGrid" class="prodgrid" style="margin-top:8px;"></div>
+      <div id="posPriceTypeWrap"></div>
       <div class="btn-row" style="margin-top:8px;">
         <input type="number" id="posQty" placeholder="مقدار" value="1" step="0.01" style="max-width:120px;">
         <button class="btn btn-navy" onclick="addToCart()">➕ کارٹ میں شامل کریں</button>
       </div>
       <div class="btn-row" style="margin-top:6px;gap:6px;">
-        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="setPosQty(1)">1</button>
-        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="setPosQty(5)">5 کلو</button>
-        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="setPosQty(10)">10 کلو</button>
-        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="setPosQty(20)">20 کلو</button>
+        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="setPosQty(0.25)">پاؤ (¼)</button>
+        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="setPosQty(0.5)">آدھا (½)</button>
+        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="setPosQty(0.75)">تین پاؤ (¾)</button>
+        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="setPosQty(1)">1 لیٹر</button>
       </div>
       <button class="btn btn-outline" style="margin-top:8px;" onclick="scanPOSItem()">📷 بارکوڈ اسکین کر کے شامل کریں</button>
-      <button class="btn btn-outline" style="margin-top:8px;" onclick="openGrindingToCartForm()">🌾 پسائی شامل کریں</button>
     </div>
 
     <div class="card">
@@ -549,7 +640,18 @@ function renderPOS(main){
           ${DB.banks.map(b=>`<option value="${b.id}" ${posBankId===b.id?'selected':''}>${esc(b.name)}</option>`).join('')}
         </select>` : ''}
       <label>ڈسکاؤنٹ (روپے)</label>
-      <input type="number" id="posDiscount" value="${editingSaleDiscount||0}" step="0.01">
+      <input type="number" id="posDiscount" value="${editingSaleDiscount||0}" step="0.01" oninput="updateChangeDisplay()">
+      ${posPayType==='نقد' ? `
+      <label>کیش وصول کیا (روپے)</label>
+      <input type="number" id="posCashReceived" placeholder="مثلاً 5000" oninput="updateChangeDisplay()">
+      <div class="btn-row" style="margin-top:6px;gap:6px;">
+        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="setCashReceived(100)">100</button>
+        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="setCashReceived(500)">500</button>
+        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="setCashReceived(1000)">1000</button>
+        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="setCashReceived(5000)">5000</button>
+        <button class="btn btn-outline btn-sm" style="flex:0.6;" onclick="document.getElementById('posCashReceived').value=0; updateChangeDisplay();">صاف</button>
+      </div>
+      <div id="changeDisplay" class="meta" style="margin-top:4px;"></div>` : ''}
     </div>
 
     ${posPayType==='ادھار' ? `
@@ -574,6 +676,47 @@ function renderPOS(main){
     <button class="btn btn-primary" style="margin-top:4px;" onclick="finalizeSale()">${editingSaleId?'✅ ترمیم محفوظ کریں':'✅ سیل مکمل کریں اور بل بنائیں'}</button>
   `;
   if(posPayType==='ادھار') initSignaturePad();
+  renderPosCatTabs();
+  renderPosGrid();
+}
+let posGridCategory='سب';
+function renderPosCatTabs(){
+  const box=document.getElementById('posCatTabs');
+  if(!box) return;
+  const cats=['سب', ...new Set(DB.items.map(i=>(i.category||'').trim()).filter(Boolean))];
+  if(!cats.includes(posGridCategory)) posGridCategory='سب';
+  box.innerHTML = cats.map(c=>`<button class="cattab ${posGridCategory===c?'on':''}" onclick="setPosGridCategory('${esc(c).replace(/'/g,"\\'")}')">${esc(c)}</button>`).join('');
+}
+function setPosGridCategory(c){ posGridCategory=c; renderPosCatTabs(); renderPosGrid(); }
+function cartQtyForItem(id){ return cart.filter(c=>c.itemId===id).reduce((a,c)=>a+(Number(c.qty)||0),0); }
+function renderPosGrid(){
+  const box=document.getElementById('posGrid');
+  if(!box) return;
+  let items = DB.items;
+  if(posGridCategory && posGridCategory!=='سب') items = items.filter(i=>(i.category||'').trim()===posGridCategory);
+  if(!items.length){ box.innerHTML=`<div class="empty" style="grid-column:1/-1;"><div class="ic">📦</div>اس کیٹیگری میں کوئی آئٹم نہیں</div>`; return; }
+  box.innerHTML = items.map(i=>{
+    const q=cartQtyForItem(i.id);
+    return `
+    <div class="prodcard" onclick="quickAddFromGrid('${i.id}')">
+      ${q>0?`<div class="qtybadge">${q}</div>`:''}
+      ${i.photo?`<img class="ph" src="${i.photo}">`:`<div class="ph">📦</div>`}
+      <div class="pn">${esc(i.name)}</div>
+      <div class="pp">${money((posWholesaleMode && i.wholesalePrice)?i.wholesalePrice:i.salePrice)}</div>
+    </div>`;
+  }).join('');
+}
+function quickAddFromGrid(id){
+  const it=itemById(id);
+  if(!it) return;
+  const price = (posWholesaleMode && it.wholesalePrice) ? Number(it.wholesalePrice) : Number(it.salePrice);
+  const label = it.name + (posWholesaleMode && it.wholesalePrice ? ' (ہول سیل)' : '');
+  const existing = cart.find(c=>c.itemId===it.id && c.price===price);
+  if(existing) existing.qty = Number(existing.qty)+1;
+  else cart.push({itemId:it.id, name:label, price, qty:1});
+  document.getElementById('cartBox').innerHTML=cartHTML();
+  updateChangeDisplay();
+  renderPosGrid();
 }
 function initSignaturePad(){
   const canvas=document.getElementById('sigPad');
@@ -614,18 +757,23 @@ function capturePOSBillPhoto(input){
 }
 function cartHTML(){
   if(!cart.length) return `<div class="empty"><div class="ic">🛒</div>ابھی کارٹ خالی ہے</div>`;
-  let rows = cart.map((c,idx)=>`
+  let rows = cart.map((c,idx)=>{
+    const it = c.itemId ? itemById(c.itemId) : null;
+    const photo = it && it.photo ? it.photo : null;
+    return `
     <div class="cartline">
+      ${photo?`<img src="${photo}" style="width:34px;height:34px;object-fit:cover;border-radius:7px;margin-inline-end:6px;">`:''}
       <div class="ci-name">${esc(c.name)}<br><span style="color:var(--muted);font-size:11.5px;">@${money(c.price)}</span></div>
       <input class="ci-qty" type="number" step="0.01" value="${c.qty}" onchange="updateCartQty(${idx},this.value)">
       <div class="ci-total">${money(c.qty*c.price)}</div>
       <button class="rm" onclick="removeFromCart(${idx})">✕</button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   const subtotal = cart.reduce((a,c)=>a+c.qty*c.price,0);
   return rows + `<div class="totalsbox"><div class="tr"><span>سب ٹوٹل</span><span>${money(subtotal)}</span></div></div>`;
 }
 function setPosQty(v){ document.getElementById('posQty').value=v; }
-let posSelectedItemId=null;
+let posSelectedItemId=null, posPriceType='retail', posWholesaleMode=false;
 function filterPosItems(q){
   const box=document.getElementById('posItemResults');
   if(!box) return;
@@ -635,7 +783,7 @@ function filterPosItems(q){
   box.innerHTML = matches.length
     ? `<div style="position:absolute;left:0;right:0;top:2px;background:#fff;border:1.5px solid var(--line);border-radius:10px;z-index:20;max-height:260px;overflow-y:auto;box-shadow:0 4px 14px rgba(0,0,0,.12);">
         ${matches.map(i=>`<div class="list-item" style="padding:10px 12px;" onclick="selectPosItem('${i.id}')">
-          <div>${i.photo?`<img src="${i.photo}" style="width:32px;height:32px;object-fit:cover;border-radius:6px;margin-inline-end:8px;vertical-align:middle;">`:''}<span class="name">${esc(i.name)}</span><div class="meta">اسٹاک: ${i.stock} • قیمت: ${money(i.salePrice)}</div></div>
+          <div>${i.photo?`<img src="${i.photo}" style="width:32px;height:32px;object-fit:cover;border-radius:6px;margin-inline-end:8px;vertical-align:middle;">`:''}<span class="name">${esc(i.name)}</span><div class="meta">اسٹاک: ${stockLabel(i)} • قیمت: ${money(i.salePrice)}${i.wholesalePrice?' • ہول سیل: '+money(i.wholesalePrice):''}</div></div>
         </div>`).join('')}
        </div>`
     : `<div style="position:absolute;left:0;right:0;top:2px;background:#fff;border:1.5px solid var(--line);border-radius:10px;z-index:20;padding:10px;color:var(--muted);">کوئی آئٹم نہیں ملا</div>`;
@@ -643,9 +791,50 @@ function filterPosItems(q){
 function selectPosItem(id){
   const it=itemById(id);
   if(!it) return;
-  posSelectedItemId=id;
+  posSelectedItemId=id; posPriceType=(posWholesaleMode && it.wholesalePrice) ? 'wholesale' : 'retail';
   const inp=document.getElementById('posItemSearch'); if(inp) inp.value=it.name;
   const box=document.getElementById('posItemResults'); if(box) box.innerHTML='';
+  renderPosPriceType();
+  renderPosGrid();
+  const wrap=document.getElementById('posPriceTypeWrap'); if(wrap) wrap.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function renderPosPriceType(){
+  const wrap=document.getElementById('posPriceTypeWrap');
+  if(!wrap) return;
+  const it=itemById(posSelectedItemId);
+  if(!it){ wrap.innerHTML=''; return; }
+  const defaultPrice = (posPriceType==='wholesale' && it.wholesalePrice) ? Number(it.wholesalePrice) : Number(it.salePrice);
+  let html='';
+  if(it.wholesalePrice){
+    html += `
+    <div class="seg" style="margin-top:6px;">
+      <button class="${posPriceType==='retail'?'on':''}" onclick="setPosPriceType('retail')">خوردہ (${money(it.salePrice)})</button>
+      <button class="${posPriceType==='wholesale'?'on':''}" onclick="setPosPriceType('wholesale')">ہول سیل (${money(it.wholesalePrice)})</button>
+    </div>`;
+  }
+  if(it.piecesPerCarton>0){
+    html += `
+    <label style="margin-top:8px;">یا کارٹن کی تعداد لکھیں (فی کارٹن ${it.piecesPerCarton} پیس)</label>
+    <input type="number" step="1" id="posCartons" placeholder="مثلاً 2" oninput="applyPosCartonQty(${it.piecesPerCarton})">`;
+  }
+  html += `
+    <label style="margin-top:8px;">ریٹ فی پیس — چاہیں تو خود بدل دیں</label>
+    <input type="number" id="posManualRate" value="${defaultPrice}">`;
+  wrap.innerHTML=html;
+}
+function setPosPriceType(t){ posPriceType=t; renderPosPriceType(); }
+function setWholesaleMode(v){
+  posWholesaleMode=v;
+  toast(v?'ہول سیل موڈ آن — اب آئٹمز خود بخود ہول سیل قیمت پر آئیں گے':'ہول سیل موڈ آف — خوردہ قیمت پر واپس');
+  if(posSelectedItemId){
+    const it=itemById(posSelectedItemId);
+    if(it) posPriceType = (v && it.wholesalePrice) ? 'wholesale' : 'retail';
+    renderPosPriceType();
+  }
+}
+function applyPosCartonQty(piecesPerCarton){
+  const cartons=parseFloat(document.getElementById('posCartons').value)||0;
+  document.getElementById('posQty').value = cartons*piecesPerCarton;
 }
 async function addToCart(){
   const qty=parseFloat(document.getElementById('posQty').value)||0;
@@ -654,17 +843,38 @@ async function addToCart(){
   const it=itemById(posSelectedItemId);
   if(!it){ toast('پہلے آئٹم منتخب کریں'); return; }
   if(qty>Number(it.stock)){ if(!(await customConfirm('اسٹاک سے زیادہ مقدار ہے، پھر بھی جاری رکھیں؟'))) return; }
-  const existing=cart.find(c=>c.itemId===it.id);
+  const defaultPrice = (posPriceType==='wholesale' && it.wholesalePrice) ? Number(it.wholesalePrice) : Number(it.salePrice);
+  const rateInp=document.getElementById('posManualRate');
+  const price = (rateInp && rateInp.value!=='') ? (parseFloat(rateInp.value)||0) : defaultPrice;
+  const existing=cart.find(c=>c.itemId===it.id && c.price===price);
   if(existing) existing.qty=Number(existing.qty)+qty;
-  else cart.push({itemId:it.id,name:it.name,price:Number(it.salePrice),qty});
-  posSelectedItemId=null;
+  else cart.push({itemId:it.id,name:it.name+(posPriceType==='wholesale'&&it.wholesalePrice?' (ہول سیل)':''),price,qty});
+  posSelectedItemId=null; posPriceType='retail';
   const inp=document.getElementById('posItemSearch'); if(inp) inp.value='';
   document.getElementById('posQty').value=1;
+  const wrap=document.getElementById('posPriceTypeWrap'); if(wrap) wrap.innerHTML='';
   document.getElementById('cartBox').innerHTML=cartHTML();
+  updateChangeDisplay();
+  renderPosGrid();
 }
-function updateCartQty(idx,val){ cart[idx].qty=parseFloat(val)||0; document.getElementById('cartBox').innerHTML=cartHTML(); }
-function removeFromCart(idx){ cart.splice(idx,1); document.getElementById('cartBox').innerHTML=cartHTML(); }
+function updateCartQty(idx,val){ cart[idx].qty=parseFloat(val)||0; document.getElementById('cartBox').innerHTML=cartHTML(); updateChangeDisplay(); }
+function removeFromCart(idx){ cart.splice(idx,1); document.getElementById('cartBox').innerHTML=cartHTML(); updateChangeDisplay(); }
 function setPayType(t){ posPayType=t; renderPOS(document.getElementById('main')); }
+function setCashReceived(v){ const inp=document.getElementById('posCashReceived'); if(inp){ inp.value=(Number(inp.value)||0)+v; updateChangeDisplay(); } }
+function updateChangeDisplay(){
+  const box=document.getElementById('changeDisplay');
+  if(!box) return;
+  const subtotal = cart.reduce((a,c)=>a+c.qty*c.price,0);
+  const discount = parseFloat(document.getElementById('posDiscount').value)||0;
+  const netTotal = subtotal-discount;
+  const receivedInp=document.getElementById('posCashReceived');
+  const received = receivedInp ? (parseFloat(receivedInp.value)||0) : 0;
+  if(!received){ box.innerHTML=''; return; }
+  const change = received-netTotal;
+  box.innerHTML = change>=0
+    ? `واپس کرنا ہے: <b style="color:var(--green);">${money(change)}</b>`
+    : `کم وصول ہوا: <b style="color:var(--red);">${money(Math.abs(change))}</b>`;
+}
 function scanPOSItem(){
   openBarcodeScanner(code=>{
     const it=DB.items.find(i=>(i.barcode||'').trim()===code.trim());
@@ -674,27 +884,9 @@ function scanPOSItem(){
     else cart.push({itemId:it.id,name:it.name,price:Number(it.salePrice),qty:1});
     const box=document.getElementById('cartBox');
     if(box) box.innerHTML=cartHTML();
+    updateChangeDisplay();
     toast('✅ '+it.name+' کارٹ میں شامل ہو گیا');
   });
-}
-function openGrindingToCartForm(){
-  const body=`
-    <label>گندم کی مقدار (کلو)</label><input type="number" step="0.01" id="gr_kg" placeholder="مثلاً 40">
-    <label>فی کلو پسائی ریٹ (روپے)</label><input type="number" id="gr_rate" placeholder="مثلاً 15">
-    <button class="btn btn-primary" style="margin-top:14px;" onclick="addGrindingToCart()">کارٹ میں شامل کریں</button>
-  `;
-  openSheet('🌾 پسائی', body);
-}
-function addGrindingToCart(){
-  const kg=parseFloat(document.getElementById('gr_kg').value)||0;
-  const rate=parseFloat(document.getElementById('gr_rate').value)||0;
-  if(kg<=0||rate<=0){ toast('مقدار اور ریٹ درست لکھیں'); return; }
-  const total=kg*rate;
-  cart.push({itemId:null, name:'🌾 پسائی — '+kg+' کلو (فی کلو '+rate+')', price:total, qty:1});
-  closeSheet();
-  const box=document.getElementById('cartBox');
-  if(box) box.innerHTML=cartHTML();
-  toast('✅ پسائی کارٹ میں شامل ہو گئی');
 }
 
 async function finalizeSale(){
@@ -794,6 +986,7 @@ function showInvoice(sale){
       <button class="btn btn-outline" onclick="printInvoice('${sale.id}')">🖨️ پرنٹ</button>
       <button class="btn wa" onclick="waSendInvoice('${sale.id}')">📲 واٹس ایپ</button>
     </div>
+    <button class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="shareShopCard()">🪪 دکان کا کارڈ شیئر کریں</button>
     <div class="btn-row" style="margin-top:8px;">
       <button class="btn btn-outline" onclick="editSale('${sale.id}')">✏️ بل میں ترمیم کریں</button>
       <button class="btn btn-red" onclick="deleteSaleFromInvoice('${sale.id}')">🗑️ بل حذف کریں</button>
@@ -828,6 +1021,15 @@ function waSendInvoice(saleId){
 }
 
 /* ===================== STOCK ===================== */
+function stockLabel(i){
+  const st=Number(i.stock)||0;
+  if(i.piecesPerCarton>0){
+    const cartons=Math.floor(st/i.piecesPerCarton);
+    const rest=st - cartons*i.piecesPerCarton;
+    return `${st} پیس (${cartons} کارٹن${rest?' + '+rest+' پیس':''})`;
+  }
+  return `${st}`;
+}
 let stockSearch='';
 function renderStock(main){
   const filtered = DB.items.filter(i=> i.name.toLowerCase().includes(stockSearch.toLowerCase()) || (i.barcode||'').includes(stockSearch));
@@ -842,7 +1044,7 @@ function renderStock(main){
         return `<div class="list-item" onclick="openItemForm('${i.id}')">
           <div style="display:flex;align-items:center;gap:10px;">
             ${i.photo?`<img src="${i.photo}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;">`:`<div style="width:44px;height:44px;border-radius:8px;background:#f0ede6;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📦</div>`}
-            <div><div class="name">${esc(i.name)}</div><div class="meta">فروخت قیمت: ${money(i.salePrice)} • اسٹاک: ${i.stock}</div></div>
+            <div><div class="name">${esc(i.name)}</div><div class="meta">فروخت قیمت: ${money(i.salePrice)} • اسٹاک: ${stockLabel(i)}</div></div>
           </div>
           <span class="badge ${low?'low':'ok'}">${low?'⚠️ کم':'ٹھیک'}</span>
         </div>`;
@@ -866,12 +1068,18 @@ function openItemForm(id,prefillBarcode){
     <label>کیٹیگری</label><input type="text" id="f_cat" value="${esc(it.category||'')}">
     <div class="grid2">
       <div><label>خریداری قیمت</label><input type="number" id="f_cost" value="${it.costPrice}"></div>
-      <div><label>فروخت قیمت</label><input type="number" id="f_sale" value="${it.salePrice}"></div>
+      <div><label>فروخت قیمت (خوردہ)</label><input type="number" id="f_sale" value="${it.salePrice}"></div>
     </div>
+    <label>ہول سیل قیمت (اختیاری)</label>
+    <input type="number" id="f_wholesale" value="${it.wholesalePrice||''}" placeholder="مثلاً کم قیمت بلک آرڈر کے لیے">
+    <div class="meta" style="margin-top:2px;">بھری ہو تو سیل کرتے وقت خوردہ/ہول سیل میں سے چننے کا آپشن ملے گا۔</div>
     <div class="grid2">
-      <div><label>موجودہ اسٹاک</label><input type="number" step="0.01" id="f_stock" value="${it.stock}"></div>
+      <div><label>موجودہ اسٹاک (پیس)</label><input type="number" step="0.01" id="f_stock" value="${it.stock}"></div>
       <div><label>ری آرڈر لیول</label><input type="number" id="f_reorder" value="${it.reorderLevel}"></div>
     </div>
+    <label>ایک کارٹن میں کتنے پیس ہیں؟ (اختیاری)</label>
+    <input type="number" id="f_pieces_per_carton" value="${it.piecesPerCarton||''}" placeholder="مثلاً 10">
+    <div class="meta" style="margin-top:2px;">اگر یہ بھر دیں تو خریداری میں سیدھا "کتنے کارٹن آئے" لکھ سکیں گے، اسٹاک خودکار پیس میں شمار ہو جائے گا۔</div>
     <div class="btn-row" style="margin-top:14px;">
       ${id?`<button class="btn btn-red" onclick="deleteItem('${id}')">🗑️ حذف کریں</button>`:''}
       <button class="btn btn-primary" onclick="saveItem('${id||''}')">محفوظ کریں</button>
@@ -916,8 +1124,10 @@ async function saveItem(id){
     category:document.getElementById('f_cat').value.trim(),
     costPrice:parseFloat(document.getElementById('f_cost').value)||0,
     salePrice:parseFloat(document.getElementById('f_sale').value)||0,
+    wholesalePrice:parseFloat(document.getElementById('f_wholesale').value)||0,
     stock:parseFloat(document.getElementById('f_stock').value)||0,
     reorderLevel:parseFloat(document.getElementById('f_reorder').value)||0,
+    piecesPerCarton:parseFloat(document.getElementById('f_pieces_per_carton').value)||0,
     photo:itemFormPhoto||null,
   };
   if(!data.name){ toast('آئٹم کا نام لکھیں'); return; }
@@ -992,18 +1202,73 @@ async function saveCustomer(fromPOS){
   toast('کسٹمر شامل ہو گیا');
   } finally { unlockSubmit(); }
 }
-function openCustomerDetail(id){
+function computeCustomerLedger(id){
   const c=custById(id);
   const due=custDue(c);
   const txns=[];
   DB.sales.filter(s=>s.customerId===id).forEach(s=>txns.push({date:s.date,ts:s.createdAt||0,desc:s.invoiceNo+' — '+s.paymentType,amt:s.netTotal,type:'sale',id:s.id}));
-  DB.collections.filter(x=>x.customerId===id).forEach(x=>txns.push({date:x.date,ts:x.createdAt||0,desc:'وصولی'+(x.notes?' — '+x.notes:''),amt:-x.amount,type:'col',id:x.id}));
-  // Compute running balance chronologically (oldest first), then show newest first.
+  DB.collections.filter(x=>x.customerId===id).forEach(x=>{
+    const isGiven = x.type==='given';
+    const payTag = x.paymentType ? ' ('+x.paymentType+(x.paymentType==='بینک'&&x.bankId?' — '+(bankById(x.bankId)?bankById(x.bankId).name:''):'')+')' : '';
+    txns.push({date:x.date,ts:x.createdAt||0,desc:(isGiven?'رقم دی':'وصولی')+payTag+(x.notes?' — '+x.notes:''),amt:isGiven?x.amount:-x.amount,type:'col',id:x.id});
+  });
   const asc = txns.slice().sort((a,b)=> a.date>b.date?1 : a.date<b.date?-1 : (a.ts-b.ts));
   let running = c.openingDue||0;
   asc.forEach(t=>{ running += t.amt; t.balance = running; });
-  const totalGiven = txns.filter(t=>t.type==='sale').reduce((s,t)=>s+t.amt,0);
-  const totalReceived = txns.filter(t=>t.type==='col').reduce((s,t)=>s+Math.abs(t.amt),0);
+  const totalGiven = txns.filter(t=>t.amt>0).reduce((s,t)=>s+t.amt,0);
+  const totalReceived = txns.filter(t=>t.amt<0).reduce((s,t)=>s+Math.abs(t.amt),0);
+  return { c, due, asc, totalGiven, totalReceived };
+}
+let custReportSearch='', custReportFrom='', custReportTo='';
+function openCustomerReport(id){
+  custReportSearch=''; custReportFrom=''; custReportTo='';
+  renderCustomerReport(id);
+}
+function renderCustomerReport(id){
+  const {c, due, asc} = computeCustomerLedger(id);
+  let filtered = asc.slice();
+  if(custReportFrom) filtered = filtered.filter(t=>t.date>=custReportFrom);
+  if(custReportTo) filtered = filtered.filter(t=>t.date<=custReportTo);
+  if(custReportSearch.trim()){
+    const q=custReportSearch.trim().toLowerCase();
+    filtered = filtered.filter(t=>t.desc.toLowerCase().includes(q));
+  }
+  const totalGiven = filtered.filter(t=>t.amt>0).reduce((s,t)=>s+t.amt,0);
+  const totalReceived = filtered.filter(t=>t.amt<0).reduce((s,t)=>s+Math.abs(t.amt),0);
+  const rows = filtered.slice().reverse().map(t=>`
+    <div class="list-item">
+      <div><div class="name">${esc(t.desc)}</div><div class="meta">${fmtDateTime(t.date,t.ts)} • بیلنس: ${money(t.balance)}</div></div>
+      <div style="font-weight:800;color:${t.amt<0?'var(--green)':'var(--red)'}">${t.amt<0?'ملے ':'دیے '}${money(Math.abs(t.amt))}</div>
+    </div>`).join('');
+  const body=`
+    <div style="background:linear-gradient(135deg,#c76f16,#e08a2c);margin:-4px -4px 14px;padding:18px 16px;border-radius:14px;color:#fff;">
+      <div style="font-size:26px;font-weight:800;">${money(Math.abs(due))}</div>
+      <div style="font-size:13px;opacity:.9;">${due>0?'آپ کو ملنے ہیں':due<0?'آپ کو دینے ہیں':'حساب برابر ہے'}</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn wa" style="flex:1;" onclick="waReminder('${c.id}')">📲 ریمائنڈر</button>
+      <button class="btn btn-outline" style="flex:1;" onclick="printCustomerLedger('${c.id}')">📄 PDF بنا کر بھیجیں</button>
+    </div>
+    <input type="text" style="margin-top:10px;" placeholder="انٹریز تلاش کریں..." value="${esc(custReportSearch)}" oninput="custReportSearch=this.value; renderCustomerReport('${id}')">
+    <div class="grid2" style="margin-top:8px;">
+      <div><label>پہلی تاریخ</label><input type="date" value="${custReportFrom}" onchange="custReportFrom=this.value; renderCustomerReport('${id}')"></div>
+      <div><label>آخری تاریخ</label><input type="date" value="${custReportTo}" onchange="custReportTo=this.value; renderCustomerReport('${id}')"></div>
+    </div>
+    ${(custReportFrom||custReportTo)?`<button class="btn btn-outline btn-sm" style="margin-top:6px;" onclick="custReportFrom='';custReportTo='';renderCustomerReport('${id}')">تاریخ صاف کریں</button>`:''}
+    <div class="grid2" style="margin-top:10px;">
+      <div class="stat good"><div class="label">آپ کو ملے</div><div class="value" style="font-size:16px;">${money(totalReceived)}</div></div>
+      <div class="stat warn"><div class="label">آپ نے دیے</div><div class="value" style="font-size:16px;">${money(totalGiven)}</div></div>
+    </div>
+    <div class="meta" style="margin-top:6px;">انٹریاں: ${filtered.length}</div>
+    <div class="card" style="margin-top:10px;">${rows||'<div class="empty">کوئی انٹری نہیں ملی</div>'}</div>
+    <div class="btn-row" style="margin-top:10px;">
+      <button class="btn btn-outline" onclick="printCustomerLedger('${id}')">🖨️ پرنٹ / PDF بنا کر بھیجیں</button>
+    </div>
+  `;
+  openSheet('رپورٹ — '+c.name, body);
+}
+function openCustomerDetail(id){
+  const {c, due, asc, totalGiven, totalReceived} = computeCustomerLedger(id);
   const desc = asc.slice().reverse();
   const rows = desc.length? desc.map(t=>`<div class="list-item">
       <div style="flex:1;cursor:pointer;" onclick="${t.type==='sale'?`openSaleFromCustomer('${t.id}')`:`editCollectionFromLedger('${t.id}','${id}')`}">
@@ -1024,7 +1289,14 @@ function openCustomerDetail(id){
     </div>
     <div class="btn-row" style="margin-top:10px;">
       <button class="btn wa" onclick="waReminder('${c.id}')">📲 یاد دہانی بھیجیں</button>
-      <button class="btn btn-outline" onclick="openCollectionForm('${c.id}')">💳 وصولی درج کریں</button>
+      <button class="btn btn-outline" onclick="openCollectionForm('${c.id}',null,'received')">💳 وصولی درج کریں</button>
+      <button class="btn btn-outline" onclick="openCollectionForm('${c.id}',null,'given')">➖ رقم دیں (قرض)</button>
+    </div>
+    <div class="btn-row" style="margin-top:8px;">
+      <button class="btn btn-outline" onclick="openCustomerReport('${c.id}')">📊 مکمل رپورٹ (تاریخ فلٹر)</button>
+    </div>
+    <div class="btn-row" style="margin-top:8px;">
+      <button class="btn wa" onclick="printCustomerLedger('${c.id}')">📄 PDF بنا کر بھیجیں</button>
     </div>
     <h3 style="margin-top:16px;color:var(--navy);font-size:14px;">مکمل حساب</h3>
     ${rows}
@@ -1037,21 +1309,138 @@ function openCustomerDetail(id){
   `;
   openSheet(c.name, body);
 }
+function buildLedgerReportHtml(title, subtitle, rows, totals, opts){
+  opts = opts||{};
+  return `
+    <div id="pdfCapture" style="direction:rtl;font-family:'Noto Nastaliq Urdu','Segoe UI',Tahoma,sans-serif;width:750px;background:#fff;color:#122a43;">
+      <div style="background:linear-gradient(135deg,#c76f16,#e08a2c);color:#fff;padding:18px 22px;">
+        <div style="font-size:20px;font-weight:800;">${esc(DB.shop.name)}</div>
+        <div style="font-size:13px;opacity:.9;">${esc(DB.shop.address||'')}${DB.shop.phone?' • '+esc(DB.shop.phone):''}</div>
+      </div>
+      <div style="padding:18px 22px;">
+        <div style="font-size:17px;font-weight:800;">${esc(title)}</div>
+        <div style="font-size:13px;color:#555;margin-top:2px;">${esc(subtitle)}</div>
+        <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+          ${totals.map(t=>`<div style="flex:1;min-width:140px;background:#f7f4ee;border-radius:10px;padding:10px 14px;">
+            <div style="font-size:12px;color:#777;">${esc(t.label)}</div>
+            <div style="font-size:17px;font-weight:800;color:${t.color||'#122a43'};">${t.value}</div>
+          </div>`).join('')}
+        </div>
+        <table style="width:100%;border-collapse:collapse;margin-top:16px;font-size:13px;">
+          <thead><tr style="background:#122a43;color:#fff;">
+            ${opts.headers.map(h=>`<th style="padding:8px;font-weight:700;">${esc(h)}</th>`).join('')}
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div style="padding:10px 22px 16px;font-size:11px;color:#999;border-top:1px solid #eee;">
+        Kaleem Auto Mobile app کے ذریعے بنائی گئی — ${fmtDate(todayStr())}
+      </div>
+    </div>`;
+}
+async function exportHtmlAsPdf(html, filename){
+  const holder = document.createElement('div');
+  holder.style.position='fixed'; holder.style.left='-99999px'; holder.style.top='0';
+  holder.innerHTML = html;
+  document.body.appendChild(holder);
+  const target = holder.querySelector('#pdfCapture') || holder;
+  try{
+    const canvas = await html2canvas(target, {scale:2, backgroundColor:'#ffffff', useCORS:true});
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p','pt','a4');
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const imgW = pageW;
+    const imgH = canvas.height * (imgW/canvas.width);
+    let heightLeft = imgH, position = 0;
+    const imgData = canvas.toDataURL('image/png');
+    pdf.addImage(imgData, 'PNG', 0, position, imgW, imgH);
+    heightLeft -= pageH;
+    while(heightLeft > 0){
+      position = heightLeft - imgH;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, position, imgW, imgH);
+      heightLeft -= pageH;
+    }
+    const blob = pdf.output('blob');
+    document.body.removeChild(holder);
+    return { blob, filename };
+  } catch(e){
+    document.body.removeChild(holder);
+    console.error('PDF export failed', e);
+    toast('PDF بنانے میں مسئلہ ہوا');
+    return null;
+  }
+}
+async function sharePdfBlob(blob, filename){
+  const file = new File([blob], filename, {type:'application/pdf'});
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    try{
+      await navigator.share({files:[file], title:filename});
+      return;
+    }catch(e){ /* user cancelled share sheet */ return; }
+  }
+  // Fallback: download the file, then user can attach it manually in WhatsApp.
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 5000);
+  toast('PDF ڈاؤن لوڈ ہو گئی — واٹس ایپ میں فائل کے طور پر خود اٹیچ کر لیں');
+}
+async function printCustomerLedger(id){
+  const {c, due, asc, totalGiven, totalReceived} = computeCustomerLedger(id);
+  const rows = asc.slice().reverse().map(t=>`
+    <tr>
+      <td style="padding:7px;border-bottom:1px solid #eee;">${fmtDateTime(t.date,t.ts)}</td>
+      <td style="padding:7px;border-bottom:1px solid #eee;">${esc(t.desc)}</td>
+      <td style="padding:7px;border-bottom:1px solid #eee;text-align:center;color:#2e8b57;">${t.amt<0?money(Math.abs(t.amt)):''}</td>
+      <td style="padding:7px;border-bottom:1px solid #eee;text-align:center;color:#c0392b;">${t.amt>0?money(t.amt):''}</td>
+      <td style="padding:7px;border-bottom:1px solid #eee;text-align:center;font-weight:700;">${money(t.balance)}</td>
+    </tr>`).join('');
+  const html = buildLedgerReportHtml(
+    'کسٹمر حساب — '+c.name,
+    (c.phone||'')+' • تاریخ: '+fmtDate(todayStr()),
+    rows || '<tr><td colspan="5" style="padding:14px;text-align:center;">کوئی ٹرانزیکشن نہیں</td></tr>',
+    [
+      {label:'آپ کو ملے', value:money(totalReceived), color:'#2e8b57'},
+      {label:'آپ نے دیے', value:money(totalGiven), color:'#c0392b'},
+      {label:'باقی رقم', value:money(due), color:'#122a43'}
+    ],
+    {headers:['تاریخ','تفصیل','آپ کو ملے','آپ نے دیے','بیلنس']}
+  );
+  toast('PDF بن رہی ہے...');
+  const result = await exportHtmlAsPdf(html, 'Customer_Ledger_'+c.name.replace(/\s+/g,'_')+'.pdf');
+  if(result) await sharePdfBlob(result.blob, result.filename);
+}
 function waReminder(id){
   const c=custById(id); const due=custDue(c);
   if(!c.phone){ toast('واٹس ایپ نمبر موجود نہیں'); return; }
   const text=`السلام علیکم ${c.name}، آپ کے ذمے ${DB.shop.name} کی ${money(due)} روپے رقم باقی ہے۔ براہ کرم جلد ادائیگی کریں۔ شکریہ`;
   window.open(waLink(c.phone,text),'_blank');
 }
-function openCollectionForm(custId,colId){
+function openCollectionForm(custId,colId,defaultType){
   const c = colId ? DB.collections.find(x=>x.id===colId) : null;
+  const type = c ? (c.type||'received') : (defaultType||'received');
+  const pay = c ? (c.paymentType||'نقد') : 'نقد';
   const body=`
+    <input type="hidden" id="col_type" value="${type}">
     <label>رقم</label><input type="number" id="col_amt" value="${c?c.amount:''}">
     <label>تاریخ</label><input type="date" id="col_date" value="${c?c.date:todayStr()}">
+    <label>${type==='given'?'رقم کہاں سے دی':'رقم کہاں وصول ہوئی'}</label>
+    <select id="col_pay" onchange="document.getElementById('col_bankwrap').style.display=this.value==='بینک'?'block':'none';">
+      <option value="نقد" ${pay==='نقد'?'selected':''}>💵 نقد (کیش)</option>
+      <option value="بینک" ${pay==='بینک'?'selected':''}>🏦 بینک</option>
+    </select>
+    <div id="col_bankwrap" style="display:${pay==='بینک'?'block':'none'};">
+      <label>بینک اکاؤنٹ</label>
+      <select id="col_bank">${DB.banks.map(b=>`<option value="${b.id}" ${c&&c.bankId===b.id?'selected':''}>${esc(b.name)}</option>`).join('')}</select>
+      ${!DB.banks.length?'<div class="meta">پہلے بینک اکاؤنٹس میں جا کر ایک اکاؤنٹ شامل کریں</div>':''}
+    </div>
     <label>نوٹس</label><input type="text" id="col_notes" value="${c?esc(c.notes||''):''}">
     <button class="btn btn-primary" style="margin-top:14px;" onclick="saveCollection('${custId}','${colId||''}')">محفوظ کریں</button>
   `;
-  openSheet(colId?'وصولی میں ترمیم':'وصولی درج کریں', body);
+  openSheet(colId?'ترمیم': (type==='given'?'رقم دیں (قرض)':'وصولی درج کریں'), body);
 }
 async function saveCollection(custId,colId){
   if(!lockSubmit()) return;
@@ -1060,11 +1449,15 @@ async function saveCollection(custId,colId){
   if(amount<=0){ toast('صحیح رقم لکھیں'); return; }
   const date=document.getElementById('col_date').value||todayStr();
   const notes=document.getElementById('col_notes').value.trim();
+  const type=document.getElementById('col_type').value||'received';
+  const paymentType=document.getElementById('col_pay').value||'نقد';
+  const bankId=paymentType==='بینک' ? (document.getElementById('col_bank').value||null) : null;
+  if(paymentType==='بینک' && !bankId){ toast('پہلے بینک اکاؤنٹ شامل کریں'); return; }
   if(colId){
     const c=DB.collections.find(x=>x.id===colId);
-    if(c){ c.amount=amount; c.date=date; c.notes=notes; }
+    if(c){ c.amount=amount; c.date=date; c.notes=notes; c.type=type; c.paymentType=paymentType; c.bankId=bankId; }
   } else {
-    DB.collections.push({id:uid(), createdAt:Date.now(), customerId:custId, amount, date, notes});
+    DB.collections.push({id:uid(), createdAt:Date.now(), customerId:custId, amount, date, notes, type, paymentType, bankId});
   }
   await saveDB(); closeSheet(); openCustomerDetail(custId); toast('وصولی محفوظ ہو گئی');
   } finally { unlockSubmit(); }
@@ -1118,28 +1511,62 @@ async function confirmDeleteCollection(colId,custId){
 /* ===================== MORE (Purchases / Cash / Banks) ===================== */
 let moreView='menu';
 let amanatSearch='';
+let allSalesSearch='', allSalesFrom='', allSalesTo='';
+function goAllSales(){ moreView='allSales'; go('more'); }
 function renderMore(main){
   if(moreView==='menu'){
     main.innerHTML=`
       <div class="card">
+        <div class="list-item" onclick="moreView='allSales';render()"><div class="name">🧾 تمام سیلز (پرانے بل)</div><span>›</span></div>
         <div class="list-item" onclick="moreView='purchases';render()"><div class="name">📥 خریداری (سپلائر سے مال)</div><span>›</span></div>
         <div class="list-item" onclick="moreView='cash';render()"><div class="name">💵 کیش بک</div><span>›</span></div>
         <div class="list-item" onclick="moreView='banks';render()"><div class="name">🏦 بینک اکاؤنٹس</div><span>›</span></div>
         <div class="list-item" onclick="moreView='amanat';render()"><div class="name">🔒 امانت (رقم)</div><span>›</span></div>
+        <div class="list-item" onclick="moreView='suppliers';render()"><div class="name">🚚 سپلائرز (ادھار خریداری)</div><span>›</span></div>
         <div class="list-item" onclick="moreView='trash';render()"><div class="name">🗑️ ری سائیکل بن${DB.trash&&DB.trash.length?` (${DB.trash.length})`:''}</div><span>›</span></div>
         <div class="list-item" onclick="moreView='settings';render()"><div class="name">⚙️ دکان کی سیٹنگز</div><span>›</span></div>
       </div>
     `;
     return;
   }
+  if(moreView==='allSales') return renderAllSales(main);
   if(moreView==='purchases') return renderPurchases(main);
   if(moreView==='cash') return renderCash(main);
   if(moreView==='banks') return renderBanks(main);
   if(moreView==='trash') return renderTrash(main);
   if(moreView==='amanat') return renderAmanat(main);
+  if(moreView==='suppliers') return renderSuppliers(main);
   if(moreView==='settings') return renderSettings(main);
 }
 function backToMoreMenu(){ moreView='menu'; render(); }
+function renderAllSales(main){
+  let list=[...DB.sales].sort((a,b)=>b.createdAt-a.createdAt);
+  const q=(allSalesSearch||'').trim().toLowerCase();
+  if(q) list=list.filter(s=>{ const c=custById(s.customerId); const cname=c?c.name:'واک اِن گاہک'; return s.invoiceNo.toLowerCase().includes(q) || cname.toLowerCase().includes(q); });
+  if(allSalesFrom) list=list.filter(s=>s.date>=allSalesFrom);
+  if(allSalesTo) list=list.filter(s=>s.date<=allSalesTo);
+  const total=list.reduce((s,x)=>s+(Number(x.netTotal)||0),0);
+  main.innerHTML=`
+    <button class="btn btn-outline btn-sm" onclick="backToMoreMenu()">‹ واپس</button>
+    <div class="card" style="margin-top:10px;">
+      <label>تلاش کریں (بل نمبر یا کسٹمر کا نام)</label>
+      <input type="text" value="${esc(allSalesSearch||'')}" placeholder="مثلاً INV-0057 یا کسٹمر کا نام" oninput="allSalesSearch=this.value; renderAllSales(document.getElementById('main'))">
+      <div class="grid2" style="margin-top:8px;">
+        <div><label>تاریخ سے</label><input type="date" value="${allSalesFrom||''}" onchange="allSalesFrom=this.value; renderAllSales(document.getElementById('main'))"></div>
+        <div><label>تاریخ تک</label><input type="date" value="${allSalesTo||''}" onchange="allSalesTo=this.value; renderAllSales(document.getElementById('main'))"></div>
+      </div>
+      ${(allSalesFrom||allSalesTo||allSalesSearch)?`<button class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="allSalesSearch='';allSalesFrom='';allSalesTo=''; renderAllSales(document.getElementById('main'))">فلٹر صاف کریں</button>`:''}
+    </div>
+    <div class="stat" style="margin-top:10px;"><div class="label">کل (${list.length} بل)</div><div class="value">${money(total)}</div></div>
+    <div class="card" style="margin-top:10px;">
+      ${list.length ? list.map(s=>{
+        const c=custById(s.customerId);
+        return `<div class="list-item" onclick="showInvoice(DB.sales.find(x=>x.id==='${s.id}'))" style="cursor:pointer;"><div><div class="name">${esc(c?c.name:'واک اِن گاہک')} — ${s.invoiceNo}</div>
+        <div class="meta">${fmtDateTime(s.date,s.createdAt)} • ${s.paymentType}</div></div><div style="font-weight:800;">${money(s.netTotal)}</div></div>`;
+      }).join('') : `<div class="empty"><div class="ic">🧾</div>کوئی بل نہیں ملا</div>`}
+    </div>
+  `;
+}
 
 /* ===================== AMANAT (Trust Deposits) ===================== */
 function amanatBalance(personId){
@@ -1204,11 +1631,13 @@ function openAmanatDetail(id){
   const rows = entries.map(e=>{ running += e.type==='in'?Number(e.amount):-Number(e.amount);
     return `<div class="list-item">
       <div style="flex:1;cursor:pointer;" onclick="openAmanatEntryForm('${id}','${e.id}')">
-        <div class="name">${esc(e.notes||(e.type==='in'?'امانت رکھی':'واپس کی'))}</div>
-        <div class="meta">${fmtDateTime(e.date,e.createdAt)} • بیلنس: ${money(running)}</div>
+        <div class="name">${esc(e.notes||(e.type==='in'?'امانت رکھی':'واپس کی'))}${e.photo?' 📎':''}${e.signature?' ✍️':''}</div>
+        <div class="meta">${fmtDateTime(e.date,e.createdAt)} • بیلنس: ${money(running)}${e.paymentType?' • '+e.paymentType+(e.paymentType==='بینک'&&e.bankId&&bankById(e.bankId)?' — '+bankById(e.bankId).name:''):''}</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
         <div style="font-weight:800;color:${e.type==='in'?'var(--red)':'var(--green)'}">${e.type==='in'?'+':'-'}${money(e.amount)}</div>
+        ${e.photo?`<button class="btn btn-outline btn-sm" style="padding:6px 10px;" onclick="viewPhoto('${e.photo}')">🖼️</button>`:''}
+        ${e.signature?`<button class="btn btn-outline btn-sm" style="padding:6px 10px;" onclick="viewPhoto('${e.signature}')">✍️</button>`:''}
         <button class="btn btn-red btn-sm" style="padding:6px 10px;" onclick="deleteAmanatEntry('${id}','${e.id}')">🗑️</button>
       </div></div>`;
   }).reverse().join('');
@@ -1226,18 +1655,86 @@ function openAmanatDetail(id){
   `;
   openSheet(p.name, body);
 }
+let amPhoto=null, amSignature=null;
 function openAmanatEntryForm(personId,entryId,defaultType){
   const e = entryId ? DB.amanatEntries.find(x=>x.id===entryId) : null;
   const type = e ? e.type : (defaultType||'in');
+  const pay = e ? (e.paymentType||'نقد') : 'نقد';
+  amPhoto = e ? (e.photo||null) : null;
+  amSignature = e ? (e.signature||null) : null;
   const body=`
     <div class="seg"><button class="${type==='in'?'on':''}" id="am_in_btn" onclick="setAmanatType('in')">امانت رکھی (لی)</button><button class="${type==='out'?'on':''}" id="am_out_btn" onclick="setAmanatType('out')">واپس کی (دی)</button></div>
     <input type="hidden" id="am_type" value="${type}">
     <label>رقم</label><input type="number" id="am_amt" value="${e?e.amount:''}">
     <label>تاریخ</label><input type="date" id="am_date" value="${e?e.date:todayStr()}">
+    <label>نقد یا بینک؟</label>
+    <select id="am_pay" onchange="document.getElementById('am_bankwrap').style.display=this.value==='بینک'?'block':'none';">
+      <option value="نقد" ${pay==='نقد'?'selected':''}>💵 نقد (کیش)</option>
+      <option value="بینک" ${pay==='بینک'?'selected':''}>🏦 بینک</option>
+    </select>
+    <div id="am_bankwrap" style="display:${pay==='بینک'?'block':'none'};">
+      <label>بینک اکاؤنٹ</label>
+      <select id="am_bank">${DB.banks.map(b=>`<option value="${b.id}" ${e&&e.bankId===b.id?'selected':''}>${esc(b.name)}</option>`).join('')}</select>
+      ${!DB.banks.length?'<div class="meta">پہلے بینک اکاؤنٹس میں جا کر ایک اکاؤنٹ شامل کریں</div>':''}
+    </div>
     <label>نوٹس (اختیاری)</label><input type="text" id="am_notes" value="${e?esc(e.notes||''):''}">
+    <label>رسید کی تصویر (اختیاری)</label>
+    <div id="am_photo_wrap">${amPhotoWrapHtml()}</div>
+    <label>دستخط (اختیاری)</label>
+    <canvas id="amSigPad" style="width:100%;height:120px;border:1.5px dashed var(--line);border-radius:10px;touch-action:none;background:#fff;"></canvas>
+    <button type="button" class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="clearAmSignature()">🧹 دستخط صاف کریں</button>
     <button class="btn btn-primary" style="margin-top:14px;" onclick="saveAmanatEntry('${personId}','${entryId||''}')">محفوظ کریں</button>
   `;
   openSheet(entryId?'انٹری میں ترمیم':'نئی امانت انٹری', body);
+  initAmSignaturePad();
+}
+function amPhotoWrapHtml(){
+  return amPhoto
+    ? `<img src="${amPhoto}" style="max-width:140px;border-radius:10px;display:block;margin-bottom:8px;">
+       <button type="button" class="btn btn-outline btn-sm" onclick="amPhoto=null; document.getElementById('am_photo_wrap').innerHTML=amPhotoWrapHtml();">🗑️ تصویر ہٹائیں</button>`
+    : `<input type="file" accept="image/*" capture="environment" id="amPhotoInputCam" style="display:none;" onchange="captureAmPhoto(this)">
+       <input type="file" accept="image/*" id="amPhotoInputGal" style="display:none;" onchange="captureAmPhoto(this)">
+       <div class="btn-row">
+         <button type="button" class="btn btn-outline" style="flex:1;" onclick="document.getElementById('amPhotoInputCam').click()">📷 کیمرہ</button>
+         <button type="button" class="btn btn-outline" style="flex:1;" onclick="document.getElementById('amPhotoInputGal').click()">🖼️ گیلری</button>
+       </div>`;
+}
+function captureAmPhoto(input){
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=new Image();
+    img.onload=function(){
+      const maxW=700; const scale=Math.min(1,maxW/img.width);
+      const cv=document.createElement('canvas'); cv.width=img.width*scale; cv.height=img.height*scale;
+      cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+      amPhoto=cv.toDataURL('image/jpeg',0.6);
+      const wrap=document.getElementById('am_photo_wrap'); if(wrap) wrap.innerHTML=amPhotoWrapHtml();
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function initAmSignaturePad(){
+  const canvas=document.getElementById('amSigPad');
+  if(!canvas) return;
+  const ratio=window.devicePixelRatio||1;
+  canvas.width=canvas.clientWidth*ratio; canvas.height=canvas.clientHeight*ratio;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(ratio,ratio); ctx.lineWidth=2; ctx.lineCap='round'; ctx.strokeStyle='#1a1a2e';
+  if(amSignature){ const img=new Image(); img.onload=()=>ctx.drawImage(img,0,0,canvas.clientWidth,canvas.clientHeight); img.src=amSignature; }
+  let drawing=false, last=null;
+  function pos(e){ const r=canvas.getBoundingClientRect(); const t=e.touches?e.touches[0]:e; return {x:t.clientX-r.left, y:t.clientY-r.top}; }
+  function start(e){ drawing=true; last=pos(e); e.preventDefault(); }
+  function move(e){ if(!drawing) return; const p=pos(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; e.preventDefault(); }
+  function end(){ if(!drawing) return; drawing=false; amSignature=canvas.toDataURL('image/png'); }
+  canvas.addEventListener('mousedown',start); canvas.addEventListener('mousemove',move); canvas.addEventListener('mouseup',end); canvas.addEventListener('mouseleave',end);
+  canvas.addEventListener('touchstart',start); canvas.addEventListener('touchmove',move); canvas.addEventListener('touchend',end);
+}
+function clearAmSignature(){
+  amSignature=null;
+  const canvas=document.getElementById('amSigPad');
+  if(canvas){ const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); }
 }
 function setAmanatType(t){
   document.getElementById('am_type').value=t;
@@ -1252,12 +1749,16 @@ async function saveAmanatEntry(personId,entryId){
   const type=document.getElementById('am_type').value;
   const date=document.getElementById('am_date').value||todayStr();
   const notes=document.getElementById('am_notes').value.trim();
+  const paymentType=document.getElementById('am_pay').value||'نقد';
+  const bankId=paymentType==='بینک' ? (document.getElementById('am_bank').value||null) : null;
+  if(paymentType==='بینک' && !bankId){ toast('پہلے بینک اکاؤنٹ شامل کریں'); return; }
   if(entryId){
     const e=DB.amanatEntries.find(x=>x.id===entryId);
-    if(e){ e.amount=amount; e.type=type; e.date=date; e.notes=notes; }
+    if(e){ e.amount=amount; e.type=type; e.date=date; e.notes=notes; e.photo=amPhoto||null; e.signature=amSignature||null; e.paymentType=paymentType; e.bankId=bankId; }
   } else {
-    DB.amanatEntries.push({id:uid(), createdAt:Date.now(), personId, amount, type, date, notes});
+    DB.amanatEntries.push({id:uid(), createdAt:Date.now(), personId, amount, type, date, notes, photo:amPhoto||null, signature:amSignature||null, paymentType, bankId});
   }
+  amPhoto=null; amSignature=null;
   await saveDB(); closeSheet(); openAmanatDetail(personId); toast('محفوظ ہو گیا');
   } finally { unlockSubmit(); }
 }
@@ -1319,7 +1820,7 @@ async function restoreFromTrash(trashId){
     DB.banks.push(d.bank);
     (d.bankEntries||[]).forEach(e=>DB.bankEntries.push(e));
     (d.sales||[]).forEach(s=>{ DB.sales.push(s); (s.items||[]).forEach(it=>{ const item=itemById(it.itemId); if(item) item.stock=(Number(item.stock)||0)-Number(it.qty||0); }); });
-    (d.purchases||[]).forEach(p=>{ DB.purchases.push(p); const item=itemById(p.itemId); if(item) item.stock=(Number(item.stock)||0)+Number(p.qty||0); });
+    (d.purchases||[]).forEach(p=>{ DB.purchases.push(p); applyStockForPurchase(p); });
   } else if(t.type==='sale'){
     DB.sales.push(d);
     (d.items||[]).forEach(it=>{ const item=itemById(it.itemId); if(item) item.stock=(Number(item.stock)||0)-Number(it.qty||0); });
@@ -1329,7 +1830,7 @@ async function restoreFromTrash(trashId){
     DB.cashEntries.push(d);
   } else if(t.type==='purchase'){
     DB.purchases.push(d);
-    const item=itemById(d.itemId); if(item) item.stock=(Number(item.stock)||0)+Number(d.qty||0);
+    applyStockForPurchase(d);
   } else if(t.type==='amanatPerson'){
     DB.amanatPersons.push(d.person);
     (d.entries||[]).forEach(e=>DB.amanatEntries.push(e));
@@ -1346,14 +1847,14 @@ function renderPurchases(main){
   main.innerHTML=`
     <button class="btn btn-outline btn-sm" onclick="backToMoreMenu()">‹ واپس</button>
     <div class="card" style="margin-top:10px;">
-      <button class="btn btn-primary" onclick="openPurchaseForm()">+ نئی خریداری درج کریں</button>
+      <button class="btn btn-primary" onclick="openPurchaseEntry(null,null)">+ نئی خریداری درج کریں</button>
     </div>
     <div class="card">
-      ${list.length? list.map(p=>`<div class="list-item"><div><div class="name">${esc(p.supplier||'سپلائر')} — ${esc(p.itemName||'')}</div>
-        <div class="meta">${fmtDateTime(p.date,p.createdAt)} • ${p.paymentType}</div></div>
+      ${list.length? list.map(p=>`<div class="list-item"><div><div class="name">${esc(p.supplier||'سپلائر')} — ${esc(purchaseItemsLabel(p))}</div>
+        <div class="meta">${fmtDateTime(p.date,p.createdAt)} • ${p.paymentType}${p.voiceNote?' • 🎤':''}</div></div>
         <div style="display:flex;align-items:center;gap:8px;">
           <div style="font-weight:800;">${money(p.total)}</div>
-          <button class="btn btn-outline btn-sm" style="padding:6px 10px;" onclick="openPurchaseForm('${p.id}')">✏️</button>
+          <button class="btn btn-outline btn-sm" style="padding:6px 10px;" onclick="openPurchaseEntry(null,'${p.id}')">✏️</button>
           <button class="btn btn-red btn-sm" style="padding:6px 10px;" onclick="deletePurchase('${p.id}')">🗑️</button>
         </div></div>`).join('')
         : `<div class="empty">ابھی کوئی خریداری نہیں</div>`}
@@ -1363,25 +1864,53 @@ function renderPurchases(main){
 function openPurchaseForm(id){
   const p = id ? DB.purchases.find(x=>x.id===id) : null;
   const body=`
-    <label>سپلائر کا نام</label><input type="text" id="p_supplier" value="${p?esc(p.supplier||''):''}">
+    <label>سپلائر (اختیاری، ادھار کے لیے ضروری)</label>
+    <select id="p_supplierId">
+      <option value="">— کوئی سپلائر منتخب نہیں —</option>
+      ${DB.suppliers.map(s=>`<option value="${s.id}" ${p&&p.supplierId===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}
+    </select>
+    <label>یا سپلائر کا نام لکھیں (اگر لسٹ میں نہیں)</label><input type="text" id="p_supplier" value="${p?esc(p.supplier||''):''}">
     <label>آئٹم</label>
-    <select id="p_item">${DB.items.map(i=>`<option value="${i.id}" ${p&&p.itemId===i.id?'selected':''}>${esc(i.name)}</option>`).join('')}</select>
+    <select id="p_item" onchange="updatePurchaseCartonHint()">${DB.items.map(i=>`<option value="${i.id}" ${p&&p.itemId===i.id?'selected':''}>${esc(i.name)}</option>`).join('')}</select>
+    <div id="p_carton_wrap" style="margin-top:6px;"></div>
     <div class="grid2">
-      <div><label>مقدار</label><input type="number" step="0.01" id="p_qty" value="${p?p.qty:1}"></div>
-      <div><label>فی یونٹ خریداری قیمت</label><input type="number" id="p_cost" value="${p?p.cost:''}"></div>
+      <div><label>مقدار (پیس)</label><input type="number" step="0.01" id="p_qty" value="${p?p.qty:1}"></div>
+      <div><label>فی پیس خریداری قیمت</label><input type="number" id="p_cost" value="${p?p.cost:''}"></div>
     </div>
     <label>ادائیگی کی قسم</label>
-    <select id="p_pay" onchange="document.getElementById('p_bankwrap').style.display=this.value==='بینک'?'block':'none'">
-      <option value="نقد" ${p&&p.paymentType==='نقد'?'selected':''}>نقد</option><option value="بینک" ${p&&p.paymentType==='بینک'?'selected':''}>بینک</option>
+    <select id="p_pay" onchange="document.getElementById('p_bankwrap').style.display=this.value==='بینک'?'block':'none'; document.getElementById('p_adharwrap').style.display=this.value==='ادھار'?'block':'none';">
+      <option value="نقد" ${(!p||p.paymentType==='نقد')?'selected':''}>نقد</option>
+      <option value="بینک" ${p&&p.paymentType==='بینک'?'selected':''}>بینک</option>
+      <option value="ادھار" ${p&&p.paymentType==='ادھار'?'selected':''}>ادھار (سپلائر کو بعد میں دینا ہے)</option>
     </select>
     <div id="p_bankwrap" style="display:${p&&p.paymentType==='بینک'?'block':'none'};">
       <label>بینک</label>
       <select id="p_bank">${DB.banks.map(b=>`<option value="${b.id}" ${p&&p.bankId===b.id?'selected':''}>${esc(b.name)}</option>`).join('')}</select>
     </div>
+    <div id="p_adharwrap" style="display:${p&&p.paymentType==='ادھار'?'block':'none'};color:var(--red);font-size:12.5px;margin-top:4px;">⚠️ ادھار کے لیے اوپر سپلائر ضرور منتخب کریں تاکہ باقی رقم اس کے کھاتے میں چڑھے۔</div>
     <label>تاریخ</label><input type="date" id="p_date" value="${p?p.date:todayStr()}">
     <button class="btn btn-primary" style="margin-top:14px;" onclick="savePurchase('${id||''}')">محفوظ کریں</button>
   `;
   openSheet(id?'خریداری میں ترمیم':'نئی خریداری', body);
+  updatePurchaseCartonHint();
+}
+function updatePurchaseCartonHint(){
+  const sel=document.getElementById('p_item');
+  const wrap=document.getElementById('p_carton_wrap');
+  if(!sel||!wrap) return;
+  const it=itemById(sel.value);
+  if(it && it.piecesPerCarton>0){
+    wrap.innerHTML = `
+      <label>یا کارٹن کی تعداد لکھیں (فی کارٹن ${it.piecesPerCarton} پیس)</label>
+      <input type="number" step="1" id="p_cartons" placeholder="مثلاً 2" oninput="applyCartonQty(${it.piecesPerCarton})">
+    `;
+  } else {
+    wrap.innerHTML='';
+  }
+}
+function applyCartonQty(piecesPerCarton){
+  const cartons=parseFloat(document.getElementById('p_cartons').value)||0;
+  document.getElementById('p_qty').value = cartons*piecesPerCarton;
 }
 async function savePurchase(id){
   if(!lockSubmit()) return;
@@ -1392,20 +1921,23 @@ async function savePurchase(id){
   if(!itemId||qty<=0){ toast('آئٹم اور مقدار درست لکھیں'); return; }
   const it=itemById(itemId);
   const pay=document.getElementById('p_pay').value;
+  const supplierId=document.getElementById('p_supplierId').value||null;
+  if(pay==='ادھار' && !supplierId){ toast('ادھار کے لیے سپلائر منتخب کریں'); return; }
+  const supplierName = supplierId ? DB.suppliers.find(s=>s.id===supplierId).name : document.getElementById('p_supplier').value.trim();
   if(id){
     const old=DB.purchases.find(x=>x.id===id);
     if(old){
       const oldItem=itemById(old.itemId);
       if(oldItem) oldItem.stock=(Number(oldItem.stock)||0)-Number(old.qty||0);
       old.date=document.getElementById('p_date').value||todayStr();
-      old.supplier=document.getElementById('p_supplier').value.trim();
+      old.supplier=supplierName; old.supplierId=supplierId;
       old.itemId=itemId; old.itemName=it.name; old.qty=qty; old.cost=cost; old.total=qty*cost;
       old.paymentType=pay; old.bankId=pay==='بینک'?document.getElementById('p_bank').value:null;
       it.stock=(Number(it.stock)||0)+qty;
     }
   } else {
     const purchase={id:uid(), createdAt:Date.now(), date:document.getElementById('p_date').value||todayStr(),
-      supplier:document.getElementById('p_supplier').value.trim(), itemId, itemName:it.name, qty, cost,
+      supplier:supplierName, supplierId, itemId, itemName:it.name, qty, cost,
       total:qty*cost, paymentType:pay, bankId: pay==='بینک'?document.getElementById('p_bank').value:null};
     DB.purchases.push(purchase);
     it.stock=(Number(it.stock)||0)+qty;
@@ -1417,26 +1949,534 @@ async function deletePurchase(id){
   if(!(await customConfirm('یہ خریداری حذف کرنا چاہتے ہیں؟ اسٹاک واپس کم ہو جائے گا۔'))) return;
   const p=DB.purchases.find(x=>x.id===id);
   if(p){
-    trashPut('purchase', 'خریداری: '+(p.itemName||''), p);
-    const it=itemById(p.itemId); if(it) it.stock=(Number(it.stock)||0)-Number(p.qty||0);
+    trashPut('purchase', 'خریداری: '+purchaseItemsLabel(p), p);
+    reverseStockForPurchase(p);
   }
   DB.purchases=DB.purchases.filter(x=>x.id!==id);
   await saveDB(); renderPurchases(document.getElementById('main')); toast('حذف ہو گئی (ری سائیکل بن میں محفوظ)');
 }
 
+/* ===================== NEW MULTI-ITEM PURCHASE-FROM-SUPPLIER FLOW ===================== */
+let pCart=[], pSupplierId=null, pEditId=null, pAmountOverride=null, pCalcExpr='';
+let pVoiceNote=null, pRecording=false, pMediaRecorder=null, pAudioChunks=[];
+let pPickerSearch='', pPickerAddingNew=false;
+
+function resetPurchaseEntryState(){
+  pCart=[]; pSupplierId=null; pEditId=null; pAmountOverride=null; pCalcExpr='';
+  pVoiceNote=null; pRecording=false; pPickerSearch=''; pPickerAddingNew=false;
+}
+function pCartTotal(){ return pCart.reduce((a,c)=>a+(Number(c.qty)||0)*(Number(c.cost)||0),0); }
+function pDisplayTotal(){ return pAmountOverride!=null ? pAmountOverride : pCartTotal(); }
+
+function openPurchaseEntry(supplierId, editId){
+  resetPurchaseEntryState();
+  pSupplierId = supplierId||null;
+  pEditId = editId||null;
+  if(editId){
+    const p=DB.purchases.find(x=>x.id===editId);
+    if(p){
+      pSupplierId = p.supplierId||null;
+      pCart = purchaseItems(p).map(it=>({itemId:it.itemId, name:it.name, qty:it.qty, cost:it.cost, detail:it.detail||''}));
+      pAmountOverride = Number(p.total)||0;
+      pVoiceNote = p.voiceNote||null;
+    }
+  }
+  renderPurchaseEntryScreen();
+}
+function renderPurchaseEntryScreen(){
+  const p = pEditId ? DB.purchases.find(x=>x.id===pEditId) : null;
+  const supplier = pSupplierId ? DB.suppliers.find(s=>s.id===pSupplierId) : null;
+  const title = supplier ? supplier.name : (p&&p.supplier ? p.supplier : 'نئی خریداری');
+  const total = pDisplayTotal();
+  const pay = (p&&p.paymentType) || (pSupplierId?'ادھار':'نقد');
+  const body = `
+    <div class="pur-amtbox">
+      <div class="pur-amt-label">${esc(title)} کی خرید</div>
+      <div class="pur-amt-value">Rs <span id="pAmountDisplay">${pCalcExpr!==''?esc(pCalcExpr):money(total)}</span></div>
+    </div>
+    <div class="card" style="padding:4px 10px;">
+      <div class="list-item" onclick="openPurchaseItemPicker()"><div class="name">🧾 آئٹمز شامل کریں${pCart.length?` (${pCart.length})`:''}</div><span>›</span></div>
+      <div class="list-item">
+        <div class="name">${pRecording?'⏺️ ریکارڈنگ جاری ہے...':(pVoiceNote?'🎤 وائس نوٹ منسلک ہے':'🎙️ وائس نوٹ منسلک کریں')}</div>
+        <div style="display:flex;gap:6px;">
+          ${pVoiceNote?`<button class="btn btn-outline btn-sm" onclick="event.stopPropagation();playVoiceNote()">▶️</button><button class="btn btn-red btn-sm" onclick="event.stopPropagation();deleteVoiceNote()">🗑️</button>`
+            : `<button class="btn ${pRecording?'btn-red':'btn-outline'} btn-sm" onclick="event.stopPropagation();toggleVoiceRecording()">${pRecording?'⏹️ روکیں':'🎙️'}</button>`}
+        </div>
+      </div>
+    </div>
+    ${!pSupplierId ? `
+    <label>سپلائر (اختیاری، ادھار کے لیے ضروری)</label>
+    <select id="pe_supplierId">
+      <option value="">— کوئی سپلائر منتخب نہیں —</option>
+      ${DB.suppliers.map(s=>`<option value="${s.id}" ${p&&p.supplierId===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}
+    </select>
+    <label>یا سپلائر کا نام لکھیں (اگر لسٹ میں نہیں)</label>
+    <input type="text" id="pe_supplierName" value="${p&&!p.supplierId?esc(p.supplier||''):''}">
+    ` : ''}
+    <label>تاریخ</label><input type="date" id="pe_date" value="${p?p.date:todayStr()}">
+    <label>ادائیگی کی قسم</label>
+    <select id="pe_pay" onchange="document.getElementById('pe_bankwrap').style.display=this.value==='بینک'?'block':'none';">
+      <option value="نقد" ${pay==='نقد'?'selected':''}>نقد</option>
+      <option value="بینک" ${pay==='بینک'?'selected':''}>بینک</option>
+      <option value="ادھار" ${pay==='ادھار'?'selected':''}>ادھار (سپلائر کو بعد میں دینا ہے)</option>
+    </select>
+    <div id="pe_bankwrap" style="display:${pay==='بینک'?'block':'none'};">
+      <label>بینک</label>
+      <select id="pe_bank">${DB.banks.map(b=>`<option value="${b.id}" ${p&&p.bankId===b.id?'selected':''}>${esc(b.name)}</option>`).join('')}</select>
+    </div>
+    <button class="btn btn-green" style="margin-top:14px;" onclick="savePurchaseEntry()">محفوظ کریں</button>
+    ${calcPadHTML()}
+  `;
+  openSheet(pEditId?'خریداری میں ترمیم':'نئی خریداری', body);
+}
+function calcPadHTML(){
+  return `
+  <div class="calc-pad">
+    <button class="calc-btn func" onclick="calcClear()">AC</button>
+    <button class="calc-btn func" onclick="calcBackspace()">⌫</button>
+    <button class="calc-btn func" onclick="calcPercent()">%</button>
+    <button class="calc-btn op" onclick="calcPress('÷')">÷</button>
+    <button class="calc-btn" onclick="calcPress('7')">7</button>
+    <button class="calc-btn" onclick="calcPress('8')">8</button>
+    <button class="calc-btn" onclick="calcPress('9')">9</button>
+    <button class="calc-btn op" onclick="calcPress('×')">×</button>
+    <button class="calc-btn" onclick="calcPress('4')">4</button>
+    <button class="calc-btn" onclick="calcPress('5')">5</button>
+    <button class="calc-btn" onclick="calcPress('6')">6</button>
+    <button class="calc-btn op" onclick="calcPress('−')">−</button>
+    <button class="calc-btn" onclick="calcPress('1')">1</button>
+    <button class="calc-btn" onclick="calcPress('2')">2</button>
+    <button class="calc-btn" onclick="calcPress('3')">3</button>
+    <button class="calc-btn op" onclick="calcPress('+')">+</button>
+    <button class="calc-btn" style="grid-column:span 2;" onclick="calcPress('0')">0</button>
+    <button class="calc-btn" onclick="calcPress('.')">.</button>
+    <button class="calc-btn eq" onclick="calcEquals()">=</button>
+  </div>`;
+}
+function updateCalcDisplay(){
+  const disp=document.getElementById('pAmountDisplay');
+  if(disp) disp.textContent = pCalcExpr!=='' ? pCalcExpr : money(pDisplayTotal());
+}
+function calcPress(ch){ pCalcExpr += ch; updateCalcDisplay(); }
+function calcClear(){ pCalcExpr=''; pAmountOverride=null; updateCalcDisplay(); }
+function calcBackspace(){ if(pCalcExpr) pCalcExpr=pCalcExpr.slice(0,-1); else pAmountOverride=null; updateCalcDisplay(); }
+function calcPercent(){
+  const m=pCalcExpr.match(/(\d*\.?\d+)$/);
+  if(!m) return;
+  const num=(parseFloat(m[0])/100);
+  pCalcExpr = pCalcExpr.slice(0,m.index) + num;
+  updateCalcDisplay();
+}
+function calcEquals(){
+  if(!pCalcExpr) return;
+  const safe = pCalcExpr.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');
+  if(!/^[0-9+\-*/.() ]+$/.test(safe)){ toast('غلط اندراج'); return; }
+  let result;
+  try{ result = Function('"use strict";return ('+safe+')')(); }catch(e){ toast('غلط اندراج'); return; }
+  if(typeof result!=='number' || !isFinite(result)){ toast('غلط اندراج'); return; }
+  result = Math.round(result*100)/100;
+  pAmountOverride = result;
+  pCalcExpr = String(result);
+  updateCalcDisplay();
+}
+
+/* ---- item picker sub-screen ---- */
+function openPurchaseItemPicker(){
+  const body = `
+    <button class="btn btn-outline btn-sm" onclick="pAmountOverride=null; pCalcExpr=''; renderPurchaseEntryScreen();">‹ واپس</button>
+    <div class="searchbar" style="margin-top:10px;">
+      <input type="text" placeholder="آئٹم تلاش کریں..." value="${esc(pPickerSearch)}" oninput="pPickerSearch=this.value; filterPickerList();">
+    </div>
+    <button class="btn btn-outline btn-sm" style="margin-bottom:8px;" onclick="togglePickerAddNew()">${pPickerAddingNew?'✕ منسوخ کریں':'+ نیا آئٹم شامل کریں'}</button>
+    <div id="pickerList">${pickerListHTML()}</div>
+  `;
+  openSheet('آئٹمز شامل کریں', body);
+}
+function pickerListHTML(){
+  const q=(pPickerSearch||'').trim().toLowerCase();
+  const list = DB.items.filter(i=> !q || i.name.toLowerCase().includes(q) || (i.barcode||'').includes(q));
+  let html='';
+  if(pCart.length){
+    html += `<div class="totalsbox" id="pickGrandTotalBox"><div class="tr"><span>کل رقم</span><span id="pickGrandTotal">${money(pCartTotal())}</span></div></div>`;
+  }
+  if(pPickerAddingNew){
+    html += `
+    <div class="pur-item-row">
+      <label>نئے آئٹم کا نام</label><input type="text" id="pk_new_name">
+      <div class="grid2">
+        <div><label>خریداری قیمت (فی پیس)</label><input type="number" id="pk_new_cost"></div>
+        <div><label>فروخت قیمت (اختیاری)</label><input type="number" id="pk_new_sale"></div>
+      </div>
+      <button class="btn btn-primary btn-sm" style="margin-top:8px;" onclick="quickAddItemFromPicker()">شامل کریں</button>
+    </div>`;
+  }
+  html += list.length ? list.map(i=>{
+    const sel = pCart.find(c=>c.itemId===i.id);
+    return `
+    <div class="pur-item-row">
+      <div class="pur-item-head" onclick="togglePickItem('${i.id}')">
+        <input type="checkbox" ${sel?'checked':''} onclick="event.stopPropagation();togglePickItem('${i.id}')">
+        <div style="flex:1;">
+          <div class="name">${esc(i.name)}</div>
+          <div class="meta">اسٹاک: ${stockLabel(i)}</div>
+        </div>
+      </div>
+      ${sel? `
+      <div class="grid2" style="margin-top:6px;">
+        <input type="number" step="0.01" placeholder="مقدار" value="${sel.qty||''}" oninput="updatePickQty('${i.id}',this.value)">
+        <input type="number" placeholder="قیمت (فی پیس)" value="${sel.cost||''}" oninput="updatePickCost('${i.id}',this.value)">
+      </div>
+      <div class="meta" id="pickTotal_${i.id}" style="margin-top:4px;font-weight:700;color:var(--navy);">ٹوٹل: ${money((Number(sel.qty)||0)*(Number(sel.cost)||0))}</div>
+      ${i.piecesPerCarton>0?`<input type="number" step="1" placeholder="یا کارٹن کی تعداد (فی کارٹن ${i.piecesPerCarton})" style="margin-top:6px;" oninput="updatePickCartons('${i.id}',this.value,${i.piecesPerCarton})">`:''}
+      <input type="text" placeholder="تفصیل (اختیاری)" value="${esc(sel.detail||'')}" style="margin-top:6px;" oninput="updatePickDetail('${i.id}',this.value)">
+      `:''}
+    </div>`;
+  }).join('') : `<div class="empty">کوئی آئٹم نہیں ملا</div>`;
+  return html;
+}
+function filterPickerList(){ const box=document.getElementById('pickerList'); if(box) box.innerHTML=pickerListHTML(); }
+function togglePickerAddNew(){ pPickerAddingNew=!pPickerAddingNew; openPurchaseItemPicker(); }
+function quickAddItemFromPicker(){
+  const name=document.getElementById('pk_new_name').value.trim();
+  if(!name){ toast('آئٹم کا نام لکھیں'); return; }
+  const cost=parseFloat(document.getElementById('pk_new_cost').value)||0;
+  const sale=parseFloat(document.getElementById('pk_new_sale').value)||0;
+  const it={id:uid(), name, barcode:'', category:'', costPrice:cost, salePrice:sale, wholesalePrice:0, stock:0, reorderLevel:5, piecesPerCarton:0, photo:null, createdAt:Date.now()};
+  DB.items.push(it);
+  pCart.push({itemId:it.id, name:it.name, qty:1, cost, detail:''});
+  pPickerAddingNew=false; pPickerSearch='';
+  saveDB();
+  openPurchaseItemPicker();
+  toast('نیا آئٹم شامل ہو گیا');
+}
+function togglePickItem(id){
+  const idx=pCart.findIndex(c=>c.itemId===id);
+  if(idx>=0) pCart.splice(idx,1);
+  else{ const it=itemById(id); if(it) pCart.push({itemId:id, name:it.name, qty:1, cost:Number(it.costPrice)||0, detail:''}); }
+  filterPickerList();
+}
+function updatePickQty(id,v){ const c=pCart.find(c=>c.itemId===id); if(c) c.qty=parseFloat(v)||0; refreshPickCalc(id); }
+function updatePickCost(id,v){ const c=pCart.find(c=>c.itemId===id); if(c) c.cost=parseFloat(v)||0; refreshPickCalc(id); }
+function refreshPickCalc(id){
+  const c=pCart.find(x=>x.itemId===id);
+  const el=document.getElementById('pickTotal_'+id);
+  if(el && c) el.innerText='ٹوٹل: '+money((Number(c.qty)||0)*(Number(c.cost)||0));
+  const g=document.getElementById('pickGrandTotal');
+  if(g) g.innerText=money(pCartTotal());
+}
+function updatePickCartons(id,v,ppc){ const c=pCart.find(c=>c.itemId===id); if(c){ c.qty=(parseFloat(v)||0)*ppc; filterPickerList(); } }
+function updatePickDetail(id,v){ const c=pCart.find(c=>c.itemId===id); if(c) c.detail=v; }
+
+/* ---- voice note ---- */
+async function toggleVoiceRecording(){
+  if(pRecording){ if(pMediaRecorder) pMediaRecorder.stop(); return; }
+  if(!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)){ toast('اس براؤزر پر مائیک دستیاب نہیں'); return; }
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    pAudioChunks=[];
+    pMediaRecorder = new MediaRecorder(stream);
+    pMediaRecorder.ondataavailable = e=>{ if(e.data && e.data.size) pAudioChunks.push(e.data); };
+    pMediaRecorder.onstop = ()=>{
+      const blob = new Blob(pAudioChunks, {type:'audio/webm'});
+      const reader = new FileReader();
+      reader.onload = ()=>{ pVoiceNote = reader.result; pRecording=false; stream.getTracks().forEach(t=>t.stop()); renderPurchaseEntryScreen(); };
+      reader.readAsDataURL(blob);
+    };
+    pMediaRecorder.start();
+    pRecording=true;
+    renderPurchaseEntryScreen();
+  }catch(e){ toast('مائیک تک رسائی نہیں مل سکی'); }
+}
+function playVoiceNote(){ if(pVoiceNote){ new Audio(pVoiceNote).play(); } }
+function deleteVoiceNote(){ pVoiceNote=null; renderPurchaseEntryScreen(); }
+
+/* ---- save ---- */
+async function savePurchaseEntry(){
+  if(!lockSubmit()) return;
+  try{
+  const total = pDisplayTotal();
+  if(total<=0 && !pCart.length){ toast('رقم یا آئٹمز درج کریں'); return; }
+  const pay = document.getElementById('pe_pay').value;
+  let supplierId = pSupplierId;
+  let supplierName = '';
+  if(!supplierId){
+    const sel=document.getElementById('pe_supplierId');
+    supplierId = sel && sel.value ? sel.value : null;
+  }
+  if(pay==='ادھار' && !supplierId){ toast('ادھار کے لیے سپلائر منتخب کریں'); return; }
+  if(supplierId){ const s=DB.suppliers.find(x=>x.id===supplierId); supplierName = s?s.name:''; }
+  else{ const nameInp=document.getElementById('pe_supplierName'); supplierName = nameInp?nameInp.value.trim():''; }
+  const date = document.getElementById('pe_date').value || todayStr();
+  const bankId = pay==='بینک' ? document.getElementById('pe_bank').value : null;
+  const items = pCart.map(c=>({itemId:c.itemId, name:c.name, qty:Number(c.qty)||0, cost:Number(c.cost)||0, detail:c.detail||''}));
+  if(pEditId){
+    const old=DB.purchases.find(x=>x.id===pEditId);
+    if(old){
+      reverseStockForPurchase(old);
+      old.date=date; old.supplierId=supplierId; old.supplier=supplierName;
+      old.items=items; old.itemId=null; old.itemName=null; old.qty=null; old.cost=null;
+      old.itemsTotal=pCartTotal(); old.total=total;
+      old.paymentType=pay; old.bankId=bankId;
+      old.voiceNote=pVoiceNote||null;
+      applyStockForPurchase(old);
+    }
+  } else {
+    const purchase={ id:uid(), createdAt:Date.now(), date, supplierId, supplier:supplierName,
+      items, itemsTotal:pCartTotal(), total, paymentType:pay, bankId, voiceNote:pVoiceNote||null };
+    DB.purchases.push(purchase);
+    applyStockForPurchase(purchase);
+  }
+  await saveDB(); closeSheet(); toast('خریداری محفوظ ہو گئی');
+  resetPurchaseEntryState();
+  if(supplierId) openSupplierDetail(supplierId);
+  else renderPurchases(document.getElementById('main'));
+  } finally { unlockSubmit(); }
+}
+
+/* ===================== SUPPLIERS (ادھار خریداری) ===================== */
+function supplierDue(supplierId){
+  let due = 0;
+  DB.purchases.forEach(p=>{ if(p.supplierId===supplierId && p.paymentType==='ادھار') due += Number(p.total)||0; });
+  DB.supplierPayments.forEach(pay=>{ if(pay.supplierId===supplierId) due -= Number(pay.amount)||0; });
+  return due;
+}
+function supplierOldestDueDays(supplierId){
+  const unpaidDates = DB.purchases.filter(p=>p.supplierId===supplierId && p.paymentType==='ادھار').map(p=>p.date);
+  if(!unpaidDates.length) return null;
+  const oldest = unpaidDates.sort()[0];
+  const days = Math.floor((Date.now() - new Date(oldest).getTime())/86400000);
+  return days>=0 ? days : 0;
+}
+let supplierListSearch='';
+function renderSuppliers(main){
+  const totalDue = DB.suppliers.reduce((a,s)=>a+Math.max(supplierDue(s.id),0),0);
+  const now=new Date();
+  const monthPurchases = DB.purchases.filter(p=>{ const d=new Date(p.date); return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth(); }).reduce((a,p)=>a+(Number(p.total)||0),0);
+  const monthName = now.toLocaleDateString('ur-PK',{month:'long'});
+  main.innerHTML = `
+    <button class="btn btn-outline btn-sm" onclick="backToMoreMenu()">‹ واپس</button>
+    <div class="card" style="margin-top:10px;padding:0;overflow:hidden;">
+      <div style="display:flex;">
+        <div style="flex:1;padding:14px;border-inline-start:1px solid var(--line);text-align:center;">
+          <div class="meta">آپ دیں گے (کل)</div>
+          <div style="font-weight:800;font-size:17px;color:${totalDue>0?'var(--red)':'var(--green)'};">${money(totalDue)}</div>
+        </div>
+        <div style="flex:1;padding:14px;text-align:center;">
+          <div class="meta">${esc(monthName)} کی کل خریداری</div>
+          <div style="font-weight:800;font-size:17px;color:var(--navy);">${money(monthPurchases)}</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <button class="btn btn-primary" onclick="openSupplierForm()">+ نیا سپلائر شامل کریں</button>
+    </div>
+    <div class="searchbar">
+      <input type="text" placeholder="سپلائرز تلاش کریں..." value="${esc(supplierListSearch)}" oninput="supplierListSearch=this.value; document.getElementById('supplierListRows').innerHTML=renderSupplierListRows();">
+    </div>
+    <div class="card" id="supplierListRows">${renderSupplierListRows()}</div>
+  `;
+}
+function renderSupplierListRows(){
+  const q=(supplierListSearch||'').trim().toLowerCase();
+  const list = DB.suppliers.filter(s=> !q || s.name.toLowerCase().includes(q) || (s.phone||'').includes(q));
+  if(!list.length) return `<div class="empty">کوئی سپلائر شامل نہیں</div>`;
+  return list.map(s=>{
+    const due=supplierDue(s.id);
+    const tss=[...DB.purchases.filter(p=>p.supplierId===s.id).map(p=>p.createdAt||0), ...DB.supplierPayments.filter(x=>x.supplierId===s.id).map(x=>x.createdAt||0)];
+    const lastTs = tss.length? Math.max(...tss) : (s.createdAt||0);
+    return `<div class="customerRow" onclick="openSupplierDetail('${s.id}')">
+      <div class="flexrow">
+        <div class="avatar">${esc((s.name||'?').trim().charAt(0).toUpperCase())}</div>
+        <div>
+          <div class="name">${esc(s.name)}</div>
+          <div class="meta">${esc(s.phone||'')}${lastTs?(s.phone?' • ':'')+fmtDate(new Date(lastTs).toISOString().slice(0,10)):''}</div>
+        </div>
+      </div>
+      <div style="font-weight:800;color:${due>0?'var(--red)':'var(--green)'}">${money(due)}</div>
+    </div>`;
+  }).join('');
+}
+function openSupplierForm(id){
+  const s = id ? DB.suppliers.find(x=>x.id===id) : {name:'',phone:''};
+  const body=`
+    <label>سپلائر کا نام</label><input type="text" id="sup_name" value="${esc(s.name)}">
+    <label>فون نمبر (اختیاری)</label><input type="tel" id="sup_phone" value="${esc(s.phone||'')}">
+    <button class="btn btn-primary" style="margin-top:14px;" onclick="saveSupplier('${id||''}')">محفوظ کریں</button>
+  `;
+  openSheet(id?'تفصیل تبدیل کریں':'نیا سپلائر', body);
+}
+async function saveSupplier(id){
+  if(!lockSubmit()) return;
+  try{
+  const name=document.getElementById('sup_name').value.trim();
+  if(!name){ toast('نام لکھیں'); return; }
+  const phone=document.getElementById('sup_phone').value.trim();
+  if(id){ const s=DB.suppliers.find(x=>x.id===id); if(s){ s.name=name; s.phone=phone; } }
+  else{ DB.suppliers.push({id:uid(), name, phone, createdAt:Date.now()}); }
+  await saveDB(); closeSheet(); renderSuppliers(document.getElementById('main'));
+  } finally { unlockSubmit(); }
+}
+async function deleteSupplier(id){
+  if(!(await customConfirm('اس سپلائر کو حذف کرنا چاہتے ہیں؟ اس سے جڑی خریداریاں الگ نہیں ہوں گی، صرف سپلائر کا نام ہٹے گا۔'))) return;
+  const s=DB.suppliers.find(x=>x.id===id);
+  if(s) trashPut('supplier', 'سپلائر: '+s.name, s);
+  DB.purchases.forEach(p=>{ if(p.supplierId===id) p.supplierId=null; });
+  DB.supplierPayments=DB.supplierPayments.filter(pay=>pay.supplierId!==id);
+  DB.suppliers=DB.suppliers.filter(x=>x.id!==id);
+  await saveDB(); closeSheet(); renderSuppliers(document.getElementById('main')); toast('حذف ہو گیا (ری سائیکل بن میں محفوظ)');
+}
+let supplierDetailSearch='';
+function computeSupplierTxns(id){
+  const txns=[];
+  DB.purchases.filter(p=>p.supplierId===id).forEach(p=>{
+    txns.push({date:p.date, ts:p.createdAt||0, kind:'purchase',
+      desc:purchaseItemsLabel(p)+(p.paymentType!=='ادھار'?' ('+p.paymentType+')':''),
+      amt:Number(p.total)||0, affectsDue:p.paymentType==='ادھار', id:p.id, voiceNote:p.voiceNote||null});
+  });
+  DB.supplierPayments.filter(x=>x.supplierId===id).forEach(x=>{
+    txns.push({date:x.date, ts:x.createdAt||0, kind:'payment', desc:'ادائیگی'+(x.notes?' — '+x.notes:''), amt:Number(x.amount)||0, affectsDue:true, id:x.id});
+  });
+  const asc = txns.slice().sort((a,b)=> a.date>b.date?1 : a.date<b.date?-1 : (a.ts-b.ts));
+  let running=0;
+  asc.forEach(t=>{ if(t.affectsDue) running += (t.kind==='purchase'? t.amt : -t.amt); t.balance=running; });
+  return asc;
+}
+function supplierRowsHTML(id){
+  const q=(supplierDetailSearch||'').trim().toLowerCase();
+  let list = computeSupplierTxns(id).slice().reverse();
+  if(q) list = list.filter(t=>t.desc.toLowerCase().includes(q));
+  if(!list.length) return `<div class="empty">کوئی انٹری نہیں</div>`;
+  return list.map(t=>`
+    <div class="sup-row">
+      <div class="sup-col">${t.kind==='payment'?`<span class="amt-red">${money(t.amt)}</span>`:''}</div>
+      <div class="sup-col">${t.kind==='purchase'?`<span class="amt-green">${money(t.amt)}</span>`:''}</div>
+      <div class="sup-col info">
+        <div class="desc">${esc(t.desc)}</div>
+        <div class="meta">${fmtDateTime(t.date,t.ts)}</div>
+        <div class="meta">بیلنس: ${money(t.balance)}</div>
+      </div>
+      ${t.voiceNote?`<button class="attach-btn" title="وائس نوٹ سنیں" onclick="new Audio('${t.voiceNote}').play()">📎</button>`:''}
+    </div>`).join('');
+}
+function filterSupplierRows(id){ const box=document.getElementById('supRows'); if(box) box.innerHTML=supplierRowsHTML(id); }
+function openSupplierDetail(id){ supplierDetailSearch=''; renderSupplierDetailScreen(id); }
+function renderSupplierDetailScreen(id){
+  const s=DB.suppliers.find(x=>x.id===id);
+  if(!s) return;
+  const due=supplierDue(id);
+  const days=supplierOldestDueDays(id);
+  const body=`
+    <div class="flexrow" style="justify-content:space-between;">
+      <div class="meta">${esc(s.phone||'فون نمبر موجود نہیں')}</div>
+      ${s.phone?`<a class="iconbtn" style="background:#f1ede4;color:var(--navy);" href="tel:${esc(s.phone)}">📞</a>`:''}
+    </div>
+    <div class="pur-amtbox" style="background:linear-gradient(135deg,${due>0?'var(--red),#8e2b20':'var(--green),#166b3e'});margin-top:10px;">
+      <div class="pur-amt-label">${due>0?'آپ دیں گے':'باقی نہیں / ایڈوانس'}</div>
+      <div class="pur-amt-value">Rs ${money(Math.abs(due))}</div>
+    </div>
+    ${days!==null?`<div class="meta" style="margin-top:2px;">⏳ سب سے پرانی ادھار خریداری ${days} دن پہلے کی ہے</div>`:''}
+    <div class="btn-row" style="margin-top:10px;">
+      ${s.phone?`<a class="btn btn-outline" href="sms:${esc(s.phone)}?body=${encodeURIComponent('السلام علیکم '+s.name+'، آپ کی '+money(due)+' روپے رقم واجب الادا ہے۔ '+DB.shop.name)}">✉️ SMS</a>`:''}
+      ${s.phone?`<button class="btn wa" onclick="supplierWaReminder('${id}')">📲 ریمائنڈر</button>`:''}
+      <button class="btn btn-outline" onclick="printSupplierLedger('${id}')">📄 رپورٹ</button>
+    </div>
+    <div class="searchbar" style="margin-top:12px;">
+      <input type="text" placeholder="تلاش کریں..." value="${esc(supplierDetailSearch)}" oninput="supplierDetailSearch=this.value; filterSupplierRows('${id}')">
+    </div>
+    <div class="sup-headrow"><span>پیمنٹ</span><span>خرید</span><span>انٹریز</span></div>
+    <div id="supRows">${supplierRowsHTML(id)}</div>
+    <div class="btn-row" style="margin-top:14px;">
+      <button class="btn btn-red" onclick="openSupplierPaymentForm('${id}')">Rs پیمنٹ</button>
+      <button class="btn btn-green" onclick="openPurchaseEntry('${id}',null)">Rs خرید</button>
+    </div>
+    <button class="btn btn-outline" style="margin-top:14px;" onclick="openSupplierForm('${id}')">✏️ تفصیل تبدیل کریں</button>
+    <button class="btn btn-red" style="margin-top:8px;" onclick="deleteSupplier('${id}')">🗑️ یہ سپلائر حذف کریں</button>
+  `;
+  openSheet(s.name, body);
+}
+function supplierWaReminder(id){
+  const s=DB.suppliers.find(x=>x.id===id); if(!s) return;
+  const due=supplierDue(id);
+  if(!s.phone){ toast('فون نمبر موجود نہیں'); return; }
+  const text=`السلام علیکم ${s.name}، ${DB.shop.name} کی طرف سے آپ کو ${money(due)} روپے کی ادائیگی کرنی ہے۔ شکریہ`;
+  window.open(waLink(s.phone,text),'_blank');
+}
+async function printSupplierLedger(id){
+  const s=DB.suppliers.find(x=>x.id===id); if(!s) return;
+  const due=supplierDue(id);
+  const asc=computeSupplierTxns(id);
+  const totalPurchase=asc.filter(t=>t.kind==='purchase').reduce((a,t)=>a+t.amt,0);
+  const totalPaid=asc.filter(t=>t.kind==='payment').reduce((a,t)=>a+t.amt,0);
+  const rows = asc.slice().reverse().map(t=>`
+    <tr>
+      <td style="padding:7px;border-bottom:1px solid #eee;">${fmtDateTime(t.date,t.ts)}</td>
+      <td style="padding:7px;border-bottom:1px solid #eee;">${esc(t.desc)}</td>
+      <td style="padding:7px;border-bottom:1px solid #eee;text-align:center;color:#2e8b57;">${t.kind==='purchase'?money(t.amt):''}</td>
+      <td style="padding:7px;border-bottom:1px solid #eee;text-align:center;color:#c0392b;">${t.kind==='payment'?money(t.amt):''}</td>
+      <td style="padding:7px;border-bottom:1px solid #eee;text-align:center;font-weight:700;">${money(t.balance)}</td>
+    </tr>`).join('');
+  const html = buildLedgerReportHtml(
+    'سپلائر حساب — '+s.name,
+    (s.phone||'')+' • تاریخ: '+fmtDate(todayStr()),
+    rows || '<tr><td colspan="5" style="padding:14px;text-align:center;">کوئی ٹرانزیکشن نہیں</td></tr>',
+    [
+      {label:'کل خریداری', value:money(totalPurchase), color:'#2e8b57'},
+      {label:'کل ادائیگی', value:money(totalPaid), color:'#c0392b'},
+      {label:'باقی رقم', value:money(due), color:'#122a43'}
+    ],
+    {headers:['تاریخ','تفصیل','خرید','پیمنٹ','بیلنس']}
+  );
+  toast('PDF بن رہی ہے...');
+  const result = await exportHtmlAsPdf(html, 'Supplier_Ledger_'+s.name.replace(/\s+/g,'_')+'.pdf');
+  if(result) await sharePdfBlob(result.blob, result.filename);
+}
+function openSupplierPaymentForm(supplierId){
+  const body=`
+    <label>رقم</label><input type="number" id="sp_amt">
+    <label>تاریخ</label><input type="date" id="sp_date" value="${todayStr()}">
+    <label>نوٹس (اختیاری)</label><input type="text" id="sp_notes">
+    <button class="btn btn-primary" style="margin-top:14px;" onclick="saveSupplierPayment('${supplierId}')">محفوظ کریں</button>
+  `;
+  openSheet('سپلائر کو ادائیگی', body);
+}
+async function saveSupplierPayment(supplierId){
+  if(!lockSubmit()) return;
+  try{
+  const amount=parseFloat(document.getElementById('sp_amt').value)||0;
+  if(amount<=0){ toast('صحیح رقم لکھیں'); return; }
+  DB.supplierPayments.push({id:uid(), createdAt:Date.now(), supplierId, amount,
+    date:document.getElementById('sp_date').value||todayStr(), notes:document.getElementById('sp_notes').value.trim()});
+  await saveDB(); closeSheet(); openSupplierDetail(supplierId); toast('ادائیگی محفوظ ہو گئی');
+  } finally { unlockSubmit(); }
+}
+
 /* ---- Cash Book ---- */
-function renderCash(main){
+function computeCashLedger(){
   const entries=[];
-  DB.cashEntries.forEach(e=>entries.push({date:e.date,desc:e.desc,in:e.in,out:e.out,createdAt:e.createdAt||0,kind:'cash',id:e.id}));
+  DB.cashEntries.forEach(e=>entries.push({date:e.date,desc:e.desc,in:e.in,out:e.out,createdAt:e.createdAt||0,kind:'cash',id:e.id,signature:e.signature||null}));
   DB.sales.filter(s=>s.paymentType==='نقد').forEach(s=>entries.push({date:s.date,desc:'POS سیل — '+s.invoiceNo,in:s.netTotal,out:0,createdAt:s.createdAt,kind:'sale',id:s.id}));
   DB.purchases.filter(p=>p.paymentType==='نقد').forEach(p=>entries.push({date:p.date,desc:'خریداری — '+(p.supplier||''),in:0,out:p.total,createdAt:p.createdAt,kind:'purchase',id:p.id}));
+  DB.collections.filter(x=>x.paymentType==='نقد').forEach(x=>{
+    const c=custById(x.customerId);
+    entries.push({date:x.date,desc:(x.type==='given'?'کسٹمر کو رقم دی — ':'کسٹمر سے وصولی — ')+(c?c.name:''),in:x.type==='given'?0:x.amount,out:x.type==='given'?x.amount:0,createdAt:x.createdAt||0,kind:'collection',id:x.id});
+  });
+  DB.amanatEntries.filter(x=>x.paymentType==='نقد').forEach(x=>{
+    const p=DB.amanatPersons.find(a=>a.id===x.personId);
+    entries.push({date:x.date,desc:(x.type==='in'?'امانت رکھی — ':'امانت واپس کی — ')+(p?p.name:''),in:x.type==='in'?x.amount:0,out:x.type==='in'?0:x.amount,createdAt:x.createdAt||0,kind:'amanat',id:x.id});
+  });
   entries.sort((a,b)=>a.createdAt-b.createdAt);
   let bal=0;
-  const rows=entries.map(e=>{ bal+=(Number(e.in)||0)-(Number(e.out)||0);
-    return `<div class="list-item"><div><div class="name">${esc(e.desc)}</div><div class="meta">${fmtDateTime(e.date,e.createdAt)}</div></div>
+  entries.forEach(e=>{ bal+=(Number(e.in)||0)-(Number(e.out)||0); e.balance=bal; });
+  return entries;
+}
+function renderCash(main){
+  const entries = computeCashLedger();
+  const rows=entries.map(e=>{
+    return `<div class="list-item"><div><div class="name">${esc(e.desc)}${e.signature?' ✍️':''}</div><div class="meta">${fmtDateTime(e.date,e.createdAt)}</div></div>
       <div style="text-align:left;display:flex;align-items:center;gap:8px;">
       <div><div style="font-weight:800;color:${e.in?'var(--green)':'var(--red)'}">${e.in?'+':'-'}${money(e.in||e.out)}</div>
-      <div class="meta">بیلنس: ${money(bal)}</div></div>
+      <div class="meta">بیلنس: ${money(e.balance)}</div></div>
+      ${e.signature?`<button class="btn btn-outline btn-sm" style="padding:6px 10px;" onclick="viewPhoto('${e.signature}')">✍️</button>`:''}
       ${e.kind==='cash'?`<button class="btn btn-outline btn-sm" style="padding:6px 10px;" onclick="openCashForm('${e.id}')">✏️</button>`:''}
       <button class="btn btn-red btn-sm" style="padding:6px 10px;" onclick="deleteLedgerEntry('${e.kind}','${e.id}')">🗑️</button>
       </div></div>`;
@@ -1449,27 +2489,121 @@ function renderCash(main){
     </div>
     <div class="card">
       <button class="btn btn-primary" onclick="openCashForm()">+ نئی انٹری (خرچہ/آمدنی)</button>
+      <button class="btn btn-outline" style="margin-top:8px;" onclick="openCashReport()">📊 مکمل رپورٹ (تاریخ فلٹر)</button>
     </div>
     <div class="card">${rows||'<div class="empty">کوئی انٹری نہیں</div>'}</div>
   `;
 }
+let cashReportSearch='', cashReportFrom='', cashReportTo='';
+function openCashReport(){
+  cashReportSearch=''; cashReportFrom=''; cashReportTo='';
+  renderCashReport();
+}
+function renderCashReport(){
+  const entries = computeCashLedger();
+  let filtered = entries.slice();
+  if(cashReportFrom) filtered = filtered.filter(e=>e.date>=cashReportFrom);
+  if(cashReportTo) filtered = filtered.filter(e=>e.date<=cashReportTo);
+  if(cashReportSearch.trim()){
+    const q=cashReportSearch.trim().toLowerCase();
+    filtered = filtered.filter(e=>e.desc.toLowerCase().includes(q));
+  }
+  const totalIn = filtered.reduce((s,e)=>s+(Number(e.in)||0),0);
+  const totalOut = filtered.reduce((s,e)=>s+(Number(e.out)||0),0);
+  const rows = filtered.slice().reverse().map(e=>`
+    <div class="list-item">
+      <div><div class="name">${esc(e.desc)}${e.signature?' ✍️':''}</div><div class="meta">${fmtDateTime(e.date,e.createdAt)} • بیلنس: ${money(e.balance)}</div></div>
+      <div style="font-weight:800;color:${e.in?'var(--green)':'var(--red)'}">${e.in?'+':'-'}${money(e.in||e.out)}</div>
+    </div>`).join('');
+  const body=`
+    <input type="text" placeholder="انٹریز تلاش کریں..." value="${esc(cashReportSearch)}" oninput="cashReportSearch=this.value; renderCashReport()">
+    <div class="grid2" style="margin-top:8px;">
+      <div><label>پہلی تاریخ</label><input type="date" value="${cashReportFrom}" onchange="cashReportFrom=this.value; renderCashReport()"></div>
+      <div><label>آخری تاریخ</label><input type="date" value="${cashReportTo}" onchange="cashReportTo=this.value; renderCashReport()"></div>
+    </div>
+    ${(cashReportFrom||cashReportTo)?`<button class="btn btn-outline btn-sm" style="margin-top:6px;" onclick="cashReportFrom='';cashReportTo='';renderCashReport()">تاریخ صاف کریں</button>`:''}
+    <div class="grid2" style="margin-top:10px;">
+      <div class="stat good"><div class="label">کل آمدنی</div><div class="value" style="font-size:16px;">${money(totalIn)}</div></div>
+      <div class="stat warn"><div class="label">کل خرچہ</div><div class="value" style="font-size:16px;">${money(totalOut)}</div></div>
+    </div>
+    <div class="meta" style="margin-top:6px;">انٹریاں: ${filtered.length}</div>
+    <div class="card" style="margin-top:10px;">${rows||'<div class="empty">کوئی انٹری نہیں ملی</div>'}</div>
+    <button class="btn btn-outline" style="margin-top:10px;" onclick="printCashLedger()">🖨️ پرنٹ / PDF</button>
+  `;
+  openSheet('کیش بک رپورٹ', body);
+}
+async function printCashLedger(){
+  const entries = computeCashLedger();
+  const rows = entries.slice().reverse().map(e=>`
+    <tr>
+      <td style="padding:7px;border-bottom:1px solid #eee;">${fmtDateTime(e.date,e.createdAt)}</td>
+      <td style="padding:7px;border-bottom:1px solid #eee;">${esc(e.desc)}</td>
+      <td style="padding:7px;border-bottom:1px solid #eee;text-align:center;color:#2e8b57;">${e.in?money(e.in):''}</td>
+      <td style="padding:7px;border-bottom:1px solid #eee;text-align:center;color:#c0392b;">${e.out?money(e.out):''}</td>
+      <td style="padding:7px;border-bottom:1px solid #eee;text-align:center;font-weight:700;">${money(e.balance)}</td>
+    </tr>`).join('');
+  const html = buildLedgerReportHtml(
+    'کیش بک',
+    'تاریخ: '+fmtDate(todayStr()),
+    rows || '<tr><td colspan="5" style="padding:14px;text-align:center;">کوئی انٹری نہیں</td></tr>',
+    [{label:'موجودہ کیش بیلنس', value:money(cashBalance()), color:'#122a43'}],
+    {headers:['تاریخ','تفصیل','آمدنی','خرچہ','بیلنس']}
+  );
+  toast('PDF بن رہی ہے...');
+  const result = await exportHtmlAsPdf(html, 'Cash_Book_'+todayStr()+'.pdf');
+  if(result) await sharePdfBlob(result.blob, result.filename);
+}
+let cashSignature=null;
 function openCashForm(entryId){
   const e = entryId ? DB.cashEntries.find(x=>x.id===entryId) : null;
+  cashSignature = e ? (e.signature||null) : null;
+  const type = (e&&e.out)?'out':'in';
   const body=`
     <label>تفصیل</label><input type="text" id="cash_desc" placeholder="مثلاً دکان کا کرایہ" value="${e?esc(e.desc):''}">
     <label>قسم</label>
     <div class="seg"><button class="${(!e||e.in)?'on':''}" id="cash_in_btn" onclick="setCashType('in')">آمدنی (جمع)</button><button class="${(e&&e.out)?'on':''}" id="cash_out_btn" onclick="setCashType('out')">خرچہ (نکلوائی)</button></div>
-    <input type="hidden" id="cash_type" value="${(e&&e.out)?'out':'in'}">
+    <input type="hidden" id="cash_type" value="${type}">
     <label>رقم</label><input type="number" id="cash_amt" value="${e?(e.in||e.out):''}">
     <label>تاریخ</label><input type="date" id="cash_date" value="${e?e.date:todayStr()}">
+    <div id="cash_sig_wrap">${cashSigWrapHtml(type)}</div>
     <button class="btn btn-primary" style="margin-top:14px;" onclick="saveCashEntry('${entryId||''}')">محفوظ کریں</button>
   `;
   openSheet(entryId?'انٹری میں ترمیم':'نئی کیش انٹری', body);
+  if(type==='out') initCashSignaturePad();
+}
+function cashSigWrapHtml(type){
+  if(type!=='out') return '';
+  return `<label>وصول کنندہ کے دستخط (اختیاری — جب کسی کو رقم دیں)</label>
+    <canvas id="cashSigPad" style="width:100%;height:120px;border:1.5px dashed var(--line);border-radius:10px;touch-action:none;background:#fff;"></canvas>
+    <button type="button" class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="clearCashSignature()">🧹 دستخط صاف کریں</button>`;
+}
+function initCashSignaturePad(){
+  const canvas=document.getElementById('cashSigPad');
+  if(!canvas) return;
+  const ratio=window.devicePixelRatio||1;
+  canvas.width=canvas.clientWidth*ratio; canvas.height=canvas.clientHeight*ratio;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(ratio,ratio); ctx.lineWidth=2; ctx.lineCap='round'; ctx.strokeStyle='#1a1a2e';
+  if(cashSignature){ const img=new Image(); img.onload=()=>ctx.drawImage(img,0,0,canvas.clientWidth,canvas.clientHeight); img.src=cashSignature; }
+  let drawing=false, last=null;
+  function pos(e){ const r=canvas.getBoundingClientRect(); const t=e.touches?e.touches[0]:e; return {x:t.clientX-r.left, y:t.clientY-r.top}; }
+  function start(e){ drawing=true; last=pos(e); e.preventDefault(); }
+  function move(e){ if(!drawing) return; const p=pos(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; e.preventDefault(); }
+  function end(){ if(!drawing) return; drawing=false; cashSignature=canvas.toDataURL('image/png'); }
+  canvas.addEventListener('mousedown',start); canvas.addEventListener('mousemove',move); canvas.addEventListener('mouseup',end); canvas.addEventListener('mouseleave',end);
+  canvas.addEventListener('touchstart',start); canvas.addEventListener('touchmove',move); canvas.addEventListener('touchend',end);
+}
+function clearCashSignature(){
+  cashSignature=null;
+  const canvas=document.getElementById('cashSigPad');
+  if(canvas){ const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); }
 }
 function setCashType(t){
   document.getElementById('cash_type').value=t;
   document.getElementById('cash_in_btn').classList.toggle('on',t==='in');
   document.getElementById('cash_out_btn').classList.toggle('on',t==='out');
+  const wrap=document.getElementById('cash_sig_wrap');
+  if(wrap){ wrap.innerHTML=cashSigWrapHtml(t); if(t==='out') initCashSignaturePad(); }
 }
 async function saveCashEntry(entryId){
   if(!lockSubmit()) return;
@@ -1479,12 +2613,14 @@ async function saveCashEntry(entryId){
   if(amt<=0){ toast('صحیح رقم لکھیں'); return; }
   const desc=document.getElementById('cash_desc').value.trim()||'انٹری';
   const date=document.getElementById('cash_date').value||todayStr();
+  const sig = type==='out' ? (cashSignature||null) : null;
   if(entryId){
     const e=DB.cashEntries.find(x=>x.id===entryId);
-    if(e){ e.desc=desc; e.date=date; e.in=type==='in'?amt:0; e.out=type==='out'?amt:0; }
+    if(e){ e.desc=desc; e.date=date; e.in=type==='in'?amt:0; e.out=type==='out'?amt:0; e.signature=sig; }
   } else {
-    DB.cashEntries.push({id:uid(), createdAt:Date.now(), desc, date, in:type==='in'?amt:0, out:type==='out'?amt:0});
+    DB.cashEntries.push({id:uid(), createdAt:Date.now(), desc, date, in:type==='in'?amt:0, out:type==='out'?amt:0, signature:sig});
   }
+  cashSignature=null;
   await saveDB(); closeSheet(); renderCash(document.getElementById('main')); toast('محفوظ ہو گیا');
   } finally { unlockSubmit(); }
 }
@@ -1500,7 +2636,7 @@ async function deleteLedgerEntry(kind,id){
     DB.sales=DB.sales.filter(s=>s.id!==id);
   } else if(kind==='purchase'){
     const purchase=DB.purchases.find(p=>p.id===id);
-    if(purchase){ trashPut('purchase','خریداری: '+(purchase.itemName||''), purchase); const item=itemById(purchase.itemId); if(item) item.stock=(Number(item.stock)||0)-Number(purchase.qty||0); }
+    if(purchase){ trashPut('purchase','خریداری: '+purchaseItemsLabel(purchase), purchase); reverseStockForPurchase(purchase); }
     DB.purchases=DB.purchases.filter(p=>p.id!==id);
   }
   await saveDB(); renderCash(document.getElementById('main')); toast('انٹری حذف ہو گئی (ری سائیکل بن میں محفوظ)');
@@ -1553,18 +2689,32 @@ async function saveBank(){
   await saveDB(); closeSheet(); renderBanks(document.getElementById('main')); toast('بینک شامل ہو گیا');
   } finally { unlockSubmit(); }
 }
-function openBankDetail(bankId){
+function computeBankLedger(bankId){
   const b=bankById(bankId);
   const entries=[];
-  DB.bankEntries.filter(e=>e.bankId===bankId).forEach(e=>entries.push({date:e.date,desc:e.desc,in:e.in,out:e.out,createdAt:e.createdAt||0,kind:'bankEntry',id:e.id}));
+  DB.bankEntries.filter(e=>e.bankId===bankId).forEach(e=>entries.push({date:e.date,desc:e.desc,in:e.in,out:e.out,createdAt:e.createdAt||0,kind:'bankEntry',id:e.id,photo:e.photo||null}));
   DB.sales.filter(s=>s.paymentType==='بینک'&&s.bankId===bankId).forEach(s=>entries.push({date:s.date,desc:'POS سیل — '+s.invoiceNo,in:s.netTotal,out:0,createdAt:s.createdAt,kind:'sale',id:s.id}));
   DB.purchases.filter(p=>p.paymentType==='بینک'&&p.bankId===bankId).forEach(p=>entries.push({date:p.date,desc:'خریداری',in:0,out:p.total,createdAt:p.createdAt,kind:'purchase',id:p.id}));
+  DB.collections.filter(x=>x.paymentType==='بینک'&&x.bankId===bankId).forEach(x=>{
+    const c=custById(x.customerId);
+    entries.push({date:x.date,desc:(x.type==='given'?'کسٹمر کو رقم دی — ':'کسٹمر سے وصولی — ')+(c?c.name:''),in:x.type==='given'?0:x.amount,out:x.type==='given'?x.amount:0,createdAt:x.createdAt||0,kind:'collection',id:x.id});
+  });
+  DB.amanatEntries.filter(x=>x.paymentType==='بینک'&&x.bankId===bankId).forEach(x=>{
+    const p=DB.amanatPersons.find(a=>a.id===x.personId);
+    entries.push({date:x.date,desc:(x.type==='in'?'امانت رکھی — ':'امانت واپس کی — ')+(p?p.name:''),in:x.type==='in'?x.amount:0,out:x.type==='in'?0:x.amount,createdAt:x.createdAt||0,kind:'amanat',id:x.id});
+  });
   entries.sort((a,b)=>a.createdAt-b.createdAt);
   let bal=0;
-  const rows=entries.map(e=>{bal+=(Number(e.in)||0)-(Number(e.out)||0);
-    return `<div class="list-item"><div><div class="name">${esc(e.desc)}</div><div class="meta">${fmtDateTime(e.date,e.createdAt)}</div></div>
+  entries.forEach(e=>{ bal+=(Number(e.in)||0)-(Number(e.out)||0); e.balance=bal; });
+  return { b, entries };
+}
+function openBankDetail(bankId){
+  const {b, entries} = computeBankLedger(bankId);
+  const rows=entries.map(e=>{
+    return `<div class="list-item"><div><div class="name">${esc(e.desc)}${e.photo?' 📎':''}</div><div class="meta">${fmtDateTime(e.date,e.createdAt)}</div></div>
     <div style="display:flex;align-items:center;gap:8px;">
     <div style="font-weight:800;color:${e.in?'var(--green)':'var(--red)'}">${e.in?'+':'-'}${money(e.in||e.out)}</div>
+    ${e.photo?`<button class="btn btn-outline btn-sm" style="padding:6px 10px;" onclick="viewPhoto('${e.photo}')">🖼️</button>`:''}
     ${e.kind==='bankEntry'?`<button class="btn btn-outline btn-sm" style="padding:6px 10px;" onclick="openBankEntryForm('${bankId}','${e.id}')">✏️</button>`:''}
     <button class="btn btn-red btn-sm" style="padding:6px 10px;" onclick="deleteBankLedgerEntry('${e.kind}','${e.id}','${bankId}')">🗑️</button>
     </div></div>`;
@@ -1574,11 +2724,71 @@ function openBankDetail(bankId){
     <div><div class="name">${esc(b.name)}</div><div class="meta">${esc(b.accountNo||'')}</div></div></div>
     <div class="stat good" style="margin-top:10px;"><div class="label">موجودہ بیلنس</div><div class="value">${money(bankBalance(bankId))}</div></div>
     <button class="btn btn-outline" style="margin-top:10px;" onclick="openBankEntryForm('${bankId}')">+ نئی انٹری (جمع/نکلوائی)</button>
+    <button class="btn btn-outline" style="margin-top:8px;" onclick="openBankReport('${bankId}')">📊 مکمل رپورٹ (تاریخ فلٹر)</button>
     <button class="btn btn-red" style="margin-top:8px;" onclick="deleteBank('${bankId}')">🗑️ یہ بینک اکاؤنٹ حذف کریں</button>
     <h3 style="margin-top:14px;color:var(--navy);font-size:14px;">تمام انٹریاں</h3>
     ${rows||'<div class="empty">کوئی انٹری نہیں</div>'}
   `;
   openSheet(b.name, body);
+}
+let bankReportSearch='', bankReportFrom='', bankReportTo='';
+function openBankReport(bankId){
+  bankReportSearch=''; bankReportFrom=''; bankReportTo='';
+  renderBankReport(bankId);
+}
+function renderBankReport(bankId){
+  const {b, entries} = computeBankLedger(bankId);
+  let filtered = entries.slice();
+  if(bankReportFrom) filtered = filtered.filter(e=>e.date>=bankReportFrom);
+  if(bankReportTo) filtered = filtered.filter(e=>e.date<=bankReportTo);
+  if(bankReportSearch.trim()){
+    const q=bankReportSearch.trim().toLowerCase();
+    filtered = filtered.filter(e=>e.desc.toLowerCase().includes(q));
+  }
+  const totalIn = filtered.reduce((s,e)=>s+(Number(e.in)||0),0);
+  const totalOut = filtered.reduce((s,e)=>s+(Number(e.out)||0),0);
+  const rows = filtered.slice().reverse().map(e=>`
+    <div class="list-item">
+      <div><div class="name">${esc(e.desc)}</div><div class="meta">${fmtDateTime(e.date,e.createdAt)} • بیلنس: ${money(e.balance)}</div></div>
+      <div style="font-weight:800;color:${e.in?'var(--green)':'var(--red)'}">${e.in?'+':'-'}${money(e.in||e.out)}</div>
+    </div>`).join('');
+  const body=`
+    <input type="text" placeholder="انٹریز تلاش کریں..." value="${esc(bankReportSearch)}" oninput="bankReportSearch=this.value; renderBankReport('${bankId}')">
+    <div class="grid2" style="margin-top:8px;">
+      <div><label>پہلی تاریخ</label><input type="date" value="${bankReportFrom}" onchange="bankReportFrom=this.value; renderBankReport('${bankId}')"></div>
+      <div><label>آخری تاریخ</label><input type="date" value="${bankReportTo}" onchange="bankReportTo=this.value; renderBankReport('${bankId}')"></div>
+    </div>
+    ${(bankReportFrom||bankReportTo)?`<button class="btn btn-outline btn-sm" style="margin-top:6px;" onclick="bankReportFrom='';bankReportTo='';renderBankReport('${bankId}')">تاریخ صاف کریں</button>`:''}
+    <div class="grid2" style="margin-top:10px;">
+      <div class="stat good"><div class="label">کل جمع</div><div class="value" style="font-size:16px;">${money(totalIn)}</div></div>
+      <div class="stat warn"><div class="label">کل نکلوائی</div><div class="value" style="font-size:16px;">${money(totalOut)}</div></div>
+    </div>
+    <div class="meta" style="margin-top:6px;">انٹریاں: ${filtered.length}</div>
+    <div class="card" style="margin-top:10px;">${rows||'<div class="empty">کوئی انٹری نہیں ملی</div>'}</div>
+    <button class="btn btn-outline" style="margin-top:10px;" onclick="printBankLedger('${bankId}')">🖨️ پرنٹ / PDF</button>
+  `;
+  openSheet('رپورٹ — '+b.name, body);
+}
+async function printBankLedger(bankId){
+  const {b, entries} = computeBankLedger(bankId);
+  const rows = entries.slice().reverse().map(e=>`
+    <tr>
+      <td style="padding:7px;border-bottom:1px solid #eee;">${fmtDateTime(e.date,e.createdAt)}</td>
+      <td style="padding:7px;border-bottom:1px solid #eee;">${esc(e.desc)}</td>
+      <td style="padding:7px;border-bottom:1px solid #eee;text-align:center;color:#2e8b57;">${e.in?money(e.in):''}</td>
+      <td style="padding:7px;border-bottom:1px solid #eee;text-align:center;color:#c0392b;">${e.out?money(e.out):''}</td>
+      <td style="padding:7px;border-bottom:1px solid #eee;text-align:center;font-weight:700;">${money(e.balance)}</td>
+    </tr>`).join('');
+  const html = buildLedgerReportHtml(
+    'بینک اسٹیٹمنٹ — '+b.name,
+    (b.accountNo||'')+' • تاریخ: '+fmtDate(todayStr()),
+    rows || '<tr><td colspan="5" style="padding:14px;text-align:center;">کوئی انٹری نہیں</td></tr>',
+    [{label:'موجودہ بیلنس', value:money(bankBalance(bankId)), color:'#122a43'}],
+    {headers:['تاریخ','تفصیل','جمع','نکلوائی','بیلنس']}
+  );
+  toast('PDF بن رہی ہے...');
+  const result = await exportHtmlAsPdf(html, 'Bank_Statement_'+b.name.replace(/\s+/g,'_')+'.pdf');
+  if(result) await sharePdfBlob(result.blob, result.filename);
 }
 async function deleteBank(bankId){
   const hasEntries = DB.bankEntries.some(e=>e.bankId===bankId) || DB.sales.some(s=>s.bankId===bankId) || DB.purchases.some(p=>p.bankId===bankId);
@@ -1609,22 +2819,53 @@ async function deleteBankLedgerEntry(kind,id,bankId){
     DB.sales=DB.sales.filter(s=>s.id!==id);
   } else if(kind==='purchase'){
     const purchase=DB.purchases.find(p=>p.id===id);
-    if(purchase){ const item=itemById(purchase.itemId); if(item) item.stock=(Number(item.stock)||0)-Number(purchase.qty||0); }
+    if(purchase){ reverseStockForPurchase(purchase); }
     DB.purchases=DB.purchases.filter(p=>p.id!==id);
   }
   await saveDB(); openBankDetail(bankId); toast('انٹری حذف ہو گئی');
 }
+let bePhoto=null;
 function openBankEntryForm(bankId,entryId){
   const e = entryId ? DB.bankEntries.find(x=>x.id===entryId) : null;
+  bePhoto = e ? (e.photo||null) : null;
   const body=`
     <label>تفصیل</label><input type="text" id="be_desc" placeholder="مثلاً کرایہ / ٹرانسفر" value="${e?esc(e.desc):''}">
     <div class="seg"><button class="${(!e||e.in)?'on':''}" id="be_in_btn" onclick="setBankType('in')">جمع</button><button class="${(e&&e.out)?'on':''}" id="be_out_btn" onclick="setBankType('out')">نکلوائی</button></div>
     <input type="hidden" id="be_type" value="${(e&&e.out)?'out':'in'}">
     <label>رقم</label><input type="number" id="be_amt" value="${e?(e.in||e.out):''}">
     <label>تاریخ</label><input type="date" id="be_date" value="${e?e.date:todayStr()}">
+    <label>رسید کی تصویر (اختیاری)</label>
+    <div id="be_photo_wrap">${bePhotoWrapHtml()}</div>
     <button class="btn btn-primary" style="margin-top:14px;" onclick="saveBankEntry('${bankId}','${entryId||''}')">محفوظ کریں</button>
   `;
   openSheet(entryId?'انٹری میں ترمیم':'نئی بینک انٹری', body);
+}
+function bePhotoWrapHtml(){
+  return bePhoto
+    ? `<img src="${bePhoto}" style="max-width:140px;border-radius:10px;display:block;margin-bottom:8px;">
+       <button type="button" class="btn btn-outline btn-sm" onclick="bePhoto=null; document.getElementById('be_photo_wrap').innerHTML=bePhotoWrapHtml();">🗑️ تصویر ہٹائیں</button>`
+    : `<input type="file" accept="image/*" capture="environment" id="bePhotoInputCam" style="display:none;" onchange="captureBePhoto(this)">
+       <input type="file" accept="image/*" id="bePhotoInputGal" style="display:none;" onchange="captureBePhoto(this)">
+       <div class="btn-row">
+         <button type="button" class="btn btn-outline" style="flex:1;" onclick="document.getElementById('bePhotoInputCam').click()">📷 کیمرہ</button>
+         <button type="button" class="btn btn-outline" style="flex:1;" onclick="document.getElementById('bePhotoInputGal').click()">🖼️ گیلری</button>
+       </div>`;
+}
+function captureBePhoto(input){
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=new Image();
+    img.onload=function(){
+      const maxW=700; const scale=Math.min(1,maxW/img.width);
+      const cv=document.createElement('canvas'); cv.width=img.width*scale; cv.height=img.height*scale;
+      cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+      bePhoto=cv.toDataURL('image/jpeg',0.6);
+      const wrap=document.getElementById('be_photo_wrap'); if(wrap) wrap.innerHTML=bePhotoWrapHtml();
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 function setBankType(t){
   document.getElementById('be_type').value=t;
@@ -1641,10 +2882,11 @@ async function saveBankEntry(bankId,entryId){
   const date=document.getElementById('be_date').value||todayStr();
   if(entryId){
     const e=DB.bankEntries.find(x=>x.id===entryId);
-    if(e){ e.desc=desc; e.date=date; e.in=type==='in'?amt:0; e.out=type==='out'?amt:0; }
+    if(e){ e.desc=desc; e.date=date; e.in=type==='in'?amt:0; e.out=type==='out'?amt:0; e.photo=bePhoto||null; }
   } else {
-    DB.bankEntries.push({id:uid(), createdAt:Date.now(), bankId, desc, date, in:type==='in'?amt:0, out:type==='out'?amt:0});
+    DB.bankEntries.push({id:uid(), createdAt:Date.now(), bankId, desc, date, in:type==='in'?amt:0, out:type==='out'?amt:0, photo:bePhoto||null});
   }
+  bePhoto=null;
   await saveDB(); closeSheet(); openBankDetail(bankId); toast('محفوظ ہو گیا');
   } finally { unlockSubmit(); }
 }
@@ -1658,6 +2900,16 @@ function renderSettings(main){
       <label>پتہ</label><input type="text" id="s_addr" value="${esc(DB.shop.address)}">
       <label>فون نمبر</label><input type="tel" id="s_phone" value="${esc(DB.shop.phone||'')}">
       <button class="btn btn-primary" style="margin-top:14px;" onclick="saveSettings()">محفوظ کریں</button>
+    </div>
+    <div class="card">
+      <h3>🪪 دکان کا کارڈ</h3>
+      <div class="meta" style="margin-bottom:10px;">یہ کارڈ کسی کے ساتھ بھی واٹس ایپ یا کسی اور ایپ سے شیئر کیا جا سکتا ہے۔</div>
+      <div class="invoice-preview" style="padding:12px;">
+        <div style="font-weight:800;color:var(--navy);font-size:15px;">🏪 ${esc(DB.shop.name)}</div>
+        ${DB.shop.address?`<div style="font-size:12.5px;color:var(--muted);margin-top:3px;">📍 ${esc(DB.shop.address)}</div>`:''}
+        ${DB.shop.phone?`<div style="font-size:12.5px;color:var(--muted);margin-top:3px;">📞 ${esc(DB.shop.phone)}</div>`:''}
+      </div>
+      <button class="btn wa" style="margin-top:10px;" onclick="shareShopCard()">📲 دکان کا کارڈ شیئر کریں</button>
     </div>
     <div class="card">
       <h3>🛡️ ڈیٹا کی حفاظت (بیک اپ)</h3>
@@ -1693,6 +2945,9 @@ async function saveSettings(){
 function openSettings(){ go('more'); moreView='settings'; render(); }
 
 /* ===================== SHEET / OVERLAY ===================== */
+function viewPhoto(src){
+  openSheet('تصویر', `<img src="${src}" style="max-width:100%;border-radius:10px;">`);
+}
 function openSheet(title, bodyHTML){
   const root=document.getElementById('overlayRoot');
   root.innerHTML = `
@@ -1730,9 +2985,10 @@ function customConfirm(message){
 /* ===================== BARCODE CAMERA SCANNER ===================== */
 let scannerCallback=null;
 let scannerBusy=false;
+let scanCandidateCode=null, scanCandidateCount=0;
 function openBarcodeScanner(callback){
-  scannerCallback=callback; scannerBusy=false;
-  const root=document.getElementById('overlayRoot');
+  scannerCallback=callback; scannerBusy=false; scanCandidateCode=null; scanCandidateCount=0;
+  const root=document.getElementById('scannerRoot');
   root.innerHTML = `
     <div class="overlay" style="align-items:center;">
       <div class="sheet" style="max-height:82vh;padding:14px;">
@@ -1784,6 +3040,14 @@ function onBarcodeDetected(result){
   if(scannerBusy) return;
   const code = result && result.codeResult ? result.codeResult.code : null;
   if(!code) return;
+  // Require the same code to be read 3 times in a row before accepting it —
+  // a single camera frame can misread a digit, this filters that out.
+  if(code===scanCandidateCode){
+    scanCandidateCount++;
+  } else {
+    scanCandidateCode=code; scanCandidateCount=1;
+  }
+  if(scanCandidateCount<2) return;
   scannerBusy=true;
   playBeep();
   if(navigator.vibrate) navigator.vibrate(120);
@@ -1793,7 +3057,7 @@ function onBarcodeDetected(result){
 }
 function closeScanner(){
   try{ if(typeof Quagga!=='undefined'){ Quagga.offDetected(); Quagga.stop(); } }catch(e){}
-  const root=document.getElementById('overlayRoot');
+  const root=document.getElementById('scannerRoot');
   if(root) root.innerHTML='';
   scannerCallback=null;
 }
@@ -1801,6 +3065,20 @@ function esc(s){ if(s===undefined||s===null) return ''; return String(s).replace
 
 /* ===================== PIN LOCK ===================== */
 const UNLOCK_KEY='kaleem_unlocked_v1';
+let hiddenAt=0;
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden){ hiddenAt=Date.now(); }
+  else if(hiddenAt && DB && DB.shop && DB.shop.pin){
+    // Re-require the PIN if the app was backgrounded for more than ~15 seconds,
+    // so leaving/switching apps or locking the screen re-locks it.
+    if(Date.now()-hiddenAt > 15000){
+      sessionStorage.removeItem(UNLOCK_KEY);
+      lockMode='enter'; lockEntered=''; lockErr='';
+      renderLockScreen();
+    }
+    hiddenAt=0;
+  }
+});
 let lockEntered='';
 let lockMode='enter'; // 'enter' | 'setNew' | 'confirmNew' | 'changeOld'
 let lockTempPin='';

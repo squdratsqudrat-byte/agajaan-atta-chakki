@@ -235,6 +235,62 @@
   .amt-red{color:var(--red);}
   .amt-green{color:var(--green);}
   .attach-btn{background:none;border:none;font-size:16px;cursor:pointer;color:var(--muted);flex:none;align-self:center;}
+
+  /* ---- Full-screen stock screens: In/Out reports + per-item history ---- */
+  .fs{position:fixed;inset:0;z-index:40;background:var(--cream);display:flex;flex-direction:column;max-width:520px;margin:0 auto;}
+  .fs-head{flex:none;color:#fff;padding:calc(14px + env(safe-area-inset-top)) 14px 18px;border-radius:0 0 26px 26px;box-shadow:0 4px 14px rgba(0,0,0,.18);}
+  .fs-head.out{background:linear-gradient(135deg,#d7301b,#f0741f);}
+  .fs-head.in{background:linear-gradient(135deg,#166b3e,#2fae6d);}
+  .fs-head.item{background:linear-gradient(135deg,var(--navy),var(--navy2));}
+  .fs-headrow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;}
+  .fs-title{flex:1;text-align:center;font-size:20px;font-weight:800;line-height:1.35;min-width:0;overflow-wrap:anywhere;}
+  .fs-x{flex:none;width:40px;height:40px;border-radius:50%;border:none;background:#fff;color:#333;font-size:18px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+  .fs-sp{flex:none;width:40px;}
+  .fs-search{display:flex;align-items:center;gap:8px;background:#fff;border-radius:16px;padding:2px 12px;color:var(--ink);}
+  .fs-search input{flex:1;min-width:0;border:none;background:transparent;padding:11px 2px;font-size:14.5px;}
+  .fs-search input:focus{outline:none;}
+  .fs-search select{width:auto;flex:none;border:none;border-right:1px solid var(--line);border-radius:0;padding-top:8px;padding-bottom:8px;font-weight:700;font-size:14px;color:var(--navy);background-color:transparent;}
+  .fs-dates{flex:none;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 14px 4px;}
+  .fs-datebox{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;padding:7px 10px 4px;}
+  .fs-datebox .dl{display:block;font-size:11.5px;color:var(--muted);font-weight:700;}
+  .fs-datebox input{border:none;padding:2px 0 4px;font-size:14px;background:transparent;width:100%;}
+  .fs-datebox input:focus{outline:none;}
+  .fs-datebox .dclr{position:absolute;top:7px;left:8px;border:none;background:#f1ede4;width:22px;height:22px;border-radius:50%;font-size:11px;cursor:pointer;color:var(--muted);}
+  .sr-grid{display:grid;grid-template-columns:1.7fr .75fr .85fr 1.1fr;gap:6px;align-items:center;}
+  .sr-grid > div:nth-child(2),.sr-grid > div:nth-child(3){text-align:center;}
+  .sr-grid > div:nth-child(4){text-align:left;}
+  .sr-head{flex:none;padding:10px 18px 2px;color:var(--muted);font-size:12.5px;font-weight:700;}
+  .sr-head .arr{border:none;background:#f1ede4;border-radius:8px;width:24px;height:22px;font-size:13px;font-weight:800;cursor:pointer;color:var(--navy);margin-inline-start:4px;}
+  .sr-sum{flex:none;padding:2px 18px 10px;font-weight:800;font-size:15px;border-bottom:1px solid var(--line);}
+  .sr-sum.out{color:#c8213f;} .sr-sum.in{color:var(--green);}
+  .fs-body{flex:1;overflow-y:auto;padding:0 14px 14px;-webkit-overflow-scrolling:touch;}
+  .sr-row{padding:11px 4px;border-bottom:1px solid var(--line);font-weight:700;font-size:14.5px;}
+  .sr-row.out{color:#c8213f;} .sr-row.in{color:var(--green);}
+  .sr-row .nm{color:var(--ink);min-width:0;}
+  .sr-row .n1{font-weight:800;font-size:14px;overflow-wrap:anywhere;}
+  .sr-row .n2,.sr-row .n3{font-size:11.5px;color:var(--muted);font-weight:500;margin-top:2px;}
+  .fs-foot{flex:none;display:flex;gap:10px;align-items:center;padding:10px 14px calc(12px + env(safe-area-inset-bottom));background:var(--cream);border-top:1px solid var(--line);}
+  .fs-print{flex:none;width:52px;height:52px;border-radius:50%;border:none;background:#f2c230;font-size:22px;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.2);}
+  .fs-pdf{flex:1;height:52px;border-radius:26px;border:2px solid #d8434a;background:#fff;color:#d8434a;font-size:16px;font-weight:800;cursor:pointer;}
+  .hx-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .hx-stats > div{background:rgba(255,255,255,.14);border-radius:14px;padding:10px 12px;}
+  .hx-stats .l{font-size:11.5px;opacity:.85;}
+  .hx-stats .v{font-size:16px;font-weight:800;margin-top:3px;line-height:1.4;}
+  .hx-actions{display:flex;gap:10px;padding:14px 0 6px;}
+  .hx-actions .btn{padding:14px 10px;font-size:15px;}
+  .hx-sum{font-size:12px;color:var(--muted);margin:6px 2px 10px;}
+  .hx-row{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid var(--line);}
+  .hx-row:last-child{border-bottom:none;}
+  .hx-ic{flex:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;background:#f1ede4;}
+  .hx-row.in .hx-ic{background:#e9f7ef;} .hx-row.out .hx-ic{background:#fdecea;}
+  .hx-main{flex:1;min-width:0;}
+  .hx-top{font-size:14px;} .hx-top b{font-weight:800;}
+  .hx-row.in .hx-top b:last-child{color:var(--green);} .hx-row.out .hx-top b:last-child{color:var(--red);}
+  .hx-meta{font-size:11.5px;color:var(--muted);margin-top:2px;overflow-wrap:anywhere;}
+  .hx-side{flex:none;display:flex;flex-direction:column;align-items:flex-start;gap:6px;}
+  .hx-bal{font-size:12px;background:#f1ede4;border-radius:10px;padding:3px 9px;white-space:nowrap;color:var(--navy);}
+  .hx-del{border:none;background:none;font-size:15px;cursor:pointer;padding:2px 4px;opacity:.75;}
+  .hist-btn{width:38px;height:38px;flex:none;border-radius:10px;border:1.5px solid var(--line);background:#fff;font-size:17px;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -243,27 +299,7 @@
   <header class="topbar">
     <div class="row">
       <div class="brand">
-        <svg class="logo" viewBox="0 0 48 48" fill="none">
-          <defs>
-            <linearGradient id="logoBg" x1="4" y1="2" x2="44" y2="46" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#f0a44a"/>
-              <stop offset="100%" stop-color="#c76f16"/>
-            </linearGradient>
-            <linearGradient id="logoCar" x1="10" y1="17" x2="38" y2="37" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#1c3f61"/>
-              <stop offset="100%" stop-color="#0c1e30"/>
-            </linearGradient>
-          </defs>
-          <circle cx="24" cy="24" r="23" fill="url(#logoBg)"/>
-          <ellipse cx="17" cy="11.5" rx="11" ry="5" fill="#ffffff" opacity=".16"/>
-          <path d="M11.2 29.6l2.55-8.3a3.5 3.5 0 0 1 3.35-2.45h13.8a3.5 3.5 0 0 1 3.35 2.45l2.55 8.3" fill="none" stroke="url(#logoCar)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M15.6 21.4h16.8" stroke="url(#logoCar)" stroke-width="2.1" stroke-linecap="round"/>
-          <rect x="10.4" y="29" width="27.2" height="6.6" rx="3.3" fill="url(#logoCar)"/>
-          <circle cx="17" cy="36.2" r="3.5" fill="#fbf7f0" stroke="url(#logoCar)" stroke-width="1.6"/>
-          <circle cx="17" cy="36.2" r="1.15" fill="#c76f16"/>
-          <circle cx="31" cy="36.2" r="3.5" fill="#fbf7f0" stroke="url(#logoCar)" stroke-width="1.6"/>
-          <circle cx="31" cy="36.2" r="1.15" fill="#c76f16"/>
-        </svg>
+        <div class="logo" style="display:flex;align-items:center;justify-content:center;border-radius:50%;background:linear-gradient(135deg,#f0a44a,#c76f16);font-size:22px;">🌾</div>
         <div>
           <h1 id="shopNameHdr">اغا جان سائیکلون آٹا چکی</h1>
           <div class="sub" id="shopAddrHdr">دکان مینجر</div>
@@ -272,7 +308,7 @@
       <button class="iconbtn" onclick="openSettings()">⚙️</button>
     </div>
     <div class="screenTitle" id="screenTitle">ڈیش بورڈ</div>
-    <div style="text-align:center;font-size:10.5px;color:rgba(255,255,255,.55);margin-top:2px;">اپڈیٹ ورژن: 2026-09-16-v1</div>
+    <div style="text-align:center;font-size:10.5px;color:rgba(255,255,255,.55);margin-top:2px;">اپڈیٹ ورژن: 2026-09-20-v1</div>
   </header>
 
   <main id="main"></main>
@@ -289,6 +325,7 @@
 </div>
 
 <div id="overlayRoot"></div>
+<div id="fsRoot"></div>
 <div id="scannerRoot"></div>
 <div id="confirmRoot"></div>
 <div id="printArea" style="display:none"></div>
@@ -296,7 +333,7 @@
 <script>
 /* ===================== STATE / STORAGE ===================== */
 let DB = null;
-const STORAGE_KEY = 'agajaan_atta_chakki_data_v1';
+const STORAGE_KEY = 'aghajan_shop_data_v1';
 
 function defaultDB(){
   return {
@@ -330,7 +367,7 @@ try{
     hasFirebase = true;
   }
 }catch(e){ console.error('Firebase init failed', e); }
-function FB_DOC(){ return fbDb.collection('shops').doc('agajaan-atta-chakki'); }
+function FB_DOC(){ return fbDb.collection('shops').doc('aghajan'); }
 const deviceId = (function(){
   let id=null;
   try{ id = localStorage.getItem('kaleem_device_id'); }catch(e){}
@@ -358,7 +395,7 @@ function startFBListener(){
       try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }catch(e){}
       cloudWorks=true;
       const overlayEmpty = !document.getElementById('overlayRoot') || !document.getElementById('overlayRoot').innerHTML.trim();
-      if(overlayEmpty && !isLocked()){ render(); }
+      if(overlayEmpty && !isLocked()){ render(); refreshFs(); }
     }catch(e){ console.error('Firestore apply failed', e); }
   }, function(err){ console.error('Firestore listen error', err); });
 }
@@ -427,7 +464,7 @@ function downloadBackup(){
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   const stamp=new Date().toISOString().slice(0,10);
-  a.href=url; a.download='agajaan-atta-chakki-backup-'+stamp+'.json';
+  a.href=url; a.download='aghajan-atta-chakki-backup-'+stamp+'.json';
   document.body.appendChild(a); a.click(); a.remove();
   URL.revokeObjectURL(url);
   toast('📁 بیک اپ فائل ڈاؤن لوڈ ہو گئی');
@@ -519,6 +556,7 @@ function stockValue(){ return DB.items.reduce((a,i)=>a+(Number(i.stock)||0)*(Num
 /* ===================== NAV ===================== */
 let currentTab='dash';
 function go(tab){
+  closeFs();
   currentTab=tab;
   document.querySelectorAll('nav.bottomnav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
   const titles={dash:'ڈیش بورڈ', pos:'نئی سیل بنائیں', stock:'انوینٹری', customers:'کسٹمرز', more:'مزید آپشنز'};
@@ -1032,25 +1070,36 @@ function stockLabel(i){
 }
 let stockSearch='';
 function renderStock(main){
-  const filtered = DB.items.filter(i=> i.name.toLowerCase().includes(stockSearch.toLowerCase()) || (i.barcode||'').includes(stockSearch));
   main.innerHTML = `
+    <div class="btn-row" style="margin-bottom:10px;">
+      <button class="btn btn-green" onclick="openStockReport('in')">📈 اِن رپورٹ</button>
+      <button class="btn btn-red" onclick="openStockReport('out')">📉 آؤٹ رپورٹ</button>
+    </div>
     <div class="searchbar">
-      <input type="text" placeholder="آئٹم تلاش کریں..." value="${esc(stockSearch)}" oninput="stockSearch=this.value; renderStock(document.getElementById('main'))">
+      <input type="text" placeholder="آئٹم تلاش کریں..." value="${esc(stockSearch)}" oninput="stockSearch=this.value; renderStockList()">
       <button class="btn btn-navy btn-sm" style="width:auto;" onclick="openBarcodeScanner(code=>{stockSearch=code; renderStock(document.getElementById('main'));})">📷</button>
     </div>
-    <div class="card">
-      ${filtered.length? filtered.map(i=>{
-        const low=(Number(i.stock)||0)<=(Number(i.reorderLevel)||0);
-        return `<div class="list-item" onclick="openItemForm('${i.id}')">
-          <div style="display:flex;align-items:center;gap:10px;">
-            ${i.photo?`<img src="${i.photo}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;">`:`<div style="width:44px;height:44px;border-radius:8px;background:#f0ede6;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📦</div>`}
-            <div><div class="name">${esc(i.name)}</div><div class="meta">فروخت قیمت: ${money(i.salePrice)} • اسٹاک: ${stockLabel(i)}</div></div>
-          </div>
-          <span class="badge ${low?'low':'ok'}">${low?'⚠️ کم':'ٹھیک'}</span>
-        </div>`;
-      }).join('') : `<div class="empty"><div class="ic">📦</div>${stockSearch?'اس بارکوڈ/نام سے کوئی آئٹم موجود نہیں':'کوئی آئٹم نہیں ملا'}<br><br><button class="btn btn-primary" onclick="openItemForm(null,'${esc(stockSearch)}')">+ نیا آئٹم شامل کریں</button></div>`}
-    </div>
+    <div class="card" id="stockListCard"></div>
   `;
+  renderStockList();
+}
+function renderStockList(){
+  const box=document.getElementById('stockListCard');
+  if(!box) return;
+  const filtered = DB.items.filter(i=> i.name.toLowerCase().includes(stockSearch.toLowerCase()) || (i.barcode||'').includes(stockSearch));
+  box.innerHTML = filtered.length? filtered.map(i=>{
+    const low=(Number(i.stock)||0)<=(Number(i.reorderLevel)||0);
+    return `<div class="list-item" onclick="openItemForm('${i.id}')">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+        ${i.photo?`<img src="${i.photo}" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0;">`:`<div style="width:44px;height:44px;border-radius:8px;background:#f0ede6;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📦</div>`}
+        <div style="min-width:0;"><div class="name">${esc(i.name)}</div><div class="meta">فروخت قیمت: ${money(i.salePrice)} • اسٹاک: ${stockLabel(i)}</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex:none;">
+        <span class="badge ${low?'low':'ok'}">${low?'⚠️ کم':'ٹھیک'}</span>
+        <button class="hist-btn" title="اِن / آؤٹ ہسٹری" onclick="event.stopPropagation();openItemHistory('${i.id}')">📊</button>
+      </div>
+    </div>`;
+  }).join('') : `<div class="empty"><div class="ic">📦</div>${stockSearch?'اس بارکوڈ/نام سے کوئی آئٹم موجود نہیں':'کوئی آئٹم نہیں ملا'}<br><br><button class="btn btn-primary" onclick="openItemForm(null,'${esc(stockSearch)}')">+ نیا آئٹم شامل کریں</button></div>`;
 }
 let itemFormPhoto=null;
 function openItemForm(id,prefillBarcode){
@@ -1142,6 +1191,365 @@ async function deleteItem(id){
   if(it) trashPut('item', 'آئٹم: '+it.name, it);
   DB.items=DB.items.filter(i=>i.id!==id);
   await saveDB(); closeSheet(); renderStock(document.getElementById('main')); toast('آئٹم حذف ہو گیا (ری سائیکل بن میں محفوظ)');
+}
+
+/* ===================== STOCK IN / OUT REPORTS + PER-ITEM HISTORY ===================== */
+let fsRefresh=null;
+function closeFs(){ const r=document.getElementById('fsRoot'); if(r) r.innerHTML=''; fsRefresh=null; }
+function exitFs(){ closeFs(); render(); }
+function refreshFs(){ if(fsRefresh){ try{ fsRefresh(); }catch(e){ console.error('fs refresh failed', e); } } }
+
+const EN_DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const EN_MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtDateEn(s){
+  if(!s) return '';
+  const p=String(s).split('-'); const d=new Date(+p[0],(+p[1]||1)-1,+p[2]||1);
+  if(isNaN(d.getTime())) return String(s);
+  return EN_DAYS[d.getDay()]+', '+d.getDate()+' '+EN_MONTHS[d.getMonth()]+' '+String(d.getFullYear()).slice(2);
+}
+function fmtDateTimeEn(date,ts){ return fmtDateEn(date)+(ts?' • '+fmtTime(ts):''); }
+
+/* One flat list of stock movements built from the existing sales (OUT) and purchases (IN) */
+function stockMovements(opts){
+  opts=opts||{};
+  const list=[];
+  if(opts.kind!=='in'){
+    DB.sales.forEach(s=>{
+      const c=custById(s.customerId);
+      const its=s.items||[];
+      its.forEach(it=>{
+        if(opts.itemId && it.itemId!==opts.itemId) return;
+        const q=Number(it.qty)||0, pr=Number(it.price)||0;
+        const known=itemById(it.itemId);
+        list.push({type:'out', id:s.id, itemId:it.itemId, name:it.name||(known?known.name:''), qty:q, price:pr, total:q*pr,
+          date:s.date, ts:s.createdAt||0, party:c?c.name:'', pay:s.paymentType||'', ref:s.invoiceNo||'', lines:its.length});
+      });
+    });
+  }
+  if(opts.kind!=='out'){
+    DB.purchases.forEach(p=>{
+      const its=purchaseItems(p);
+      its.forEach(it=>{
+        if(opts.itemId && it.itemId!==opts.itemId) return;
+        const q=Number(it.qty)||0, pr=Number(it.cost)||0;
+        const known=itemById(it.itemId);
+        list.push({type:'in', id:p.id, itemId:it.itemId, name:it.name||(known?known.name:''), qty:q, price:pr, total:q*pr,
+          date:p.date, ts:p.createdAt||0, party:p.supplier||'', pay:p.paymentType||'', ref:'', lines:its.length});
+      });
+    });
+  }
+  return list;
+}
+function cmpMov(a,b){
+  const da=a.date||'', db=b.date||'';
+  if(da<db) return -1; if(da>db) return 1;
+  return (a.ts||0)-(b.ts||0);
+}
+
+/* ---------- In / Out report screen ---------- */
+let srKind='out', srSearch='', srFrom='', srTo='', srPay='', srDesc=true;
+function srFiltered(){
+  let l=stockMovements({kind:srKind});
+  if(srFrom) l=l.filter(m=>m.date>=srFrom);
+  if(srTo) l=l.filter(m=>m.date<=srTo);
+  if(srPay) l=l.filter(m=>m.pay===srPay);
+  const q=srSearch.trim().toLowerCase();
+  if(q) l=l.filter(m=>(m.name||'').toLowerCase().includes(q) || (m.party||'').toLowerCase().includes(q) || (m.ref||'').toLowerCase().includes(q));
+  l.sort(cmpMov);
+  if(srDesc) l.reverse();
+  return l;
+}
+function openStockReport(kind){
+  srKind=kind; srSearch=''; srFrom=''; srTo=''; srPay=''; srDesc=true;
+  const isOut=kind==='out';
+  document.getElementById('fsRoot').innerHTML=`
+    <div class="fs">
+      <div class="fs-head ${kind}">
+        <div class="fs-headrow">
+          <span class="fs-sp"></span>
+          <div class="fs-title">${isOut?'اسٹاک آؤٹ رپورٹ':'اسٹاک اِن رپورٹ'}</div>
+          <button class="fs-x" onclick="exitFs()">✕</button>
+        </div>
+        <div class="fs-search">
+          <span>🔍</span>
+          <input type="text" id="srSearchInp" placeholder="آئٹم / پارٹی / بل نمبر تلاش کریں" oninput="srSearch=this.value;updateStockReport()">
+          <select onchange="srPay=this.value;updateStockReport()">
+            <option value="">تمام</option><option value="نقد">نقد</option><option value="بینک">بینک</option><option value="ادھار">ادھار</option>
+          </select>
+        </div>
+      </div>
+      <div class="fs-dates">
+        <div class="fs-datebox"><span class="dl">📅 پہلی تاریخ</span><input type="date" id="srFromInp" onchange="srFrom=this.value;updateStockReport()"><button class="dclr" onclick="srFrom='';document.getElementById('srFromInp').value='';updateStockReport()">✕</button></div>
+        <div class="fs-datebox"><span class="dl">📅 آخری تاریخ</span><input type="date" id="srToInp" onchange="srTo=this.value;updateStockReport()"><button class="dclr" onclick="srTo='';document.getElementById('srToInp').value='';updateStockReport()">✕</button></div>
+      </div>
+      <div id="srSummary"></div>
+      <div class="fs-body" id="srList"></div>
+      <div class="fs-foot">
+        <button class="fs-pdf" onclick="shareStockReportPdf()">📄 پی ڈی ایف</button>
+        <button class="fs-print" onclick="printStockReport()">🖨️</button>
+      </div>
+    </div>`;
+  fsRefresh=updateStockReport;
+  updateStockReport();
+}
+function updateStockReport(){
+  const sumBox=document.getElementById('srSummary'), listBox=document.getElementById('srList');
+  if(!sumBox||!listBox) return;
+  const l=srFiltered();
+  const totQty=l.reduce((a,m)=>a+m.qty,0), totAmt=l.reduce((a,m)=>a+m.total,0);
+  sumBox.innerHTML=`
+    <div class="sr-grid sr-head"><div>انٹریز <button class="arr" onclick="srDesc=!srDesc;updateStockReport()">${srDesc?'↓':'↑'}</button></div><div>مقدار</div><div>قیمت</div><div>رقم</div></div>
+    <div class="sr-grid sr-sum ${srKind}"><div>${l.length}</div><div>${money(totQty)}</div><div></div><div>Rs ${money(totAmt)}</div></div>`;
+  listBox.innerHTML = l.length ? l.map(m=>{
+    const sub=[m.party,m.pay,m.ref].filter(Boolean).join(' • ');
+    return `<div class="sr-grid sr-row ${srKind}">
+      <div class="nm"><div class="n1">${esc(m.name)}</div><div class="n2">${fmtDateTimeEn(m.date,m.ts)}</div>${sub?`<div class="n3">${esc(sub)}</div>`:''}</div>
+      <div>${money(m.qty)}</div><div>${money(m.price)}</div><div>${money(m.total)}</div>
+    </div>`;
+  }).join('') : `<div class="empty"><div class="ic">${srKind==='out'?'📉':'📈'}</div>کوئی انٹری نہیں ملی</div>`;
+}
+function stockReportPages(){
+  const l=srFiltered();
+  const isOut=srKind==='out';
+  const title=isOut?'اسٹاک آؤٹ رپورٹ':'اسٹاک اِن رپورٹ';
+  const totQty=l.reduce((a,m)=>a+m.qty,0), totAmt=l.reduce((a,m)=>a+m.total,0);
+  const period=(srFrom||srTo) ? `${srFrom?fmtDate(srFrom):'شروع'} سے ${srTo?fmtDate(srTo):'آج'} تک` : 'تمام تاریخیں';
+  const baseSub=period+(srPay?' • '+srPay:'')+(srSearch.trim()?' • تلاش: '+srSearch.trim():'');
+  const totals=[
+    {label:'کل رقم', value:money(totAmt), color:isOut?'#c0392b':'#1f8a52'},
+    {label:'کل مقدار', value:money(totQty)},
+    {label:'انٹریز', value:String(l.length)}
+  ];
+  const td='padding:7px;border-bottom:1px solid #eee;';
+  const rows=l.map(m=>`<tr>
+    <td style="${td}font-size:12px;">${fmtDateTimeEn(m.date,m.ts)}</td>
+    <td style="${td}font-weight:700;">${esc(m.name)}</td>
+    <td style="${td}">${esc(m.party||'')}</td>
+    <td style="${td}text-align:center;">${money(m.qty)}</td>
+    <td style="${td}text-align:center;">${money(m.price)}</td>
+    <td style="${td}text-align:center;font-weight:700;">${money(m.total)}</td>
+  </tr>`);
+  const PER=22;
+  const n=Math.max(1,Math.ceil(rows.length/PER));
+  const pages=[];
+  for(let i=0;i<n;i++){
+    const chunk=rows.slice(i*PER,(i+1)*PER).join('') || `<tr><td colspan="6" style="padding:14px;text-align:center;">کوئی انٹری نہیں ملی</td></tr>`;
+    pages.push(buildLedgerReportHtml(title, baseSub+' • انٹریز: '+l.length+(n>1?` • صفحہ ${i+1}/${n}`:''), chunk, totals, {headers:['تاریخ','آئٹم','پارٹی','مقدار','قیمت','رقم']}));
+  }
+  return {pages,title};
+}
+function printStockReport(){
+  const {pages}=stockReportPages();
+  const pa=document.getElementById('printArea');
+  pa.innerHTML=pages.map(h=>h.replace(/width:750px/g,'width:100%')).join('<div style="page-break-after:always"></div>');
+  pa.style.display='block';
+  window.print();
+  setTimeout(()=>{ pa.style.display='none'; pa.innerHTML=''; },500);
+}
+async function shareStockReportPdf(){
+  const {pages}=stockReportPages();
+  toast('PDF بن رہی ہے...');
+  const r=await exportPagedPdf(pages,'Stock_'+(srKind==='out'?'Out':'In')+'_Report_'+todayStr()+'.pdf');
+  if(r) await sharePdfBlob(r.blob,r.filename);
+}
+/* Long reports are rendered page by page so a big list never exceeds the browser's canvas size limit */
+async function exportPagedPdf(pageHtmls, filename){
+  const holder=document.createElement('div');
+  holder.style.position='fixed'; holder.style.left='-99999px'; holder.style.top='0';
+  document.body.appendChild(holder);
+  try{
+    const { jsPDF } = window.jspdf;
+    const pdf=new jsPDF('p','pt','a4');
+    const pageW=pdf.internal.pageSize.getWidth(), pageH=pdf.internal.pageSize.getHeight();
+    for(let i=0;i<pageHtmls.length;i++){
+      holder.innerHTML=pageHtmls[i];
+      const target=holder.querySelector('#pdfCapture')||holder;
+      const canvas=await html2canvas(target,{scale:2,backgroundColor:'#ffffff',useCORS:true});
+      let w=pageW, h=canvas.height*(w/canvas.width);
+      if(h>pageH){ h=pageH; w=canvas.width*(h/canvas.height); }
+      if(i>0) pdf.addPage();
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.92),'JPEG',(pageW-w)/2,0,w,h);
+    }
+    return { blob: pdf.output('blob'), filename };
+  }catch(e){
+    console.error('PDF export failed', e);
+    toast('PDF بنانے میں مسئلہ ہوا');
+    return null;
+  }finally{
+    document.body.removeChild(holder);
+  }
+}
+
+/* ---------- Per-item history screen ---------- */
+function openItemHistory(id){
+  if(!itemById(id)) return;
+  fsRefresh=function(){ renderItemHistory(id); };
+  renderItemHistory(id);
+}
+function renderItemHistory(id){
+  const it=itemById(id);
+  const root=document.getElementById('fsRoot');
+  if(!it){ closeFs(); return; }
+  const oldBody=document.getElementById('hxBody');
+  const keepScroll=oldBody?oldBody.scrollTop:0;
+  const list=stockMovements({itemId:id});
+  list.sort(cmpMov);
+  const cur=Number(it.stock)||0;
+  let bal=cur;
+  for(let i=list.length-1;i>=0;i--){ list[i].bal=bal; bal -= (list[i].type==='in'?list[i].qty:-list[i].qty); }
+  const opening=bal;
+  const totIn=list.filter(m=>m.type==='in').reduce((a,m)=>a+m.qty,0);
+  const totOut=list.filter(m=>m.type==='out').reduce((a,m)=>a+m.qty,0);
+  const rows=list.slice().reverse().map(m=>{
+    const sub=[m.party||(m.type==='out'?'واک اِن گاہک':''), m.pay, m.ref].filter(Boolean).join(' • ');
+    return `<div class="hx-row ${m.type}">
+      <div class="hx-ic">${m.type==='in'?'➕':'➖'}</div>
+      <div class="hx-main">
+        <div class="hx-top"><b>${money(m.qty)}</b> × ${money(m.price)} = <b>${money(m.total)}</b></div>
+        <div class="hx-meta">${fmtDateTimeEn(m.date,m.ts)}</div>
+        ${sub?`<div class="hx-meta">${esc(sub)}</div>`:''}
+      </div>
+      <div class="hx-side">
+        <div class="hx-bal">بچا: <b>${money(m.bal)}</b></div>
+        <button class="hx-del" onclick="deleteStockEntry('${m.type}','${m.id}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+  const openingRow = (list.length && Math.abs(opening)>0.0001) ? `<div class="hx-row"><div class="hx-ic">📦</div><div class="hx-main"><div class="hx-top">ابتدائی اسٹاک</div><div class="hx-meta">ان انٹریز سے پہلے کا اسٹاک</div></div><div class="hx-side"><div class="hx-bal">بچا: <b>${money(opening)}</b></div></div></div>` : '';
+  root.innerHTML=`
+    <div class="fs">
+      <div class="fs-head item">
+        <div class="fs-headrow">
+          <span class="fs-sp"></span>
+          <div class="fs-title">${esc(it.name)}</div>
+          <button class="fs-x" onclick="exitFs()">✕</button>
+        </div>
+        <div class="hx-stats">
+          <div><div class="l">موجودہ اسٹاک</div><div class="v">${stockLabel(it)}</div></div>
+          <div><div class="l">اسٹاک کی مالیت</div><div class="v">Rs ${money(cur*(Number(it.costPrice)||0))}</div></div>
+        </div>
+      </div>
+      <div class="fs-body" id="hxBody">
+        <div class="hx-actions">
+          <button class="btn btn-green" style="flex:1;" onclick="openQuickEntry('${id}','in')">➕ اِن / خریدیں</button>
+          <button class="btn btn-red" style="flex:1;" onclick="openQuickEntry('${id}','out')">➖ باہر / فروخت</button>
+        </div>
+        <div class="hx-sum">کل اِن: <b>${money(totIn)}</b> • کل آؤٹ: <b>${money(totOut)}</b> • انٹریز: ${list.length}</div>
+        <div class="card" style="padding:4px 12px;">${(rows||openingRow)?rows+openingRow:'<div class="empty"><div class="ic">📊</div>اس آئٹم کی ابھی کوئی اِن / آؤٹ انٹری نہیں</div>'}</div>
+      </div>
+    </div>`;
+  const nb=document.getElementById('hxBody'); if(nb) nb.scrollTop=keepScroll;
+}
+async function deleteStockEntry(type,id){
+  if(type==='out'){
+    const sale=DB.sales.find(s=>s.id===id); if(!sale) return;
+    const n=(sale.items||[]).length;
+    const msg = n>1
+      ? `یہ پورا بل (${sale.invoiceNo}) حذف ہو گا جس میں ${n} آئٹمز ہیں۔ سب کا اسٹاک واپس ہو جائے گا۔ جاری رکھیں؟`
+      : `یہ بل (${sale.invoiceNo}) حذف کرنا چاہتے ہیں؟ اسٹاک واپس ہو جائے گا۔`;
+    if(!(await customConfirm(msg))) return;
+    trashPut('sale','بل: '+sale.invoiceNo,sale);
+    (sale.items||[]).forEach(it=>{ const item=itemById(it.itemId); if(item) item.stock=(Number(item.stock)||0)+Number(it.qty||0); });
+    DB.sales=DB.sales.filter(s=>s.id!==id);
+  } else {
+    const p=DB.purchases.find(x=>x.id===id); if(!p) return;
+    const n=purchaseItems(p).length;
+    const msg = n>1
+      ? `یہ پوری خریداری حذف ہو گی جس میں ${n} آئٹمز ہیں۔ سب کا اسٹاک واپس کم ہو جائے گا۔ جاری رکھیں؟`
+      : `یہ خریداری حذف کرنا چاہتے ہیں؟ اسٹاک واپس کم ہو جائے گا۔`;
+    if(!(await customConfirm(msg))) return;
+    trashPut('purchase','خریداری: '+purchaseItemsLabel(p),p);
+    reverseStockForPurchase(p);
+    DB.purchases=DB.purchases.filter(x=>x.id!==id);
+  }
+  await saveDB(); refreshFs(); toast('حذف ہو گیا (ری سائیکل بن میں محفوظ)');
+}
+
+/* ---------- Quick In (purchase) / Out (sale) entry for one item ---------- */
+function qeUpdate(){
+  const q=parseFloat(document.getElementById('qe_qty').value)||0;
+  const p=parseFloat(document.getElementById('qe_price').value)||0;
+  const t=document.getElementById('qe_total'); if(t) t.textContent=money(q*p);
+}
+function qeSetPrice(v){ document.getElementById('qe_price').value=v; qeUpdate(); }
+function openQuickEntry(itemId,kind){
+  const it=itemById(itemId); if(!it) return;
+  const isIn=kind==='in';
+  const price=isIn?it.costPrice:it.salePrice;
+  const parties=isIn?DB.suppliers:DB.customers;
+  const body=`
+    <div class="pur-amtbox" style="background:${isIn?'linear-gradient(135deg,#1f8a52,#166b3e)':'linear-gradient(135deg,#d6402a,#b02a1a)'};">
+      <div class="pur-amt-label">${esc(it.name)} — ${isIn?'اسٹاک اِن (خریداری)':'اسٹاک آؤٹ (فروخت)'}</div>
+      <div class="pur-amt-value">Rs <span id="qe_total">0</span></div>
+    </div>
+    <div class="meta">موجودہ اسٹاک: ${stockLabel(it)}</div>
+    <div class="grid2">
+      <div><label>مقدار</label><input type="number" step="0.01" inputmode="decimal" id="qe_qty" oninput="qeUpdate()" placeholder="0"></div>
+      <div><label>${isIn?'خریداری قیمت':'فروخت قیمت'} (فی یونٹ)</label><input type="number" step="0.01" inputmode="decimal" id="qe_price" value="${price||''}" oninput="qeUpdate()"></div>
+    </div>
+    ${(!isIn && Number(it.wholesalePrice)>0)?`<div class="btn-row" style="margin-top:8px;">
+      <button type="button" class="btn btn-outline btn-sm" onclick="qeSetPrice(${Number(it.salePrice)||0})">خوردہ ${money(it.salePrice)}</button>
+      <button type="button" class="btn btn-outline btn-sm" onclick="qeSetPrice(${Number(it.wholesalePrice)||0})">ہول سیل ${money(it.wholesalePrice)}</button>
+    </div>`:''}
+    ${it.piecesPerCarton>0?`<label>یا کارٹن لکھیں (فی کارٹن ${it.piecesPerCarton} پیس)</label>
+    <input type="number" step="1" inputmode="numeric" placeholder="مثلاً 2" oninput="document.getElementById('qe_qty').value=(parseFloat(this.value)||0)*${Number(it.piecesPerCarton)};qeUpdate()">`:''}
+    <label>${isIn?'سپلائر':'کسٹمر'} (اختیاری، ادھار کے لیے ضروری)</label>
+    <select id="qe_party">
+      <option value="">— ${isIn?'کوئی سپلائر منتخب نہیں':'واک اِن گاہک'} —</option>
+      ${parties.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}
+    </select>
+    <label>ادائیگی کی قسم</label>
+    <select id="qe_pay" onchange="document.getElementById('qe_bankwrap').style.display=this.value==='بینک'?'block':'none';">
+      <option value="نقد">نقد</option>
+      <option value="بینک">بینک</option>
+      <option value="ادھار">ادھار</option>
+    </select>
+    <div id="qe_bankwrap" style="display:none;">
+      <label>بینک</label>
+      <select id="qe_bank">${DB.banks.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select>
+      ${!DB.banks.length?'<div class="meta">پہلے بینک اکاؤنٹس میں جا کر ایک اکاؤنٹ شامل کریں</div>':''}
+    </div>
+    <label>تاریخ</label><input type="date" id="qe_date" value="${todayStr()}">
+    <button class="btn ${isIn?'btn-green':'btn-red'}" style="margin-top:14px;" onclick="saveQuickEntry('${itemId}','${kind}')">${isIn?'✅ اسٹاک اِن کریں':'✅ اسٹاک آؤٹ کریں'}</button>
+  `;
+  openSheet(isIn?'➕ اِن / خریدیں':'➖ باہر / فروخت', body);
+}
+async function saveQuickEntry(itemId,kind){
+  if(!lockSubmit()) return;
+  try{
+    const it=itemById(itemId); if(!it) return;
+    const isIn=kind==='in';
+    const qty=parseFloat(document.getElementById('qe_qty').value)||0;
+    const price=parseFloat(document.getElementById('qe_price').value)||0;
+    if(qty<=0){ toast('صحیح مقدار لکھیں'); return; }
+    const pay=document.getElementById('qe_pay').value;
+    const partyId=document.getElementById('qe_party').value||null;
+    const date=document.getElementById('qe_date').value||todayStr();
+    const bankId = pay==='بینک' ? (document.getElementById('qe_bank').value||null) : null;
+    if(pay==='بینک' && !bankId){ toast('بینک منتخب کریں'); return; }
+    if(pay==='ادھار' && !partyId){ toast(isIn?'ادھار کے لیے سپلائر منتخب کریں':'ادھار کے لیے کسٹمر منتخب کریں'); return; }
+    const total=qty*price;
+    if(isIn){
+      const sup=partyId?DB.suppliers.find(s=>s.id===partyId):null;
+      const purchase={ id:uid(), createdAt:Date.now(), date, supplierId:partyId, supplier:sup?sup.name:'',
+        items:[{itemId:it.id, name:it.name, qty, cost:price, detail:''}], itemsTotal:total, total,
+        paymentType:pay, bankId, voiceNote:null };
+      DB.purchases.push(purchase);
+      applyStockForPurchase(purchase);
+      saveDB(); closeSheet(); toast('✅ اسٹاک اِن ہو گیا');
+    } else {
+      if(qty>(Number(it.stock)||0)){ if(!(await customConfirm('اسٹاک سے زیادہ مقدار ہے، پھر بھی جاری رکھیں؟'))) return; }
+      DB.invoiceCounter++;
+      const invoiceNo='INV-'+String(DB.invoiceCounter).padStart(4,'0');
+      const sale={ id:uid(), invoiceNo, date, createdAt:Date.now(), customerId:partyId,
+        items:[{itemId:it.id, name:it.name, qty, price}],
+        subtotal:total, discount:0, netTotal:total,
+        paymentType:pay, bankId, signature:null, billImage:null };
+      DB.sales.push(sale);
+      it.stock=(Number(it.stock)||0)-qty;
+      saveDB(); closeSheet(); toast('✅ اسٹاک آؤٹ ہو گیا — '+invoiceNo);
+    }
+  } finally { unlockSubmit(); }
 }
 
 /* ===================== CUSTOMERS ===================== */
@@ -1334,7 +1742,7 @@ function buildLedgerReportHtml(title, subtitle, rows, totals, opts){
         </table>
       </div>
       <div style="padding:10px 22px 16px;font-size:11px;color:#999;border-top:1px solid #eee;">
-        Kaleem Auto Mobile app کے ذریعے بنائی گئی — ${fmtDate(todayStr())}
+        اغا جان سائیکلون آٹا چکی app کے ذریعے بنائی گئی — ${fmtDate(todayStr())}
       </div>
     </div>`;
 }
@@ -2958,7 +3366,7 @@ function openSheet(title, bodyHTML){
       </div>
     </div>`;
 }
-function closeSheet(){ document.getElementById('overlayRoot').innerHTML=''; }
+function closeSheet(){ document.getElementById('overlayRoot').innerHTML=''; refreshFs(); }
 
 /* Custom confirm dialog — replaces native confirm() which can be blocked
    inside sandboxed webviews (some file-preview/browser embeds silently
@@ -3064,7 +3472,7 @@ function closeScanner(){
 function esc(s){ if(s===undefined||s===null) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 /* ===================== PIN LOCK ===================== */
-const UNLOCK_KEY='kaleem_unlocked_v1';
+const UNLOCK_KEY='aghajan_unlocked_v1';
 let hiddenAt=0;
 document.addEventListener('visibilitychange', function(){
   if(document.hidden){ hiddenAt=Date.now(); }

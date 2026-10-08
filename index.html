@@ -260,7 +260,7 @@
       <button class="iconbtn" onclick="openSettings()">⚙️</button>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;"><div class="screenTitle" id="screenTitle" style="margin-top:0;">ڈیش بورڈ</div><div id="netPill" class="on" onclick="netPillTap()"><span class="dot"></span><span id="netTxt">آن لائن</span></div></div>
-    <div style="text-align:center;font-size:10.5px;color:rgba(255,255,255,.55);margin-top:2px;">اپڈیٹ ورژن: 2026-10-08-v1</div>
+    <div style="text-align:center;font-size:10.5px;color:rgba(255,255,255,.55);margin-top:2px;">اپڈیٹ ورژن: 2026-10-08-v2</div>
   </header>
 
   <main id="main"></main>
@@ -326,7 +326,8 @@ const deviceId = (function(){
 })();
 let lastLocalWriteStamp=0;
 /* ---- Net / sync status indicator ---- */
-let netBusy=0, netFailed=false, netDirty=false;
+let netBusy=0, netFailed=false, netDirty=false, lastNetErr='';
+function isEmptyDB(d){ return !d || !((d.items&&d.items.length)||(d.sales&&d.sales.length)||(d.customers&&d.customers.length)||(d.purchases&&d.purchases.length)||(d.cashEntries&&d.cashEntries.length)||(d.banks&&d.banks.length)); }
 function netState(){
   if(navigator.onLine===false) return 'off';
   if(!hasFirebase) return 'local';
@@ -345,7 +346,7 @@ function netPillTap(){
   const st=netState();
   toast(st==='local' ? '⚪ کلاؤڈ سنک ابھی جڑا نہیں — ڈیٹا صرف اسی فون میں ہے' : st==='off' ? '🔴 انٹرنیٹ بند ہے — ڈیٹا اس فون میں محفوظ ہو رہا ہے' :
         st==='sync' ? '🟡 ڈیٹا کلاؤڈ سے لوڈ / سنک ہو رہا ہے' :
-        st==='fail' ? '🟠 انٹرنیٹ ہے مگر سنک نہیں ہوا — دوبارہ کوشش ہوگی' :
+        st==='fail' ? '🟠 سنک نہیں ہوا: '+(lastNetErr||'نامعلوم')+' — دوبارہ کوشش ہوگی' :
         '🟢 انٹرنیٹ چل رہا ہے، ڈیٹا سنک ہے');
 }
 window.addEventListener('offline', updateNet);
@@ -376,18 +377,18 @@ function startFBListener(){
       const overlayEmpty = !document.getElementById('overlayRoot') || !document.getElementById('overlayRoot').innerHTML.trim();
       if(overlayEmpty && !isLocked()){ render(); }
     }catch(e){ console.error('Firestore apply failed', e); }
-  }, function(err){ console.error('Firestore listen error', err); netFailed=true; updateNet(); });
+  }, function(err){ console.error('Firestore listen error', err); netFailed=true; lastNetErr=(err&&(err.code||err.message))||'listen error'; updateNet(); });
 }
 
 async function loadDB(){
-  let loaded=null;
+  let loaded=null, cloudChecked=false;
   if(hasFirebase && navigator.onLine!==false){
     try{
       netBusy++; updateNet();
       const snap = await withTimeout(FB_DOC().get(), 6000);
       if(snap.exists && snap.data().db){ loaded=JSON.parse(snap.data().db); cloudWorks=true; }
-      netFailed=false;
-    }catch(e){ console.error('Firestore load failed/timed out', e); netFailed=true; }
+      cloudChecked=true; netFailed=false;
+    }catch(e){ console.error('Firestore load failed/timed out', e); netFailed=true; lastNetErr=(e&&(e.code||e.message))||'error'; }
     finally{ netBusy=Math.max(0,netBusy-1); updateNet(); }
   }
   if(!loaded && hasCloudStorage){
@@ -398,6 +399,9 @@ async function loadDB(){
   }
   let local=null;
   try{ const raw=localStorage.getItem(STORAGE_KEY); if(raw) local=JSON.parse(raw); }catch(e){}
+  // Never let an empty cloud copy wipe a phone that already has data; push local data up instead.
+  let seedCloud=false;
+  if(cloudChecked && !isEmptyDB(local) && (!loaded || isEmptyDB(loaded))){ loaded=local; seedCloud=true; }
   if(!loaded) loaded = local;
   DB = loaded || defaultDB();
   DB.items=DB.items||[]; DB.customers=DB.customers||[]; DB.banks=DB.banks||[];
@@ -407,6 +411,7 @@ async function loadDB(){
   DB.amanatPersons=DB.amanatPersons||[]; DB.amanatEntries=DB.amanatEntries||[];
   DB.suppliers=DB.suppliers||[]; DB.supplierPayments=DB.supplierPayments||[];
   if(hasFirebase) startFBListener();
+  if(seedCloud){ try{ syncToCloudBackground(JSON.stringify(DB)); }catch(e){} }
 }
 let formSubmitting=false;
 function lockSubmit(){ if(formSubmitting) return false; formSubmitting=true; return true; }
@@ -434,7 +439,7 @@ async function syncToCloudBackground(dbJson){
       lastLocalWriteStamp = Date.now();
       await withTimeout(FB_DOC().set({ db: dbJson, updatedBy: deviceId, updatedAt: lastLocalWriteStamp }), 8000);
       cloudWorks=true; netFailed=false; netDirty=false;
-    }catch(e){ console.error('Firestore save failed/timed out', e); netFailed=true; netDirty=true; }
+    }catch(e){ console.error('Firestore save failed/timed out', e); netFailed=true; netDirty=true; lastNetErr=(e&&(e.code||e.message))||'error'; }
     finally{ netBusy=Math.max(0,netBusy-1); updateNet(); }
   }
   if(hasCloudStorage){

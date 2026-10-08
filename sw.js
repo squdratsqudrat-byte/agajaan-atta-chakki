@@ -1,5 +1,5 @@
 /* Offline support for the shop app. Bump VERSION whenever index.html changes. */
-const VERSION = 'v5';
+const VERSION = 'v6';
 const CACHE = 'shop-app-' + VERSION;
 
 const LOCAL = ['./', './index.html', './manifest.json'];

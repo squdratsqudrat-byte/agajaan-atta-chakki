@@ -59,6 +59,7 @@
   #netPill.on .dot{background:#34d17a;}
   #netPill.off .dot{background:#ff5b5b;}
   #netPill.sync .dot{background:#ffc83d;animation:netblink .8s infinite;}
+  #netPill.local .dot{background:#9aa5b1;}
   #netPill.fail .dot{background:#ff9f43;}
   @keyframes netblink{0%,100%{opacity:1}50%{opacity:.25}}
   .iconbtn:active{background:rgba(255,255,255,.28);}
@@ -329,6 +330,7 @@ let lastLocalWriteStamp=0;
 let netBusy=0, netFailed=false, netDirty=false;
 function netState(){
   if(navigator.onLine===false) return 'off';
+  if(!hasFirebase) return 'local';
   if(netBusy>0) return 'sync';
   if(netFailed) return 'fail';
   return 'on';
@@ -338,11 +340,11 @@ function updateNet(){
   if(!el||!tx) return;
   const st=netState();
   el.className=st;
-  tx.textContent = st==='off' ? 'آف لائن' : st==='sync' ? 'سنک ہو رہا ہے…' : st==='fail' ? 'سنک نہیں ہوا' : 'آن لائن';
+  tx.textContent = st==='local' ? 'سنک بند' : st==='off' ? 'آف لائن' : st==='sync' ? 'سنک ہو رہا ہے…' : st==='fail' ? 'سنک نہیں ہوا' : 'آن لائن';
 }
 function netPillTap(){
   const st=netState();
-  toast(st==='off' ? '🔴 انٹرنیٹ بند ہے — ڈیٹا اس فون میں محفوظ ہو رہا ہے' :
+  toast(st==='local' ? '⚪ کلاؤڈ سنک ابھی جڑا نہیں — ڈیٹا صرف اسی فون میں ہے' : st==='off' ? '🔴 انٹرنیٹ بند ہے — ڈیٹا اس فون میں محفوظ ہو رہا ہے' :
         st==='sync' ? '🟡 ڈیٹا کلاؤڈ سے لوڈ / سنک ہو رہا ہے' :
         st==='fail' ? '🟠 انٹرنیٹ ہے مگر سنک نہیں ہوا — دوبارہ کوشش ہوگی' :
         '🟢 انٹرنیٹ چل رہا ہے، ڈیٹا سنک ہے');
